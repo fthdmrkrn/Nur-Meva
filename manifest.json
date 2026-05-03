@@ -1,0 +1,26 @@
+{
+  "name": "Nur Meva ile Öğreniyorum",
+  "short_name": "Nur Meva",
+  "description": "Nur Meva için özel hazırlanmış öğrenme uygulaması.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0a2e",
+  "theme_color": "#0a0a2e",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "icon-512-1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512-1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
