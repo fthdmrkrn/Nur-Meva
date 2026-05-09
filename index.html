@@ -884,7 +884,32 @@
 }
 .alistirma-kart.tamamlandi .kart-rozet { background: rgba(74,222,128,.3); }
 
-/* ─── ÇİZİM EKRANI ─── */
+/* ─── KARAKTER SÜRÜKLEME ─── */
+.karakter-div {
+  position: absolute;
+  font-size: clamp(44px, 10vw, 64px);
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  transition: none;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+  will-change: transform;
+}
+.iz-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; touch-action: none;
+}
+.surukle-ipucu {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  border-radius: 50px; padding: 6px 16px;
+  font-size: 13px; color: rgba(255,255,255,0.7);
+  pointer-events: none; white-space: nowrap;
+  animation: ipucuParla 2s ease-in-out infinite;
+}
+@keyframes ipucuParla {
+  0%,100% { opacity: 0.6; } 50% { opacity: 1; }
+}
 #cizimEkran {
   background: linear-gradient(135deg, #0d0d30, #1a1a4e);
 }
@@ -2060,16 +2085,13 @@
   </div>
   <div class="cizim-ana">
     <canvas id="rehberCanvas"></canvas>
-    <canvas id="cizimCanvas"></canvas>
+    <canvas id="cizimCanvas" class="iz-canvas"></canvas>
+    <div class="karakter-div" id="karakterDiv">🐝</div>
     <div class="ilerleme-goster" id="ilerlemeTxt">0%</div>
+    <div class="surukle-ipucu" id="surukleIpucu">👆 Karakteri sürükle!</div>
   </div>
   <div class="cizim-alt">
-    <div class="kalem-kalinlik">
-      <button class="kalinlik-btn aktif" style="width:20px;height:20px;" data-k="6" onclick="kalinlikSec(this,6)"></button>
-      <button class="kalinlik-btn" style="width:28px;height:28px;" data-k="12" onclick="kalinlikSec(this,12)"></button>
-      <button class="kalinlik-btn" style="width:36px;height:36px;" data-k="20" onclick="kalinlikSec(this,20)"></button>
-    </div>
-    <button class="arac-btn sil-btn" onclick="cizimTemizle()">🗑️ Temizle</button>
+    <button class="arac-btn sil-btn" onclick="cizimTemizle()">🗑️ Tekrar</button>
     <button class="arac-btn ileri-btn" id="ileriBtn" onclick="ileriGit()" style="display:none">Sonraki →</button>
   </div>
 </div>
@@ -2300,8 +2322,8 @@ function rehberCiz(a) {
   // Noktalı rehber çizgi
   ctx.save();
   ctx.setLineDash([14,10]);
-  ctx.lineWidth=8;
-  ctx.strokeStyle='rgba(255,255,255,0.25)';
+  ctx.lineWidth=10;
+  ctx.strokeStyle='rgba(255,255,255,0.3)';
   ctx.lineCap='round';
   ctx.lineJoin='round';
   ctx.beginPath();
@@ -2310,86 +2332,131 @@ function rehberCiz(a) {
   ctx.stroke();
   ctx.restore();
 
-  // Başlangıç ikonu
-  ctx.font=`${Math.min(w,h)*0.1}px serif`;
+  // Bitiş ikonu
+  ctx.font=`${Math.min(w,h)*0.11}px serif`;
   ctx.textAlign='center';
   ctx.textBaseline='middle';
-  ctx.fillText(a.ikon, noktalar[0].x, noktalar[0].y);
-
-  // Bitiş ikonu (soluk)
-  ctx.globalAlpha=0.5;
+  ctx.globalAlpha=0.7;
   ctx.fillText(a.hedef, noktalar[noktalar.length-1].x, noktalar[noktalar.length-1].y);
   ctx.globalAlpha=1;
 
-  // Oklar
-  for(let i=0;i<noktalar.length-1;i+=Math.ceil(noktalar.length/4)){
-    const p1=noktalar[i], p2=noktalar[i+1]||noktalar[noktalar.length-1];
-    const aci=Math.atan2(p2.y-p1.y,p2.x-p1.x);
-    const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
-    ctx.save();
-    ctx.translate(mx,my); ctx.rotate(aci);
-    ctx.fillStyle='rgba(255,255,255,0.35)';
-    ctx.beginPath();
-    ctx.moveTo(12,0); ctx.lineTo(-6,-7); ctx.lineTo(-6,7);
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
-  }
+  // Karakteri başlangıca yerleştir
+  const kar=document.getElementById('karakterDiv');
+  kar.textContent=a.ikon;
+  kar.style.left=noktalar[0].x+'px';
+  kar.style.top=noktalar[0].y+'px';
 
-  // Çizim canvas olayları
+  // İz canvas temizle
+  cc.getContext('2d').clearRect(0,0,w,h);
+
+  // Sürükleme olayları
   kapsananMesafe=0;
-  cizimCanvasOlaylar();
+  karakterSurukleOlaylar(a);
 }
 
-let ciziyorum=false;
-let sonKonum={x:0,y:0};
-let cizimCtx=null;
+// Yol üzerinde en yakın noktayı bul
+function yolUzerindeEnYakin(px, py) {
+  let enYakinMesafe=Infinity, enYakinT=0, enYakinSegment=0;
+  let birikimliMesafe=0;
+  const segmentMesafeleri=[];
 
-function cizimCanvasOlaylar() {
+  for(let i=0;i<noktalar.length-1;i++){
+    const p1=noktalar[i], p2=noktalar[i+1];
+    const dx=p2.x-p1.x, dy=p2.y-p1.y;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    segmentMesafeleri.push({baslangic:birikimliMesafe, uzunluk:len});
+    birikimliMesafe+=len;
+
+    // Noktanın segmente projeksiyon
+    if(len===0) continue;
+    const t=Math.max(0,Math.min(1,((px-p1.x)*dx+(py-p1.y)*dy)/(len*len)));
+    const projX=p1.x+t*dx, projY=p1.y+t*dy;
+    const dist=Math.sqrt((px-projX)**2+(py-projY)**2);
+
+    if(dist<enYakinMesafe){
+      enYakinMesafe=dist;
+      enYakinT=t;
+      enYakinSegment=i;
+    }
+  }
+
+  // Bu noktanın yol üzerindeki mesafesi
+  const seg=segmentMesafeleri[enYakinSegment];
+  const mesafeYolda=seg.baslangic+enYakinT*seg.uzunluk;
+  const p1=noktalar[enYakinSegment], p2=noktalar[enYakinSegment+1];
+  const dx=p2.x-p1.x, dy=p2.y-p1.y;
+  const len=Math.sqrt(dx*dx+dy*dy);
+  const x=p1.x+enYakinT*dx, y=p1.y+enYakinT*dy;
+
+  return {x, y, mesafe:mesafeYolda, uzaklık:enYakinMesafe};
+}
+
+let surukluyor=false;
+let izCtx=null;
+let sonYolNoktasi=null;
+
+function karakterSurukleOlaylar(a) {
   const cc=document.getElementById('cizimCanvas');
-  cizimCtx=cc.getContext('2d');
+  const kar=document.getElementById('karakterDiv');
+  izCtx=cc.getContext('2d');
 
+  // Sürükleme alanı geniş — tüm canvas'tan dinle
   const baslat=(e)=>{
-    ciziyorum=true;
-    const pos=konum(e,cc);
-    sonKonum=pos;
-    cizimCtx.beginPath();
-    cizimCtx.moveTo(pos.x,pos.y);
-  };
-  const ciz=(e)=>{
-    if(!ciziyorum) return;
     e.preventDefault();
     const pos=konum(e,cc);
-
-    // Tebeşir/kalem efekti - biraz gürültü
-    cizimCtx.save();
-    cizimCtx.globalAlpha=0.85;
-    cizimCtx.lineWidth=cizimKalinlik;
-    cizimCtx.strokeStyle=cizimRenk;
-    cizimCtx.lineCap='round';
-    cizimCtx.lineJoin='round';
-    cizimCtx.shadowColor=cizimRenk;
-    cizimCtx.shadowBlur=cizimKalinlik*0.5;
-    cizimCtx.beginPath();
-    cizimCtx.moveTo(sonKonum.x,sonKonum.y);
-    cizimCtx.lineTo(pos.x,pos.y);
-    cizimCtx.stroke();
-    cizimCtx.restore();
-
-    // Mesafe hesapla
-    const dx=pos.x-sonKonum.x, dy=pos.y-sonKonum.y;
-    kapsananMesafe+=Math.sqrt(dx*dx+dy*dy);
-    sonKonum=pos;
-
-    // İlerleme güncelle
-    const yuzde=Math.min(100,Math.round(kapsananMesafe/toplamMesafe*100));
-    document.getElementById('ilerlemeTxt').textContent=yuzde+'%';
-
-    if(yuzde>=80 && !cizilen) {
-      cizilen=true;
-      setTimeout(()=>cizimTamamlandi(),400);
+    const yakın=yolUzerindeEnYakin(pos.x,pos.y);
+    // Başlangıç noktasına yakınsa başlat (tolerans: ekranın %20'si)
+    const tolerans=Math.min(cc.width,cc.height)*0.25;
+    if(yakın.uzaklık<tolerans) {
+      surukluyor=true;
+      document.getElementById('surukleIpucu').style.display='none';
     }
   };
-  const bitir=()=>{ ciziyorum=false; };
+
+  const surukle=(e)=>{
+    if(!surukluyor) return;
+    e.preventDefault();
+    const pos=konum(e,cc);
+    const {x,y,mesafe,uzaklık}=yolUzerindeEnYakin(pos.x,pos.y);
+
+    // Karakteri yol üzerindeki konuma snap et
+    kar.style.left=x+'px';
+    kar.style.top=y+'px';
+
+    // İz çiz
+    if(sonYolNoktasi!==null && mesafe>sonYolNoktasi) {
+      izCtx.save();
+      izCtx.lineWidth=14;
+      izCtx.strokeStyle=a.renk;
+      izCtx.lineCap='round';
+      izCtx.lineJoin='round';
+      izCtx.shadowColor=a.renk;
+      izCtx.shadowBlur=8;
+      // Önceki konumdan şimdiye çiz
+      izCtx.beginPath();
+      izCtx.moveTo(oncekiIzKonum.x, oncekiIzKonum.y);
+      izCtx.lineTo(x,y);
+      izCtx.stroke();
+      izCtx.restore();
+    }
+    oncekiIzKonum={x,y};
+    sonYolNoktasi=mesafe;
+
+    // İlerleme
+    const yuzde=Math.min(100,Math.round(mesafe/toplamMesafe*100));
+    document.getElementById('ilerlemeTxt').textContent=yuzde+'%';
+
+    if(yuzde>=90 && !cizilen){
+      cizilen=true;
+      // Karakteri bitiş noktasına götür
+      const son=noktalar[noktalar.length-1];
+      kar.style.left=son.x+'px';
+      kar.style.top=son.y+'px';
+      setTimeout(()=>cizimTamamlandi(),500);
+    }
+  };
+
+  const bitir=()=>{ surukluyor=false; };
 
   cc.removeEventListener('mousedown',cc._md);
   cc.removeEventListener('mousemove',cc._mm);
@@ -2398,18 +2465,23 @@ function cizimCanvasOlaylar() {
   cc.removeEventListener('touchmove',cc._tm);
   cc.removeEventListener('touchend',cc._te);
 
-  cc._md=baslat; cc._mm=ciz; cc._mu=bitir;
-  cc._ts=baslat; cc._tm=ciz; cc._te=bitir;
+  cc._md=baslat; cc._mm=surukle; cc._mu=bitir;
+  cc._ts=baslat; cc._tm=surukle; cc._te=bitir;
 
   cc.addEventListener('mousedown',baslat);
-  cc.addEventListener('mousemove',ciz);
+  cc.addEventListener('mousemove',surukle);
   cc.addEventListener('mouseup',bitir);
   cc.addEventListener('touchstart',baslat,{passive:false});
-  cc.addEventListener('touchmove',ciz,{passive:false});
+  cc.addEventListener('touchmove',surukle,{passive:false});
   cc.addEventListener('touchend',bitir);
 
   cizilen=false;
+  surukluyor=false;
+  sonYolNoktasi=null;
+  oncekiIzKonum=noktalar[0];
 }
+
+let oncekiIzKonum={x:0,y:0};
 
 function konum(e,canvas) {
   const rect=canvas.getBoundingClientRect();
@@ -2419,18 +2491,19 @@ function konum(e,canvas) {
   return {x:e.clientX-rect.left, y:e.clientY-rect.top};
 }
 
-function kalinlikSec(btn,k) {
-  document.querySelectorAll('.kalinlik-btn').forEach(b=>b.classList.remove('aktif'));
-  btn.classList.add('aktif');
-  cizimKalinlik=k;
-}
-
 function cizimTemizle() {
   const cc=document.getElementById('cizimCanvas');
   if(cc.width) cc.getContext('2d').clearRect(0,0,cc.width,cc.height);
-  kapsananMesafe=0; cizilen=false;
+  kapsananMesafe=0; cizilen=false; surukluyor=false; sonYolNoktasi=null;
   document.getElementById('ilerlemeTxt').textContent='0%';
   document.getElementById('ileriBtn').style.display='none';
+  document.getElementById('surukleIpucu').style.display='block';
+  // Karakteri başa al
+  if(noktalar.length>0){
+    const kar=document.getElementById('karakterDiv');
+    kar.style.left=noktalar[0].x+'px';
+    kar.style.top=noktalar[0].y+'px';
+  }
 }
 
 function cizimTamamlandi() {
