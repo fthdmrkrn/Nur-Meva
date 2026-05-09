@@ -2083,12 +2083,12 @@
     <div class="baslik-ust" id="cizimBaslik">🐝 → 🍯</div>
     <div style="width:60px"></div>
   </div>
-  <div class="cizim-ana">
+  <div class="cizim-ana" id="cizimAna">
     <canvas id="rehberCanvas"></canvas>
-    <canvas id="cizimCanvas" class="iz-canvas"></canvas>
+    <canvas id="cizimCanvas" class="iz-canvas" style="pointer-events:none"></canvas>
     <div class="karakter-div" id="karakterDiv">🐝</div>
     <div class="ilerleme-goster" id="ilerlemeTxt">0%</div>
-    <div class="surukle-ipucu" id="surukleIpucu">👆 Karakteri sürükle!</div>
+    <div class="surukle-ipucu" id="surukleIpucu">👆 Parmağını sürükle!</div>
   </div>
   <div class="cizim-alt">
     <button class="arac-btn sil-btn" onclick="cizimTemizle()">🗑️ Tekrar</button>
@@ -2483,14 +2483,102 @@ function karakterSurukleOlaylar(a) {
   oncekiIzKonum=noktalar[0];
 }
 
-let oncekiIzKonum={x:0,y:0};
+function karakterSurukleOlaylar(a) {
+  const alan = document.getElementById('cizimAna');
+  const cc = document.getElementById('cizimCanvas');
+  const kar = document.getElementById('karakterDiv');
+  izCtx = cc.getContext('2d');
 
-function konum(e,canvas) {
-  const rect=canvas.getBoundingClientRect();
-  if(e.touches) {
-    return {x:e.touches[0].clientX-rect.left, y:e.touches[0].clientY-rect.top};
+  // Eski olayları temizle
+  if(alan._td) alan.removeEventListener('touchstart', alan._td);
+  if(alan._tm) alan.removeEventListener('touchmove', alan._tm);
+  if(alan._te) alan.removeEventListener('touchend', alan._te);
+  if(alan._md) alan.removeEventListener('mousedown', alan._md);
+  if(alan._mm) alan.removeEventListener('mousemove', alan._mm);
+  if(alan._mu) alan.removeEventListener('mouseup', alan._mu);
+
+  function konumAl(e) {
+    const rect = alan.getBoundingClientRect();
+    if(e.touches && e.touches.length > 0) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+      };
+    }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
-  return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+
+  function baslat(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    surukluyor = true;
+    document.getElementById('surukleIpucu').style.display = 'none';
+    const pos = konumAl(e);
+    const snap = yolUzerindeEnYakin(pos.x, pos.y);
+    kar.style.left = snap.x + 'px';
+    kar.style.top = snap.y + 'px';
+    oncekiIzKonum = {x: snap.x, y: snap.y};
+    sonYolNoktasi = snap.mesafe;
+  }
+
+  function surukle(e) {
+    if(!surukluyor) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const pos = konumAl(e);
+    const snap = yolUzerindeEnYakin(pos.x, pos.y);
+
+    kar.style.left = snap.x + 'px';
+    kar.style.top = snap.y + 'px';
+
+    // Sadece ileri yönde iz bırak
+    if(sonYolNoktasi !== null && snap.mesafe > sonYolNoktasi) {
+      izCtx.save();
+      izCtx.lineWidth = 14;
+      izCtx.strokeStyle = a.renk;
+      izCtx.lineCap = 'round';
+      izCtx.lineJoin = 'round';
+      izCtx.shadowColor = a.renk;
+      izCtx.shadowBlur = 10;
+      izCtx.beginPath();
+      izCtx.moveTo(oncekiIzKonum.x, oncekiIzKonum.y);
+      izCtx.lineTo(snap.x, snap.y);
+      izCtx.stroke();
+      izCtx.restore();
+      sonYolNoktasi = snap.mesafe;
+      oncekiIzKonum = {x: snap.x, y: snap.y};
+    }
+
+    const yuzde = Math.min(100, Math.round(snap.mesafe / toplamMesafe * 100));
+    document.getElementById('ilerlemeTxt').textContent = yuzde + '%';
+
+    if(yuzde >= 90 && !cizilen) {
+      cizilen = true;
+      const son = noktalar[noktalar.length-1];
+      kar.style.left = son.x + 'px';
+      kar.style.top = son.y + 'px';
+      setTimeout(() => cizimTamamlandi(), 500);
+    }
+  }
+
+  function bitir(e) {
+    surukluyor = false;
+  }
+
+  alan._td = baslat; alan._tm = surukle; alan._te = bitir;
+  alan._md = baslat; alan._mm = surukle; alan._mu = bitir;
+
+  alan.addEventListener('touchstart', baslat, {passive: false});
+  alan.addEventListener('touchmove', surukle, {passive: false});
+  alan.addEventListener('touchend', bitir);
+  alan.addEventListener('mousedown', baslat);
+  alan.addEventListener('mousemove', surukle);
+  alan.addEventListener('mouseup', bitir);
+
+  cizilen = false;
+  surukluyor = false;
+  sonYolNoktasi = 0;
+  oncekiIzKonum = {x: noktalar[0].x, y: noktalar[0].y};
 }
 
 function cizimTemizle() {
