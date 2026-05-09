@@ -2403,14 +2403,16 @@ function karakterSurukleOlaylar(a) {
   // Sürükleme alanı geniş — tüm canvas'tan dinle
   const baslat=(e)=>{
     e.preventDefault();
+    surukluyor=true;
+    document.getElementById('surukleIpucu').style.display='none';
+    // Hemen karakteri parmağın yol üzerindeki en yakın noktasına taşı
     const pos=konum(e,cc);
-    const yakın=yolUzerindeEnYakin(pos.x,pos.y);
-    // Başlangıç noktasına yakınsa başlat (tolerans: ekranın %20'si)
-    const tolerans=Math.min(cc.width,cc.height)*0.25;
-    if(yakın.uzaklık<tolerans) {
-      surukluyor=true;
-      document.getElementById('surukleIpucu').style.display='none';
-    }
+    const {x,y,mesafe}=yolUzerindeEnYakin(pos.x,pos.y);
+    const kar=document.getElementById('karakterDiv');
+    kar.style.left=x+'px';
+    kar.style.top=y+'px';
+    oncekiIzKonum={x,y};
+    sonYolNoktasi=mesafe;
   };
 
   const surukle=(e)=>{
