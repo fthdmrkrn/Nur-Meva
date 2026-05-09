@@ -1,0 +1,2619 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nur Meva">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<title>Nur Meva ile Öğreniyorum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Bubblegum+Sans&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  
+  :root {
+    --pembe: #ff4d8d;
+    --kirmizi: #ff3838;
+    --sari: #ffd93d;
+    --turuncu: #ff8c42;
+    --mor: #9b59ff;
+    --turkuaz: #00d9d9;
+    --yesil: #4ade80;
+    --koyu-mor: #4c1d95;
+    --uzay-koyu: #0a0a2e;
+    --uzay-orta: #1a1a4e;
+    --beyaz: #ffffff;
+    --siyah: #1a1a2e;
+  }
+  
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Fredoka', sans-serif;
+    background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 50%, #2d1b69 100%);
+    color: white;
+    overscroll-behavior: none;
+  }
+  
+  /* Yıldızlı uzay arka planı */
+  .yildiz-arka {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .yildiz {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: parla 3s infinite;
+  }
+  @keyframes parla {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+  
+  /* Sayfalar */
+  .sayfa {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: none;
+    flex-direction: column;
+    z-index: 1;
+    animation: sayfaGir 0.4s ease-out;
+  }
+  .sayfa.aktif { display: flex; }
+  
+  @keyframes sayfaGir {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  /* Üst bar */
+  .ust-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+  }
+  .geri-btn, .ev-btn {
+    background: linear-gradient(135deg, var(--pembe), var(--mor));
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 50px;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255,77,141,0.4);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.2s;
+  }
+  .geri-btn:active, .ev-btn:active { transform: scale(0.92); }
+  
+  .yildiz-sayac {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--sari), var(--turuncu));
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--siyah);
+    box-shadow: 0 4px 15px rgba(255,217,61,0.5);
+  }
+  .yildiz-sayac .ikon { font-size: 22px; }
+  
+  /* ANA EKRAN */
+  .karsilama-ana {
+    text-align: center;
+    padding: 20px 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar-cerceve {
+    position: relative;
+    width: clamp(110px, 22vw, 150px);
+    height: clamp(110px, 22vw, 150px);
+    margin-bottom: 4px;
+  }
+  .avatar-foto {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid transparent;
+    background: linear-gradient(135deg, var(--pembe), var(--sari), var(--turkuaz)) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    box-shadow: 0 0 30px rgba(255,217,61,0.4), 0 0 60px rgba(255,77,141,0.3);
+    animation: avatarParlat 3s ease-in-out infinite;
+  }
+  @keyframes avatarParlat {
+    0%, 100% { box-shadow: 0 0 30px rgba(255,217,61,0.4), 0 0 60px rgba(255,77,141,0.3); }
+    50% { box-shadow: 0 0 40px rgba(0,217,217,0.5), 0 0 80px rgba(155,89,255,0.4); }
+  }
+  /* Avatar gradient border alternatif - basit border */
+  .avatar-foto {
+    border: 4px solid #ff4d8d;
+    -webkit-mask: none;
+    mask: none;
+    background: none;
+  }
+  .avatar-cerceve::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg, var(--pembe), var(--sari), var(--turkuaz), var(--mor));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: cerceveDon 6s linear infinite;
+  }
+  @keyframes cerceveDon {
+    to { transform: rotate(360deg); }
+  }
+  .avatar-yildizlar {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .mini-yildiz {
+    position: absolute;
+    font-size: 22px;
+    filter: drop-shadow(0 0 6px gold);
+    animation: miniParla 2s ease-in-out infinite;
+  }
+  .mini-yildiz:nth-child(2) { animation-delay: 0.5s; }
+  .mini-yildiz:nth-child(3) { animation-delay: 1s; }
+  .mini-yildiz:nth-child(4) { animation-delay: 1.5s; }
+  @keyframes miniParla {
+    0%, 100% { transform: scale(1) rotate(0); opacity: 0.7; }
+    50% { transform: scale(1.3) rotate(20deg); opacity: 1; }
+  }
+  .karsilama-ana h1 {
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(28px, 6vw, 44px);
+    background: linear-gradient(135deg, var(--pembe), var(--sari), var(--turkuaz));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255,77,141,0.3);
+    letter-spacing: 1px;
+    margin: 0;
+  }
+  .karsilama-ana p {
+    font-size: clamp(13px, 3vw, 18px);
+    color: rgba(255,255,255,0.75);
+    font-weight: 400;
+    margin: 0;
+  }
+  .karsilama {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .ana-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 14px 20px 20px;
+    align-content: center;
+    overflow-y: auto;
+  }
+  @media (max-width: 600px) {
+    .ana-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  
+  .modul-kart {
+    aspect-ratio: 1;
+    border-radius: 28px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: clamp(13px, 2.5vw, 18px);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3), inset 0 -4px 0 rgba(0,0,0,0.15);
+    text-align: center;
+    padding: 10px;
+  }
+  .modul-kart:active { transform: scale(0.94); }
+  .modul-kart::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);
+    pointer-events: none;
+  }
+  .modul-kart .ikon {
+    font-size: clamp(36px, 8vw, 60px);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+  
+  .kart-okuma { background: linear-gradient(135deg, #ff4d8d, #c0392b); }
+  .kart-cizgi { background: linear-gradient(135deg, #ff8c42, #ffd93d); color: var(--siyah); }
+  .kart-matematik { background: linear-gradient(135deg, #00d9d9, #0093e9); }
+  .kart-hikaye { background: linear-gradient(135deg, #9b59ff, #4c1d95); }
+  .kart-zeka { background: linear-gradient(135deg, #4ade80, #16a34a); }
+  .kart-baba { background: linear-gradient(135deg, #ffd93d, #ff8c42); color: var(--siyah); }
+  
+  /* OKUMA YAZMA EKRANI - Grup listesi */
+  .baslik {
+    text-align: center;
+    padding: 20px;
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(24px, 5vw, 36px);
+    color: var(--sari);
+    text-shadow: 0 4px 20px rgba(255,217,61,0.5);
+  }
+  
+  .gruplar {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .grup {
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 16px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.1);
+  }
+  .grup-baslik {
+    font-size: clamp(16px, 3vw, 22px);
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-left: 8px;
+  }
+  .grup:nth-child(1) .grup-baslik { color: var(--pembe); }
+  .grup:nth-child(2) .grup-baslik { color: var(--sari); }
+  .grup:nth-child(3) .grup-baslik { color: var(--turkuaz); }
+  .grup:nth-child(4) .grup-baslik { color: var(--mor); }
+  .grup:nth-child(5) .grup-baslik { color: var(--yesil); }
+  
+  .harfler {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 600px) {
+    .harfler { grid-template-columns: repeat(3, 1fr); }
+  }
+  
+  .harf-kart {
+    aspect-ratio: 1;
+    border-radius: 18px;
+    border: none;
+    background: linear-gradient(135deg, #ffffff, #f0f0f0);
+    color: var(--siyah);
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(20px, 4vw, 32px);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 -3px 0 rgba(0,0,0,0.1);
+    transition: transform 0.15s;
+    position: relative;
+  }
+  .harf-kart:active { transform: scale(0.9); }
+  .harf-kart.tamamlandi {
+    background: linear-gradient(135deg, var(--yesil), #16a34a);
+    color: white;
+  }
+  .harf-kart.tamamlandi::after {
+    content: '⭐';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    font-size: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+  
+  /* HARF DETAY EKRANI */
+  .harf-detay {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 20px;
+    overflow-y: auto;
+  }
+  
+  .buyuk-harf {
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(120px, 30vw, 220px);
+    background: linear-gradient(135deg, var(--pembe), var(--sari), var(--turkuaz));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    text-shadow: 0 0 60px rgba(255,217,61,0.4);
+    cursor: pointer;
+    transition: transform 0.2s;
+    animation: harfNefes 2s ease-in-out infinite;
+  }
+  @keyframes harfNefes {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .buyuk-harf:active { transform: scale(0.95); }
+  
+  .ses-btn {
+    background: linear-gradient(135deg, var(--turkuaz), #0093e9);
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-family: inherit;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 25px rgba(0,217,217,0.5);
+    transition: transform 0.2s;
+  }
+  .ses-btn:active { transform: scale(0.94); }
+  
+  .ornek-kelimeler {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .kelime-kart {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s;
+    font-family: 'Bubblegum Sans', cursive;
+  }
+  .kelime-kart:active {
+    transform: scale(0.94);
+    background: rgba(255,255,255,0.2);
+  }
+  .kelime-emoji {
+    font-size: clamp(40px, 8vw, 60px);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .kelime-yazi {
+    font-size: clamp(18px, 3.5vw, 26px);
+    color: white;
+  }
+  .kelime-yazi .vurgu { color: var(--sari); }
+  
+  /* YILDIZ KAZANMA ANIMASYONU */
+  .yildiz-animasyon {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+  }
+  .yildiz-animasyon.aktif { display: block; }
+  
+  .ucan-yildiz {
+    position: absolute;
+    font-size: 60px;
+    filter: drop-shadow(0 0 20px gold);
+  }
+  
+  .samanyolu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,217,61,0.6), rgba(155,89,255,0.3), transparent);
+    animation: samanyoluYayil 1.5s ease-out forwards;
+  }
+  @keyframes samanyoluYayil {
+    0% { width: 0; height: 0; opacity: 1; }
+    100% { width: 800px; height: 800px; opacity: 0; }
+  }
+  
+  /* MOTİVASYON BALONU */
+  .motivasyon {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--pembe), var(--mor));
+    color: white;
+    padding: 24px 40px;
+    border-radius: 30px;
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 700;
+    font-family: 'Bubblegum Sans', cursive;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    z-index: 10000;
+    text-align: center;
+    pointer-events: none;
+  }
+  .motivasyon.gor {
+    animation: motivasyonGor 2s ease-in-out forwards;
+  }
+  @keyframes motivasyonGor {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-10deg); }
+    20% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+    40% { transform: translate(-50%, -50%) scale(1) rotate(0); }
+    80% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.8) rotate(0); opacity: 0; }
+  }
+  
+  /* YIDIZ KOLEKSİYONU EKRANI */
+  .yildiz-koleksiyonu {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .galaksi {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 12px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .yildiz-yuva {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(20px, 5vw, 32px);
+    color: rgba(255,255,255,0.2);
+  }
+  .yildiz-yuva.dolu {
+    background: radial-gradient(circle, rgba(255,217,61,0.3), transparent);
+    border: 2px solid var(--sari);
+    color: var(--sari);
+    animation: yildizParla 2s infinite;
+  }
+  @keyframes yildizParla {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px gold); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 20px gold); }
+  }
+  
+  /* YAKINDA EKRANI */
+  .yakinda {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    gap: 20px;
+  }
+  .yakinda .roket { font-size: 100px; animation: roketSalla 2s ease-in-out infinite; }
+  @keyframes roketSalla {
+    0%, 100% { transform: rotate(-10deg) translateY(0); }
+    50% { transform: rotate(10deg) translateY(-20px); }
+  }
+  .yakinda h2 {
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(28px, 6vw, 42px);
+    color: var(--sari);
+  }
+
+  /* HİKAYELER MODÜLİ */
+  .hikaye-liste {
+    flex: 1; overflow-y: auto;
+    padding: 14px 16px 20px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .hikaye-kart {
+    background: rgba(255,255,255,.08);
+    border: 2px solid rgba(255,255,255,.12);
+    border-radius: 22px; padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer; transition: transform .15s, background .2s;
+    backdrop-filter: blur(8px);
+  }
+  .hikaye-kart:active { transform: scale(.97); background: rgba(255,255,255,.15); }
+  .hikaye-kart.tamamlandi { border-color: var(--sari); background: rgba(255,217,61,.1); }
+  .hikaye-kapak { font-size: clamp(40px,9vw,56px); flex-shrink:0; }
+  .hikaye-bilgi { flex:1; }
+  .hikaye-bilgi h3 { font-size: clamp(15px,3.5vw,20px); font-weight:700; margin-bottom:4px; }
+  .hikaye-bilgi p { font-size: clamp(11px,2.5vw,14px); color:rgba(255,255,255,.6); }
+  .hikaye-rozet { font-size:22px; flex-shrink:0; }
+
+  /* HİKAYE OKUMA EKRANI */
+  .okuma-ust {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; flex-shrink:0;
+    background:rgba(0,0,0,.35); backdrop-filter:blur(10px);
+    border-bottom:2px solid rgba(255,255,255,.08); gap:10px;
+  }
+  .okuma-baslik {
+    font-family:'Bubblegum Sans',cursive;
+    font-size:clamp(13px,3vw,18px); color:var(--sari);
+    text-align:center; flex:1;
+  }
+  .okuma-ana {
+    flex:1; overflow-y:auto; padding:20px 20px 10px;
+    display:flex; flex-direction:column; gap:16px;
+  }
+  .paragraf-blok {
+    background:rgba(255,255,255,.07);
+    border-left:4px solid var(--mor);
+    border-radius:0 16px 16px 0;
+    padding:14px 16px;
+    font-size:clamp(15px,3.2vw,20px);
+    line-height:1.7;
+    color:rgba(255,255,255,.92);
+    cursor:pointer;
+    transition: background .2s;
+    position:relative;
+  }
+  .paragraf-blok:active { background:rgba(255,255,255,.13); }
+  .paragraf-blok.aktif-okuma {
+    background:rgba(155,89,255,.2);
+    border-left-color:var(--sari);
+  }
+  .ses-ipucu {
+    font-size:11px; color:rgba(255,255,255,.4);
+    margin-top:6px; display:block;
+  }
+  .okuma-ilerleme {
+    height:6px; background:rgba(255,255,255,.1);
+    border-radius:3px; margin:0 20px; flex-shrink:0;
+  }
+  .okuma-ilerleme-ic {
+    height:100%; background:linear-gradient(90deg,var(--mor),var(--pembe));
+    border-radius:3px; transition:width .4s;
+  }
+  .okuma-alt {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 16px; flex-shrink:0;
+    background:rgba(0,0,0,.35); backdrop-filter:blur(10px);
+    border-top:2px solid rgba(255,255,255,.08); gap:10px;
+  }
+  .tumunu-oku-btn {
+    background:linear-gradient(135deg,var(--turkuaz),#0093e9);
+    border:none; color:white; padding:10px 20px; border-radius:50px;
+    font-family:inherit; font-size:15px; font-weight:600;
+    cursor:pointer; display:flex; align-items:center; gap:8px;
+    box-shadow:0 4px 15px rgba(0,217,217,.4); transition:transform .15s;
+    flex-shrink:0;
+  }
+  .tumunu-oku-btn:active { transform:scale(.94); }
+  .bitti-btn {
+    background:linear-gradient(135deg,var(--sari),var(--turuncu));
+    border:none; color:var(--siyah); padding:10px 20px; border-radius:50px;
+    font-family:inherit; font-size:15px; font-weight:700;
+    cursor:pointer; transition:transform .15s; flex-shrink:0;
+  }
+  .bitti-btn:active { transform:scale(.94); }
+
+  /* SORULAR EKRANI */
+  .soru-ekrani {
+    flex:1; overflow-y:auto; padding:16px 18px 20px;
+    display:flex; flex-direction:column; gap:18px;
+  }
+  .soru-blok {
+    background:rgba(255,255,255,.08);
+    border:2px solid rgba(255,255,255,.12);
+    border-radius:22px; padding:16px 18px;
+  }
+  .soru-metin {
+    font-size:clamp(15px,3.2vw,20px); font-weight:600;
+    margin-bottom:12px; color:white; line-height:1.5;
+  }
+  .soru-secenekler {
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .soru-secim {
+    background:rgba(255,255,255,.08);
+    border:2px solid rgba(255,255,255,.15);
+    border-radius:14px; padding:12px 16px;
+    font-family:inherit; font-size:clamp(13px,2.8vw,17px);
+    color:white; cursor:pointer; text-align:left;
+    transition:all .15s; line-height:1.4;
+  }
+  .soru-secim:active { transform:scale(.98); }
+  .soru-secim.dogru { background:rgba(74,222,128,.3); border-color:var(--yesil); }
+  .soru-secim.yanlis { background:rgba(255,56,56,.25); border-color:var(--kirmizi); }
+  .soru-secim.goster { background:rgba(74,222,128,.2); border-color:var(--yesil); }
+  .soru-geri-bildirim {
+    font-size:13px; margin-top:8px; display:none;
+    padding:8px 12px; border-radius:10px;
+  }
+  .soru-geri-bildirim.dogru { display:block; background:rgba(74,222,128,.2); color:var(--yesil); }
+  .soru-geri-bildirim.yanlis { display:block; background:rgba(255,56,56,.2); color:#fca5a5; }
+  /* SAYILAR MODÜLİ */
+  .sayi-grid {
+    flex: 1; overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    padding: 14px 16px 20px;
+    align-content: start;
+  }
+  @media (max-width: 500px) { .sayi-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .sayi-kart {
+    aspect-ratio: 1;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(18px, 4vw, 28px);
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #00d9d9, #0093e9);
+    box-shadow: 0 4px 14px rgba(0,0,0,.3), inset 0 -3px 0 rgba(0,0,0,.15);
+    transition: transform .15s;
+    position: relative;
+  }
+  .sayi-kart:active { transform: scale(.91); }
+  .sayi-kart.onluk { background: linear-gradient(135deg, #9b59ff, #4c1d95); }
+  .sayi-kart.buyuk { background: linear-gradient(135deg, #ff8c42, #ff4d8d); }
+  .sayi-kart.tamamlandi::after {
+    content: '⭐'; position: absolute; top: -6px; right: -6px;
+    font-size: 16px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.4));
+  }
+  .sayi-kart .sayi-alti {
+    font-size: clamp(9px, 2vw, 13px);
+    opacity: .8;
+    margin-top: 2px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 500;
+  }
+
+  /* SAYI DETAY */
+  .sayi-detay {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    padding: 16px 20px 20px; gap: 16px; overflow-y: auto;
+  }
+  .buyuk-sayi {
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(100px, 25vw, 180px);
+    background: linear-gradient(135deg, var(--turkuaz), var(--mor));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1; cursor: pointer;
+    animation: harfNefes 2s ease-in-out infinite;
+  }
+  .sayi-adi {
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(24px, 5vw, 38px);
+    color: var(--sari);
+    text-shadow: 0 4px 20px rgba(255,217,61,.4);
+    margin-top: -8px;
+  }
+  .onluk-bilgi {
+    background: rgba(155,89,255,.2);
+    border: 2px solid rgba(155,89,255,.4);
+    border-radius: 20px; padding: 12px 24px;
+    font-size: clamp(14px, 3vw, 18px);
+    color: rgba(255,255,255,.9); text-align: center;
+    display: none;
+  }
+  .nesne-alani {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; gap: 6px;
+    max-width: 380px; width: 100%;
+    background: rgba(255,255,255,.06);
+    border-radius: 24px; padding: 14px;
+    border: 2px solid rgba(255,255,255,.1);
+    min-height: 80px;
+  }
+  .nesne-item {
+    font-size: clamp(22px, 5vw, 36px);
+    animation: harfNefes 1.5s ease-in-out infinite;
+  }
+  .sayma-soru {
+    width: 100%; max-width: 420px;
+    background: rgba(255,255,255,.07);
+    border: 2px solid rgba(255,255,255,.15);
+    border-radius: 24px; padding: 16px;
+  }
+  .sayma-soru p {
+    font-size: clamp(14px, 3vw, 18px);
+    color: rgba(255,255,255,.8); margin-bottom: 12px; text-align: center;
+  }
+  .sayma-secenekler {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 10px;
+  }
+  .secim-btn {
+    background: rgba(255,255,255,.1);
+    border: 2px solid rgba(255,255,255,.2);
+    border-radius: 16px; padding: 14px 10px;
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: clamp(20px, 4vw, 30px);
+    color: white; cursor: pointer;
+    transition: all .15s; text-align: center;
+  }
+  .secim-btn:active { transform: scale(.94); }
+  .secim-btn.dogru { background: rgba(74,222,128,.3); border-color: var(--yesil); }
+  .secim-btn.yanlis { background: rgba(255,56,56,.3); border-color: var(--kirmizi); }
+
+  .nav-btns {
+    display: flex; gap: 12px;
+  }
+  .nav-btn {
+    background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2);
+    color: white; border-radius: 50px; padding: 12px 22px;
+    font-family: inherit; font-size: 16px; font-weight: 600;
+    cursor: pointer; transition: transform .15s;
+  }
+  .nav-btn:active { transform: scale(.94); }
+  .nav-btn.ileri { background: linear-gradient(135deg, var(--mor), var(--pembe)); border-color: transparent; }
+
+  .yakinda p { font-size: clamp(16px, 3vw, 20px); color: rgba(255,255,255,0.7); max-width: 400px; }
+
+  /* ══ ÇİZGİ ÇALIŞMALARI ══ */
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
+
+
+
+/* Yıldız arka plan */
+.yildizlar {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+
+/* Sayfalar */
+
+/* Üst bar */
+.yildiz-chip {
+  background: linear-gradient(135deg, var(--sari), var(--turuncu));
+  color: #1a1a2e; font-weight: 700; font-size: 17px;
+  padding: 7px 14px; border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(255,217,61,.4);
+  display: flex; align-items: center; gap: 5px; cursor: pointer;
+  border: none; font-family: inherit;
+}
+
+/* ─── ANA MENU ─── */
+#anaMenu .icerik {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 24px; padding: 30px 20px;
+}
+#anaMenu h2 {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(22px,5vw,36px);
+  color: var(--sari); text-align: center;
+  text-shadow: 0 4px 20px rgba(255,217,61,.5);
+}
+.menu-kartlar {
+  display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+  width: 100%; max-width: 600px;
+}
+.menu-kart {
+  flex: 1; min-width: 200px; max-width: 260px;
+  aspect-ratio: 1;
+  border-radius: 28px; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 14px;
+  font-family: inherit; font-size: clamp(15px,3vw,20px);
+  font-weight: 600; color: white;
+  position: relative; overflow: hidden;
+  transition: transform .2s;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 -4px 0 rgba(0,0,0,.15);
+}
+.menu-kart:active { transform: scale(.93); }
+.menu-kart::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:45%;
+  background: linear-gradient(180deg, rgba(255,255,255,.22), transparent);
+  pointer-events: none;
+}
+.menu-kart .byk-ikon { font-size: clamp(56px,12vw,80px); }
+.kart-rehber { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+.kart-tahta  { background: linear-gradient(135deg, #1e4532, #166534); border: 3px solid #4ade80; }
+
+/* ─── REHBERLİ TAKİP ─── */
+#rehberMenu .liste {
+  flex:1; overflow-y:auto; padding:14px 16px 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.alistirma-kart {
+  background: rgba(255,255,255,.08);
+  border: 2px solid rgba(255,255,255,.12);
+  border-radius: 20px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 16px;
+  cursor: pointer; transition: transform .15s, background .2s;
+  backdrop-filter: blur(8px);
+}
+.alistirma-kart:active { transform: scale(.97); background: rgba(255,255,255,.15); }
+.alistirma-kart.tamamlandi { border-color: var(--yesil); background: rgba(74,222,128,.12); }
+.alistirma-kart .kart-ikon { font-size: clamp(36px,8vw,50px); flex-shrink:0; }
+.alistirma-bilgi { flex:1; }
+.alistirma-bilgi h3 { font-size: clamp(16px,3.5vw,22px); font-weight:600; margin-bottom:4px; }
+.alistirma-bilgi p { font-size: clamp(12px,2.5vw,15px); color: rgba(255,255,255,.65); }
+.kart-rozet {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink:0;
+}
+.alistirma-kart.tamamlandi .kart-rozet { background: rgba(74,222,128,.3); }
+
+/* ─── ÇİZİM EKRANI ─── */
+#cizimEkran {
+  background: linear-gradient(135deg, #0d0d30, #1a1a4e);
+}
+.cizim-ust {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; flex-shrink:0;
+  background: rgba(0,0,0,.4); backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(255,255,255,.08);
+  gap: 10px;
+}
+.cizim-ust .baslik-ust {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(14px,3.5vw,20px); color: var(--sari);
+  text-align: center; flex:1;
+}
+.cizim-ana {
+  flex:1; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+#cizimCanvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  cursor: crosshair; touch-action: none;
+}
+/* Rehber katmanı (altta) */
+#rehberCanvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; touch-action: none;
+}
+
+/* Yüzde göstergesi */
+.ilerleme-goster {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(8px);
+  border-radius: 50px; padding: 6px 14px;
+  font-weight: 700; font-size: 16px; color: var(--sari);
+  border: 1px solid rgba(255,217,61,.3);
+  pointer-events: none;
+}
+
+/* Alt araçlar */
+.cizim-alt {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; gap: 10px;
+  background: rgba(0,0,0,.4); backdrop-filter: blur(10px);
+  border-top: 2px solid rgba(255,255,255,.08); flex-shrink:0;
+}
+.arac-btn {
+  background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2);
+  color: white; border-radius: 50px; padding: 10px 18px;
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 7px;
+}
+.arac-btn:active { transform: scale(.93); }
+.arac-btn.sil-btn { border-color: rgba(255,77,141,.5); color: var(--pembe); }
+.arac-btn.ileri-btn { 
+  background: linear-gradient(135deg, var(--mor), var(--pembe));
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(155,89,255,.4);
+}
+.kalem-kalinlik {
+  display: flex; gap: 8px; align-items: center;
+}
+.kalinlik-btn {
+  border-radius: 50%; border: 2px solid rgba(255,255,255,.3);
+  background: white; cursor: pointer; transition: transform .15s;
+  flex-shrink:0;
+}
+.kalinlik-btn.aktif { border-color: var(--sari); transform: scale(1.2); box-shadow: 0 0 10px rgba(255,217,61,.6); }
+
+/* Tamamlama kutlaması */
+.kutlama {
+  position: fixed; inset: 0; z-index: 999;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(10,10,46,.92); backdrop-filter: blur(10px);
+}
+.kutlama.goster { display: flex; animation: gir .4s ease-out; }
+.kutlama-kart {
+  background: linear-gradient(135deg, #2d1b69, #1a1a4e);
+  border: 2px solid var(--mor); border-radius: 32px;
+  padding: 36px 40px; text-align: center; max-width: 340px; width: 90%;
+  box-shadow: 0 20px 60px rgba(155,89,255,.4);
+}
+.kutlama-emoji { font-size: 80px; margin-bottom: 12px; display:block; }
+.kutlama h2 {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(24px,5vw,34px);
+  background: linear-gradient(135deg, var(--sari), var(--pembe));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+.kutlama p { color: rgba(255,255,255,.7); font-size: 16px; margin-bottom: 24px; }
+.kutlama-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.kutlama-btn {
+  background: linear-gradient(135deg, var(--mor), var(--pembe));
+  border: none; color: white; padding: 13px 24px; border-radius: 50px;
+  font-family: inherit; font-size: 16px; font-weight: 600;
+  cursor: pointer; box-shadow: 0 6px 20px rgba(155,89,255,.4);
+  transition: transform .15s;
+}
+.kutlama-btn:active { transform: scale(.94); }
+.kutlama-btn.ikincil {
+  background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2);
+  box-shadow: none;
+}
+
+/* ─── KARA TAHTA ─── */
+#tahtaEkran {
+  background: linear-gradient(160deg, #0d1f15, #0a1a10);
+}
+.tahta-ust {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; flex-shrink:0;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(74,222,128,.15);
+  gap: 10px;
+}
+.tahta-baslik {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(15px,3.5vw,21px); color: #a7f3d0; flex:1; text-align:center;
+}
+.tahta-ana {
+  flex:1; position:relative; overflow:hidden;
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px;
+}
+.tahta-cerceve {
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at 30% 30%, #1e4532, #0f2318 70%);
+  border-radius: 16px;
+  border: 6px solid #5c3d1a;
+  box-shadow: 
+    inset 0 2px 8px rgba(255,255,255,.05),
+    inset 0 -2px 8px rgba(0,0,0,.5),
+    0 8px 40px rgba(0,0,0,.6),
+    0 0 0 2px #3d2810;
+  position: relative; overflow: hidden;
+}
+/* Tahta doku efekti */
+.tahta-cerceve::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(
+    90deg, transparent, transparent 3px,
+    rgba(255,255,255,.01) 3px, rgba(255,255,255,.01) 4px
+  );
+}
+.tahta-cerceve::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(
+    180deg, transparent, transparent 8px,
+    rgba(255,255,255,.008) 8px, rgba(255,255,255,.008) 9px
+  );
+}
+#tahtaCanvas {
+  position:absolute; inset:0; width:100%; height:100%;
+  cursor: crosshair; touch-action:none; border-radius: 10px;
+}
+
+/* Tebeşir renk paleti */
+.tahta-alt {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 10px 16px; gap: 10px;
+  background: rgba(0,0,0,.5); backdrop-filter:blur(10px);
+  border-top: 2px solid rgba(74,222,128,.15); flex-shrink:0;
+}
+.renk-paleti { display:flex; gap:8px; align-items:center; }
+.renk-top {
+  width: 32px; height: 32px; border-radius: 50%; cursor:pointer;
+  border: 3px solid transparent; transition: all .15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.renk-top.aktif { transform: scale(1.3); border-color: white; box-shadow: 0 0 12px rgba(255,255,255,.5); }
+.tahta-araclari { display:flex; gap:8px; }
+.tahta-btn {
+  background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
+  color: white; border-radius: 50px; padding: 8px 15px;
+  font-family: inherit; font-size: 14px; font-weight:600;
+  cursor:pointer; transition: all .15s; display:flex; align-items:center; gap:6px;
+}
+.tahta-btn:active { transform: scale(.93); background: rgba(255,255,255,.15); }
+.tahta-btn.sil { color: #fca5a5; border-color: rgba(252,165,165,.3); }
+
+/* Tebeşir efekti için kalinlik */
+.tebesir-kalinlik { display:flex; gap:8px; align-items:center; }
+.tb-btn {
+  border-radius: 50%; background: rgba(255,255,255,.7);
+  cursor:pointer; border: 2px solid transparent; transition: all .15s;
+}
+.tb-btn.aktif { border-color: var(--sari); transform:scale(1.25); }
+
+/* Yıldız animasyon */
+.yildiz-efekt {
+  position:fixed; inset:0; pointer-events:none; z-index:9999; display:none;
+}
+.yildiz-efekt.aktif { display:block; }
+.ucan { position:absolute; font-size:50px; pointer-events:none; }
+</style>
+</head>
+<body>
+
+<!-- Uzay arka planı -->
+<div class="yildiz-arka" id="yildizArka"></div>
+
+<!-- Yıldız kazanma animasyonu -->
+<div class="yildiz-animasyon" id="yildizAnim"></div>
+
+<!-- Motivasyon balonu -->
+<div class="motivasyon" id="motivasyon"></div>
+
+<!-- ANA EKRAN -->
+<div class="sayfa aktif" id="anaEkran">
+  <div class="ust-bar">
+    <div style="width: 80px;"></div>
+    <div style="flex: 1;"></div>
+    <button class="yildiz-sayac" onclick="ekranAc('koleksiyonEkran')">
+      <span class="ikon">⭐</span>
+      <span id="yildizSayisi">0</span>
+    </button>
+  </div>
+  
+  <div class="karsilama-ana">
+    <div class="avatar-cerceve">
+      <img src="data:image/webp;base64,UklGRuw4AABXRUJQVlA4IOA4AADQ7QCdASosASwBPlEijkUjoiEUCd4sOAUEspbALEqfEoWQvXunCYmU/nOcn167T/h8Grv/kuvh+ln+p/7n2F/1y6ivmu/bn1b/Tj/avUK/pn+H9NL2f/Qg/bf07vZo/s//n/b32p///haHKnFZ0B8hvRLyn9ouo74N43+DPzu1IMSe6xAl1wOvZKnZ29An9Yerl/weUL9j9Q7pf+jcgtHCVUJjQ/GUImKQl97d7nkY4KJcplgTpBIXo/ze3JdpNqY0QtHaAyQd91M/Y/OPZsG+7ch2rWCDm9xzlyzGu2VenUdODNXUMpONIihfAJ1eXrCiquy0GKGZV8H04ujbPR6IsfkvgrdezCo2Hx/WxIOtRSGTEzMsN5hmzHV2US60s9HK/WzF/kNC0Xm2+o4pOJzkOCVBRrNFpp35U5LuJQaEz/hwDOmreYfmL6ANnQXIyh/qdcPg0+HSfDtDmCtqQ6U3eE9LB9YeZOBPkThCHWL5IiOMDaFt+PysEvKeoV9o8yjXyrczeOuIktPyFQxlKGYq4J+MpXyZ+WVrT2tu4YEVTVI9zGvC0WcGwesUz1uUfughr/OvKdRMgiJKr07dK2+IsgG8VusXTXccsgc/ijfkDnA6rVB3+XjOa5RFTvNJKw18R5AF72Lhd6+BGjposIyzOOBlHsx2R9llZRisdUpnl1NtRX8UCrUDD3WQWHYzR+7S3fOtgv06sDEyVg/ug0+a7PeY1CnKxIXNbmbjoZ7MCBu+rRebLO7xrRu2CzTlNoAsqEFnyjmVUlsohB/YG9MlO5voRuJ5ki3ki5GuoPv8tN0c9mlOyiYXOnQyOMPkll3MqCwRePJAB4C71jfekLk8rQLQvUSxoa09suOml1A3SfRHHs8Nelb22rkHOU8+SMK5C+HFeOTYbpqzpnO4z1xG655RX2e2ySKy+f8ikzFVYrSFpt/bxWai/XwSU5LIXeFgCfQUEda3kGapkYqfUXiWm3rXN6L5/kAWlAtaHw8PLS2phRaI0PQDEV7aqIZ6yl3skwhlFbD/FtYfLQ5N4N5yqWgno4NSXAn8xu3qAqiyihHpoApqXww5KEDwdGFE8jNiOy+dpFM2yO2T8nxNAyMWbSS6BKZ9NrHmXTyjI+AimLujBrDDwCqilxISNaXVtlWYKVs/7r+k0W4337LhXbrh3PquawB4CKVfnbqn53XyDUS1wZxuPxGrv0wlL+2Odx8Y9Wb8eieESmxa/AtQdmFzAdegRX4NdZRGoM2JNByRrK9jfjpv8BcnUoEbLJmwGjiiuLWHFjD2bD2kKlwinTh3Qf6QtZ29ITCI6dOc475UwXJhHIvpwbnEbPq0wjfJPDqm62K8it3ylINSphwt0NpxWInWzMGFLuKhw3GEOigrgnWVHC0TdIawpOEO6alfwCA0y0x9KXUekaXLNcFKLKEwyV691nI0d97LGecatSBSDhAgOBagvb12HtOrMrKQFe2VJjl1c/aMcfpk55tSyaGnOQMpCtrNi+TGkynEkGPW/jJz8xZCL19tE41iniOFo2LKM8Jyl1smer60/M+TdJA/sxL3z/Sr5bWZhnGwZi+2F4eodPRiiA92rBdRR66KidEwMJBcshQ+yJKykgpo6rgFpnuFqa6+MU+Vqc/xErMHvm+91fi1HTqK0qchkP7vLJ130xMY2uXQze7+f4DS5wUN1qUPHfaiXgjRoL3x+z4g1IhPLw4+1m6QrPk0h0m7k7qbfzkXuMyj//xfEL3pQ37/n3g4M+ndkm9yfsLzkBZM+fjUcX2RxkKtvUWUbLQfmtlto95sd/V/XMzS2Pjx0I4+I/bQuc+czY2bb7sRbpUPTUspznjSWRdSD76Kk/FbP+ZZszt+pDYOrVVC6K52xVrKrrWTx+z7a8Mrc+wN5SyAL1zSi/zdCdnsvjPGq7FnWxMowu7VVZlPjL+93z1H0KHvv2ywLAWXIozlL12e9+5uOCz5gbC41Q/TlnnWtO6nl3WCXTNyjCchyNZw6YB44RBEjTY1kyfqohUGttukL6RT0FrDA0BloJugmo4XukmQ5xRyvMJMsSKd3WYmko07Rvq3gQGHwwqphb6CY93oY5cEDXJhyz7VKkTKtS2N3gptkZCCj6kIJwGIHJ8svCZi4EeK/70ZvBsocSbBlb+QOTTD50mP+VjNBUYtteweypxqY+tb7E2kWCiAzQb/rUgBAwjNU3ULJBwhdDjUzgZtwU4kyvV9xeakMUd8/qG+6/QoHe/nmXFgtvBvDjY3jRhLmaOVAds4vpP8RsXf4wdAgLoRfc75G+CCXaJHAiE7rE3X+LjruVzajyXGzAdx8KB3rWBY/2XozO9HwJlNhG3sIB/aWUr+OnfqePsNW025A8iNRRG55WDGTvLejwkrTgznr7zFTrNP+boLk4IwsmIuMXSfZ8XJvr0niCtnkMqsU8sfMO1UmAKZ+7adzhIKsVpW3cZF7EegyAQrXnQ/nKmWwtJJE4QdYzArobqYHHwoaX/XjXNqQgykbOKC0PnLyjQf7utx6Wbuvvv5JJddkUZPEUDmh/pHpKAPq/AA/vjdUf6A6B5ibHF0pgcKjqMBc78uKaREiKY1NWuo7sQevJvfMWYqM2rJnApS34gLZiIKHgfXE8AkGdG6VM7mzvGH3/lvGoHAIkGgdBlfTD0APmXHRYlj4ObdZWiRNmutT4Q1gAgvumvbTSGJeB/ITsYY1eQLp1UxwWizmi2dAlNmiVXrxCwwZidgnO0NWwWOX5BwfrcEQm7sXZ52EbDmiA7tCwXx1S1DnMauwAug9vGYBHxj7C5S6uSRulZgQdBp4Bv2TlActwylLPGPEANH+/0JCBiSAQgxEaQSkAPKh0OQT7Q5XhWh5w4Ajgx/a8Dgn1s4uATSnIfZL7oujzjAwEgVJ0Qu9lhq+RKntj5Gon/XyFw3RQY5HYKKeSgqUZClVWpSBXvK9UDAsDcM30r8yODHspkjirI/SJpdMO78kGiYG1RC5Qp3qosfloh/uMsu3hSAPEpnB488ROeMPj+hr3ieWE7/cI4R3d5WsDC48y5xY+S4XZUe2Ctyw6pipPno/wEcWzx1qVZUrijLOqdBZfO9/KI2JL7pix+6/x9aFFZVugsm7j0bOnaYocXdXapIyxTkDlRaokWQf76nFQaIiXv9ESMXm2KTjIBz/hY10kiEsyF2+wmifz1bLwEz0MxDTZmfjDxMNJK4vwEXqKeLPKwN0ZVq1iNMptCDB4/rZ/YTS8gNyOpOS65KNs8oPfY9rn6yKzw9V8WmoqgX4EpzF0y81ld9pcfPMr9wIwtYvSK5cpOil0TiK5U9uWcHuq8wt92IhvJeNkF2eI0dQ+lyxoJaIjMXtoLtYpyLWr2UGmaPU1aRfeu2NnWLwmyIrMC1az1zlrHLUrsyqMqo6/XSKkOjq5H5wPvtl0tAD71YbNpP5dNplNU0EuBXwXsWp5A55xNzMrtCW5uXRliCIZ8zie7qCSGpRkgl4tby9NDm2uKW9owtrljXOsUA5cpe/gvBotBJNXYx/HbIsJ4F5rOBoMfYOLbfRTvCJ3vLtlEJa5PTFHK5CIyum7j5WXYER3bGmhyrvV9D3+xryEnvHodc2cipqaXN8OC8c9EOkk6GKKsJynjYmo9GuVC2l1VSzZilYYSvYODjq2Itk3hUGpMJ3KyBtiykSFEiLatppDwc14UQSLgFgCpEKSq3tl9ggzYV+rU8zdUTaHMiCkFPifFR1Ao4NJ4YxfPBdIxHCbCcuiMGPeDCF/3y9tFE1Vi+d2KdAIHH+nDlpq24i3LS1j90+8MyRaoviCPzhRtkOmfcQBkxPW0/5/vL0yj0g+aok7jYjVUYr6peAUpN6svtF8akwpVBJU3LFkY7ZMQr4MQw83ZathL0T5WFLf+IB2hGE+BIJm1zatbrNDhCLwiA1rbLX0HMXBC2A3u9gI+fReRm4peFF4ihFNf1OtiOZVnLXVEHsfb1+jWbxNCk48LI+Z9S5mj2ChGq4c5wrtjjNuwnzVIKQ5Wn3yxkgUFbZJyJvORr10tTJ3XzJgLcNqzoLJuKZF/EThqK3U3jUAnXnwFVkxXLqlngF9spWm/0tp1e1TXWqbv24lL4wP45fT89asoFaPkJ3xwCp0Uh6qPdDee//zAM4yAEiNW1/YQ1a1ylx2HnnKTDxhBhC25NihF4az3j835QkRj7dN2H+iacVkrLKvJ6OBkKCjgKncYxxKskEGEpy5DSRBYNlfZQFS7J8oWEehzIvDYKJg6/N8FjsSue44u4TOouIX3v1Z1URlana72C4Sh96qUnxsnNH0QqHCNWyNuYsqtj96gKu9WhAphSAPav9Ka8YqDooG8YRc9F4mGb07iqc8w3zhsKwiY3o5bdZV0p1hI9+MC/cmLINeqIQKPnRedSq1L9S+WII11V6UF5WfCcNmgBUkuK3gAcbbtwUk0WawoMJ0gFhcqlp0/+KC6QU5zGTvU64c1scbwHkx6xE+mNzuIFeZDM/pxqfTJfx/OKeR2dgvKb2Op2ohWeaMImkVFwxgwyShu2xuksRyKDwXthiLdEcDf+kOFCEFo2SjdKOEvqljCgR41pMYMDDMBZb49Uw7m7Be7nRXIA1SVSFEIw23v1P0zlQaRLVSjYzCJ3VPIUXUbzO6xFrXYDOXdcNZzArI9FRk3vP04K1eyZieJSF/UPPNFAbh4XwXr3kH/N9Wow2lDfoRclWbDO6u32Nj6MOOWlSp8YcXE3QQ6qX2zUN7U0XBay9g6YU/8TgJ46RAnDY5z5gDwRlOHZJRnBWjQZxAp9pZJL1TVp5S61kqxpTuAaJct4o3anyCOWrC7vnrsZ5DBpCvkqwJ/8tjuOdMj4BAWjunsiiI5Nma1h+OqRILcs3v1bXmZ7L+15rc2EPTlsDkUFz+c2SM/nUcvwHgTTZONqMtWCw/IiAtafm5aO1vYEi8Cz3mEpriuX7XgHGu4zc/EgFSylNLQrQ6vk0k1xpKaX5MId1CCvPOdwgyuW+xcE3JGwODoC8hSamA5TkWlBdSX2J7DM4WS6mYGVlLGBJqQjOpRTx1xzrP2TV2dtWpRSnN7+RqaM26HweIPDauiPHWdudWv7Lml2u5XmfDmT5CZZQJwZKIOSM7PnKeIoeol3eg+TrPjkfK5OeARtk8Agdt8BYx0mSS5o80JlZg0Ld7rJQLcWPbLyqoqbeyApV9Hc/kK4jBs89M+jGEju4UTDBVs8m6uAAaCFHNUBXCY+lacgUD224xlXkGfipYzd7Pgg3ssXsTdnvFkrWqCqfYUxX+sr92NQFbDB620z44UxwSBWodr+nwzS7LdsFvJBKOmxL7+zNUi11ShadH4duDLiw8J5AdqJYUOQh/IC497MIjZz2zkEXxcr9jiUnqq5UEa6QkN7CzCYuzuM5KBgQwrUfuZhhhDTpQ9O/DEy6hQqhWKbB2vdBwPibBE3xDR4by/iGUOo3OfLcH4maLagALqcVTA4UuAffF2AVl2r4fE3xyMd7A/Xlzf+hHRWZ9ZJHN9sMvySO0htBFRC0d5gJqoNHE5ekvLMupFAtgBs6VYIs3LK6rp7uu2UDng4zZXCIlgHQHTiIQ+a5EmqXYE95xhweoQJXnIx7zJ/8U3mnRRp4PGFuS2TmKkg6QoJsdMlo7tD6BHTMQW5EP0oB50wXDNEDUuSoMDtI/u7aQrXsGCfuJRPyZIT35o4VAcXk557lYPjzyn8yKM5MnnPiwOL26DDgliFtNopCIDJVxZpUj1Uss9T7L8Pg6qKIoptQJP1ya5CeDPawnDS11rJ8xfBHM2wMbS3QWtVk563BqzvGyZwy1vPp3lKUJLkvUUnkHdJU8zOZhdaLE0tAygo/LCTknsa90ECI0d/F7Y3o1DoD1Lgq96+PzMXzBlJrukRPMHXfVeKgjmwqkmPcQ7P1WhVlqItNMixvzinqyt8REwMOSxh34wx+Bc8yvbyq4UwQOjzuQxB00/7aRKBOrWJExNHy0U8eOSjcn8d1kybMOjG2bZn+KrK8n6n3KxGtA/fBQDkZZGIvmrSe//6RBNcglJE1wXy5q/aGzQN7/SnSq8hp3wXhxOTdr724HQPuWuFQphAJ7TGg8UqZWjsBqUfWMJ1vIiOxTd+InmkCsaNOMyvmhfrT7O6543XQ8topzUMFWFWO9TW+S6SRZbYgNzrCUzjsfr7v4tB/xaCrQozUgT7I7HE6Shcek2cF8UHqL0DZl+b+T7PoYSHblA61mn6gZDRkohnNXrwsMOQVIFiZ1lwAGrItf63SZy/ildhYpkZ4/pRwRMtbi+uj4iXdiJO25FnXZNa3/2fZ0I46D5rnnIjlszrFUJ8rNsX42v/Oy79MftjA2ssjymoI4yFIM9mJQI3oAijaWwn7hZTCFF0ZmdAv1QLrT9G3I2X6A/DAYNPF6YPyvK0GSwtmVljzLsfYBH6WDCVUkKtr/2Rj4qvrLZZKpFuHPVnpz/ciRTZ2v8oXIJVRQPP0zRVprWI0sjCkFtbfvAR6de9440iRcFKk3a54oVpzwDYxgPuS6XIv7U8JnP5lzctDAT9JUSYxAJyF48y0XratWdgE5pYE6bkgg72MGqfQkAF8FbM4sKWCgX3k4AYiY/9GN7De4gro7uMj2aHGwBIUy+tSgS5jNH44fGClNJt35CbJ6FvMUVbTwcLmmpsVgm8h47F3KiqUA183qlgDmqYRhuEyq45vS07C+RY8g1iEeCe1Ry5uOza4EJ8JmDE21koeYMFo3CIcVpk++0v47YdZzN8wkGnf6HwYp9Dh4AceHeDsflce5e+LrCAtNBPIZ5AYsgFVLvmJUF0sOWh0M8OCcVHy/Kk5vZne0EP9vVB7x8Xu+HBGUrfkuWHgbmbvy/TaA5Lzjy9qdJqzKgJwiL5eQ/YXJgJ9Y6s2mFPdV41LR/sf2E220Orq7VN54fovp5F7O/GPyvwYYWhHO4zF/xYoCExJk4UJQb5llW6lVwmOLvZ+RnRl+9LpvKwN15qHBWB9L1zpkZISbKLPKaIyhpX1SHANVd5mZvl3+/2OsYAczggUZl7nY4PaXJPOB6orFtoS50WakfmcYdCOa0mXtwmsOQ3hT2ooA6vAYflQQkA/I0/kUvHRu3i6+DjhQ9YQ+wAmiezr032wllJcZIdIu0iA13ck4UzbeOeehc/a9S0hQ4OzK3Jh8oGsPz9HgUpKYe3aktVsDXo/lNBPHilctqE8Y2F9wMwx47xUdQxjRJH14w99AHnuLTVmX/xRSqXv/9O0ickdNUzzY1B+K+oqdYkk5tiSK3wghV+noasu86rlOaM+zDCGZieOJpsK+UmjE5uq2Lgn5b22Linw0c4w1HOndtTjDrz2pRr+fbVnMoE5LV3hxFocOtfi/8AGu8kg54fgjZUQWFUKi+3sUNMovzXr4KI2bfVvhfT10Li32VrCUyS1J425qBoIjCXJuUW1evDj42vFfU42iWy9SjY1PC/SDcYe6/JPme+S8FX1/TdtmEmIqjie1KhiD4YW4CN9L5Y0aIW8UhPs8W4EzkFimyF+HhBkOo73F4vOQqMmFdh1zh0LtEMnwWxcVWVUJPemlQ2rZHmQKP/UqqGWRAbfejoFXnbiFUxq5ji+xhDOATn9rp5N91ZKDCZS3AASgc4mZg1Pc6M2h13331HjS8F+QRNVSfPM1qX+eCxWZFXnS7g/qNfO7y+nAT8LM37zZs37p9wCqTxwQf4PTZPIix4uT1ExHlteY1Tb6F1CWe7wKpV4a7kgpiVBv/8+h3vwe2RM0qvnyB3E1Jkok76UxjUdXT6+K5b4TUs8ECGI3Pf9x+YwfpgdACeRksf1HmDmAMqErM/DPEUus+TheTn9ssJ3/XW8Lt6j5anyXJOJu3LyMnRg80Ms3lKj2olt+SdURBCty9+RtHqatfPKOLlOgQ1i8Rwpj8pBW8wrmdkc0fnggY3X6vRqYCPthb0gj8MMmDCZaY+HonL6wz8i96S75KHQ8pzcwquMj0SJpwqwGdTgpTyv1gecCGrL8fG9B/E79hn+ek2ss0QqPRMRrSEtDv6QmQJpqZTAsMz9TlDVgOjqZf07X1b6+zo2zusKAcTycT7UkQ3mLuwawgE7/JBm+mVGvitf3r/CuvboXyB6FyZ7Atirf8qUBtSY6kmTVLtbrtrPsz7mfP5fc1DIonG61e3OdGJQvnOcszrhqFZP9zn2T76++lRbnhBzZTlk1A7zVuY+tzSdZzIBmpGX5UVdvWzAir1JGHu8kprcaA5ytUFde2Hau7lPQwnGjDCQGJxASScqYINSX41MsMxtYtqte6tm2c5kkym7nfZWAv2vmnLZeT2uwzN27XyUrE74oi7K7dJjrkh9AgVFbhz3iKaz7dy3/w+8wqBiH9ul524GN5n9HoOq61SdnMJ/8ynVGT7AmWTsxpOpRPz/mwPyqV3awPKHVYsKLDRqJgzArS9fmy1ML82BJovWbY6ioSpXfPQ/RPUQnZH5sCVWegF2Nls7TcusFW/GucLqTvPPjwxpdSFDGToKugftW/Uvb/u+418kUgNrexu0PbI4IIFsXrAxgTd2SdOSwcBJjMH+JlEyJX3t4XkEKcSnp0kc/qlF2/6Bl0SEJyX4rbigae922/mOy5wRmACxwLU4jgPowJU78FqMjOofUJmmFYuajXuGf048W/vq+PXQ23WgYnJxea5vH+5mJKyHqQI91PFeirVACtdUXTTQSlgvjA8yEX229lzceerr3oDOgPNmEvUiluBWHze61/PURSKxLFl6PZc5tRWlVf2Np8YDsax3ufLxX6cDRjRf+uB/zDP9jMFZLZs8rQ7nzbfDIf3LMTYHSz0+712hBavULXux8SAZ0jFO1b96kgggUGIsr9IENefAxXOPA5Mob9+Wc2JqgP8ssFnFUvcKuO6bl6HRYCIlScfWXFr6aVUj+ca692iSht3VEdbAYs7i74nLYHFr03jTYMeWLpPMey9UsG6XRYA9fYjzr7VCprx8mwtlDf0bIZpjkGa6FmJhFqio0ZXJNrgedTgYD8LsUf+hAjc+knUQAro+K/JhmpOvhFbMRxOVNpOZRMamUyEa4XdM6n+bVcmukCP8XD/xaMtdGBrP5a7W/mCxUQ9CqW868dEOt5JPS/bosyG0P7Gj5rmyXgUmy0UajEHR9YP+4s+en4DoTskCaB6+BsCs9821NyajyxG7rKfisboY8wIuXIkYU7Hfn7P5L62TUJgOXTw8y1EmYkYVXZ3nVqpP3R4M8zu52tFnhkKoeVvyGB+j0e05n36y9dP9GUAfQzhxoQiCIwnDE+vkDIeTlYlB7SrsMaikNsquEMrf1Qgjc+ETowTd/dhuU/01o3drPZgLcPIFNX02KASF1AxxrbNnMdMRNwGFHzUnU1IZm0Asgns2x+Z4P9pNFyEb3YWkdY75mH4/U+Rn6rrclUlqCboRU3O5QpH/xxCxVK/AIYYqcNqX3J94DSthdhtddfD2b308YoqZC8zJJfKbqI5+2gW2fkEJGCC7h+nQNvO5RiQsQvV55N7UJo5PyywcO7XzkACePzfi8O6v6gtNwqiMynmpRNDQ2uMi/kY5YswcNt6pnzFY3z45Vf7Nlf2TirxdoPUZPvFBKGpYJYjgXpzcCYuSX4M92+2CAirLHgkFk65R6G3/CHjhMLvNDQe5vGWGUuWuIkPKmpb2aPXTAm5njFIxMEX8FfF6EjoNCqlRVl8fdCMIkHq+aD+bpVuux2vSIFmdQlKRoeHjVwPlGr91Z/9+BPs4yX55tNZJxO+3+QFAoasOsF+mlu1j6w8SfrhYEjDgPh06SGIgmP5yba8rEGy9e730P7+Gp58aUQfBPyGrknsuCJLNc7glxtW/lOMEuu6dtmj9lqnmTGv9gva81TAL4rtR9HsMCUyBwA4mQPKqQfeTRAe1ieCXTNDphAzWCHWNPEhgrpybQHqJy7wbcxv9m1/xTULuWEIFITPsOnVR8O+YyWtZ/DaRWnxJCTkmlod2A7oZfbWK48Q0zKy6uU9jbZOmpJ1zx2CUhHPYSPYEgvfyGTIZvnTeORrVXq59hvD23KYFovTzts7TBcSXN52XjZVzO+sPZIAbvX+v5+n5DIxphYak369sOddRJ6zRvH5tUuaICoIiaDfV1yDzCJrZjMZn8a39NwzsLFJcqSrFUxn7ua47E5QO1op7i3U+PGL3sxsPyPOpDFgoIvmVXCLcFu3xwpSoEFITCvF0aTIEHg9Jj2EvegrvcdcuO2Cq7TX6AYPWwGxf50TU0IqxKJQOKB16bLviu4O3FWHco6fUgxxS7FsM8twR4ITHqd/pHj1xHiUlhkC0kCFOD3CyjHJqJtg0ZCz8+/M5RG/4ekRi7tBB+9BwyOcd70Xqjk/CxnVIp7Eg5kzziOn2dpHT48TLTqdW2T+/DWsVScPGqbKXqGfVlp0JbQWVa5ydVHNdZJLI1/uiMjf/w23GAScrT1RLoRe598JkD6vEImDw1Pc09oU8cexkaDJf8HbG+72PF9PehV+jO2VqqupQnxRHPioSrRkoPq/tOspHliP09XysIvV3cRer4CDK53jtMHtNOkbopL9SnHC9St5uYuKcWEBtbAtYs+atM9I8JAXdS9/fU8P1X/dqtGBQMKiSn9GzMDYGioB5bp0xZOnSquJ+zUNeLwkpum/Tl1xYyV3laAaIRacGfquliF4y3wY/Wjqp68oo5dLvX0pGsW9YzgpsqKNatL+R/i9LWrSltaMXZDDlU5sQR5SI8rGBoYbVrAJnhIYI88K49HVFdeAArWI7g53gplLuJuTwZt7EEZsHyGmtKsHBpgfYPjFdQ+R6AEJVKUEJ6QgwKxpgTLGzHTQJI/rQYLczIpkcbiMgCKioBq5n2L5esyHTwv6SGVMSW6k5dH4Zuho6I0YYefPvfpzZIiPR0qhMNrnRoMpdwgEXOxux9Iuzu8MQB2B+mEG7bL5ptfjR7rg7ZZXPUyVzTy2Zh0KGEvzND/00YfHLZJ91n6RSBGf8jxErkC4OaZ3s0VfdE3hP305jVy7rHwfbuwMfTtavjOnKH2yqduz1Ded32fvnj1AvQ0Rj2iJDUBzx8YEVCw/FIU3ZPzKTYVd7PFJ82OAiSeKZ2hf3zJDh7C1/OscqErBtcrTYO5oU/fNYYNz52xDS7WXhc/0B8zhDeeW6N3W9NDvmWdOTQTTTqXa/X7CiYczrtYL/pSfe+PNg3c0Mco1MAmU9S6MlWMEN2epKgt8C7YluKDd30O21cru41t0gj7Sp6CitBQwThPzaeZJHPHxaHuEYKfeovMsJoEsMYzrK34ux6800IfYy82hPRZv+Mjl5oAxlQmFaSZG3f3EHUM2ClPNWbONJ69UbR+Uuzrm+dwG9Ry+7sdV8pxLV1FDcO0YXC6UmzifkB9P8lseqFDhEnOoz1jIbXyzUtaft/J6zxv3zLnoVSpdPVv0W0v7T3O7A1QWnQvo2YvCqWhZlrNLqjNK4QjGio81RSXo2bs7Wpmc5W1u6j/Vr+36X+K83m4KPxUW2lpAbSuJ3JiH19ckUNGouKk8hp3ksUkFbWLt/gdjt8YJCsGsgzbvRgFzMh0J4A8an3pvcXS10rN2JgT83hD55tOhjQetiNRBy2uBW2UdJ+VvP2Ss254eIf+ijxPCYUQK0mAq6OjprZwimerQOOVgddwuBQKejOZi6SEcPdhUNJEGmRgREgYhtNUnNVlmHlfQO2AEWgNDC9ZrPaCIqmiDHMpL4f6z31eIWB8NT1sV8qgyka4tyRNz35ou31Su8znuyVGkV4YmedE/aw2z1ohLqzJIRwI4Bgc++c0ZleMo+gEpHeI2R1OzlVPGG3oJ1UJiyDKiOLYGF8xaWJbKE9fgWscTGeW4PBDRGlaN+uJu44LNd5YS+qQHSrZ3lhgmSz9J1MMiwaqYCJU5UMs7IMO71PCQi/SWBFmEiXKlGqxn3GFzuaC1hMIANG8tE/6EHlyt86mdWNKesXHw0doUafWc9cxQNyfrE4IOL87NrHQAW7ca9Wh7U5qX5m55FmTVrVIwaijVF3UDeksHxsY5uHi04fKZIIMWrEXwFQS3CmS42FOq2vPIFAnS2491alTdavrzConnB8JTC62I2ScQxPoNfRR+6jBJJk5XUAb/d888mUEUxoLX6PYabOt3F61vghLcYEtXCfIQLLqrABzelaYx7k7DFT4nDXH0sjp6UZT+AeylfJHhn1+jNbfTYYGSicBY0f+bOnPeTPPLpNyonxbl37GUVP/G/SmN7a2ISzTWmeel5oT+jJVbkdyosARbR/XoNfP0wwrDigkpHBZfkNNUIOb3l7eJZL/DFr+eBagAdJ+ElIs9l/8fWmfBJ1FmvtSCYAOojhuAKBb7pW7fWE4dk74EZPcHZHT/g+iN4Ccf8RYRi3/qHol0B6CX738fbw2sLDvNnCPpJLE/DJnERs+gVXXeU0GdWMWkiBIGzwkkOlBfxCe0kx1Ie7qXUFckf3rSRDb4LSxH2+n16BDTrzxkQdnxKV35+3tp3xhyGe1vpLtnfqFJtKODmUwwe/XFI0/HzDQzblvWFSzKsgVGRiGaCUEiF0AaVnDgj+9j706lwAyK8GHX4U2Og0Gc519Jt1cQTqCFp5jgWcOQ/7Zp1gQ8w+/LnmfXq2zojfEgzfSh6c/Lh1tFZ/dUKmeF0QNb2mciaE9il/2DK8Drf/H6HQpdCj7cLa1uSn3we2mloKCNxvTAq4Y7FvRIadZNtu56w8zaP/noVyct8/fP9AAUg12X+7wm6TXccs8doJOi1I3VvzyfPu+7l//qmJGA7FEqn+duetdbuV0A7teNAVLncfwOAQFfcjmIdTeElJDdSv0vaOImLlWaTKT1UBA5qjiwh5boZHs7DX2yj7L27gRj9EDHfy39Q2zTgXo3K5iu4JlF77/GKKA8TdMtD724jCQCHp/mXtP1DAhFl/2PxdvOPgPUxDoV3RoOORoadCKi1O+4UrPSqVciSGxwAJCxJxHmT/xZ1VL2yx++iu2+M3eo92OAeiRcpMPUuSy5LWKdY0YKYugtYvJNjYhccWEm1QFD7Flc6DETx+m/GjvEZXLHRptC0wONZmZuwH0x4lERHV/QjfyvluMxWU3b5WgSxqv9m4zVM1HDXQvTD39NDPlLGu1hH/7UPQD8YUEvEIHkjB4d82b2OKH3Z1xp1XFypUKC7VMe8hGO6zUYMin1Z/noMQh7MZytWrSl5LXnPaBvbZ0ZwgjugDRcSg9YMVCyeDL5trDhURl0JzocViLqWiXRbdv+3pJbsbHul6KaBw6Yccq3HjoJvPdRvy3TVyasa0ac1YyJ7TDtLqubAeBYXp5D8th2APs5HTiWqY24TXRMDQBvmkvKsMbT/t+3CqaSyHSqzZTEfO277WDXTrJIMLEsPNcGV22tDTMW/NUjopE+WS1krbsd+CDyh5jZFuUnzlnz7ZMmqNGTVN58hAGx0g4fMUvQifyzYdW0MCl5L1SXAJQlsJ9dyNUjNGBOvSVSzZXFxQVoxiSThDmPxAtWOSsFJtCYWZZs+a2ZBHQZsPjfdDRmNUgfA7TZbOCH8MsDZRU7L3ep22qk5TIELoQMnpaQltjWJ7eN9cs19lCRv6HhOKeEErxQdIPVEWMIrXkD1a8LAcFDZyYWKXT5QCJ24Rjeq6dxkDcA55ZvJPILYzAM6mvtH9BY/7FuBhx/74cqIUPe39OVcWyK2XARCTDMuEcJ7DRFBDkVud+XqgmZuSgxyZ449VqzGVE+hSvc8fiUOZJqfLPf/UOwZBTkddNDeRop/qawdMGG0hE6lVfZv7/Vr+b/jnqFMA1IgJTRutvtWacMTxW4fbh2AuxPjxb7YY/UoU98efXDSSCTfwEYP+gcek2iQKCPPhadpqw6CQ8hY2/3eCdSh/T+XcYqYq1Ox2zAMVnJx9/GPJHFxxPZ5jHdKlp1kXOmBJ8lyYcClYW76IX6NDF8RBBHba8fBk3ENepwRDIq+XA7BbYZqFYHA4HGSb1M0RDa4ak1yETYxeVc0HJFzfKCaLM2bahwqDXHHNhkGKkzpIGXHxPINxs15JYNzBCOYh4/k/9TKkaseYuNr8AwlB3uMAJ3QdLDN6lnzsUxjIErU7dHhXWkgoey6z3ESvpX6QOuGzW11onmlpH/YJ9HlYNLTNqSKbY937nYvDscWar/RzlmEpvGirxLt2efBydcYWng24ZmiaMT/Rj3SvF2qIxJldOiXikGxhLHtcra8Bb6Ep5tI3kIpUAyWgdwXCCLaxAeNIgWTpQPzCDoTsn/f2LjtMvwwE7UZEXG1A0mbprr/VkgxJPOPHyWgtWCdy4p/0Q36/Y9RrIWuHsL+yQaROUNxiuok4+R8euZUU4/mEAcal9Ma6C3aTWiC9I13cHXxNsaiszGCOEyrbLw0XSi6IWtCplyOuw5LuDpjBOi/n0gimr44DIH+OIODsk6/loC8VRgBt6PRD+R46BfPapKRg0ftpxzCxZwnIeLY2de9UNbxqrLX8fP9ufn2XCzTsZbUwwhgLa5C6KRTWjAyIYX5jHScdkAhp8TsnmnWIrGOSXQfxs192Hee4V9oF2bIUiK5JKZ+m3iTyk1vM8o4Gszb+XwEY1SQhG1x5BBnC8DkopELL550GsUL/Z+si4Hx+SOldAhAwwujoWeDle+vwGI1gKuynYNW3za9ugpJpE6u618LSlNWm9WLoYO5qfOhjgGlIW6zfgllWZ4DKfnHrYvl0F4E558dZtPDXVViLwkK6r3jwKVT2l1SFNHHY+++pZoivkT5WuVO2ejktEOW7UL+OF57VY3Xmz3ITbEvxM2ZknNgaekWHwRSTB1JT1UBtmF44FM5aMulqbYz5fdAPiteBCrytaMeP23w5p+JClznW7LAxeOZndRb4e7hv9vOfY57Hi17mxRuaDO9tWFko6ja/GQI2Rbp3mJX+ajuO5N0yHvdAluephLspJn7QhX7YG4Y4i0gmmBJqwkHqayHI9z59Gr1rLHbXrM/XHqSBxj0DCRaNLqRpaW7xgwWDLlihZ4O4DTzVy22zG1B6v7eK+7nMwycFLxvQ2lhcDZUi+pKsmvLzMfXRFcy4XtUqp1CRtMZU8Q0WLPzA2z4XK4uy6jRI9yomNiuhCSopFFWoCNi0kb2pRUymQCtxN6BGx06XKVoU1FS33B8FsvJWJPnaFyDvc5F4PZOFpjOXsUR8ninzLXkl2lf5kEpsARaH8tNv/jcQXe4Fu0K12dOtNBdZMt4oqfmiln2JlNrHVnKWGlp7khHmKXNwzaVDtAmtX2E0hDuLisNVqmxMDB0tAdn2w0IyU3XIAjylGxnTYVvvk2u68NFCOW+pUvBGxvvg/FOb9GvsHNrUcRe/szs8x2nVdPc0Eb0RJCKC2VwY1yCIdmdBFSL0+dXmhHHH37LpbHRE/kUlWhlgz0/3HFmhtTOapp1x9wn2Z744fQmE0/TY639xnu3LYPhf5d9U6Idp/2wyE8fQf1YlXQrFTdcLECwej7c6Uj3ydy3Gzq1Qrr20SURlLV4sm1N3coMlVeGV9vE2uV6VyN5hTyQ9eWrWtkF00WfBFVl46EA6MgwvxumWUfyd/Kj7L7NzQX0S3L4KKtsmxwOgEFdpgMgnLVfr2rgncLGlXqaaUkycGVK7CArZ3sCrEriUVrLEETqpjZonR3ykyWBtthI7yl2915L4L2gUzsH27kzPWgMcNOrpI9xGgWWTeRy1ISsETu8TIqVJb8FLh+c3DEQ7CkDGkXmopcfLZfECwGJpaQwc7n4k/o9lXHYq6gQdztEwUdPjcZ3il8yoHQlICcBdaZfPuTzqcf03S1f/3TBXr2+Mo9SJDPfr3ZIUAz82QamuBL/mQw3bkiQ0BwaArbXZV8dUsHhUtr+RaoGvD3QyObVQC7I2812e0tanN9OoJOF0AjRvqqCVr5bP2GPmYHSg9F5kRDo5uXwfCIzYjmHU2hmbV46eIQY9WVKCPZdkJ7+27jKP5Az+sBxrZwWrvSW/6zp2Wda7AojOo7wb7JDvbtOzjrb0cJt4criMeyyz0pKU9E/DTV9e3JGnu4S91IhtADdpvqtjMLr1AP1ir9mapKK+ormANS1Hfp3cHJilRXPE6L2ypOAjy+R1N9sHZZ7C9CnlqniC8mrZRyYll14GfezTkpxjbOqkNQIeHqsJFPRjQ0fNh9bQVn0MUqKjZIonWpxL9fVnBpJts3lBw9M9PhaEROhCTldEGj8M0Wf1gFbl0kdk4//WhLfrDm2oYOuNR6qVQjgmg7rVTWlr+7VN3VbBSGc4FwsqH3TPiZM7CzOhSAP+1PAh58xzsGveuashoJcrqJSUUtgzRNAQpEB+VO3/jBn0DyYpN5i7/etDt6i0lf3+4Ulqlz76IFC3cGkUeMTiDUht69ZZ/Vp2VqQTpX6eaiabDN4JC+4quNdE/3V5owh2jDnFGP1wPrL0gQG0oTnzijKULDhhD+JfKbsrZWOr80qzyHWL8p/EB4JOEkfY5j3R2AOeAmBphFcdP2px134UAd1E8WE0WxR+gCzRtPgBxvCv3jnNqeAR5Zi/hUrU1g8rToLgiYPriYnWYnSvpXRdGYvMt5JcPvhub4AP79Du2RkF5yhBihlXuLYlG6vO1KOwVxvje6BadWxx4wDl2esadZeK9x/QGpgRHTNXwobkL7cq389genSnChwUlZTpVW0U8djZEPrBVvh4dUOKxh+l6OM0a/MPx5jt2nhi//WSt+DEmY0G0swVwtA7IWK8PzQwA3IN4HdeqtLT/z85Jte/vpTIvSojmTiqL6Er53yrkLBEbco5sQz+CkNjWdPfEgLqCuS2DnLLdImsv36599K0NICwe7lIN2amw6o1wERkGR+S61i83iAFfNIyTd8wNxqF9NRmWRxeFbW6xr8GT2f2xdlB3S+hvzya/iXOM8H8KWyPq/+Zhr959PwxYX1nBzvssIjRHy/1cv+zxXljQn9EV93irAqw7cIiJFb5IGC+yTbG9V29CEbcu1rUh+jLOZRVVn319IwQdTW7XSY9xWBumgmqyKWut84iSW0bPzvNauZfLRDWA5xP8nHEyIzO8+Wu4NtbPJGBVK87m6WSp0C10iA4NqlgoP+7JGQspOBPrJUDfLu8zfc2zkCWSabdz4RyZ3YdyaiPaVw55bpiQTp9PEOK5qYRswCaK696LPMDqBkqkru4i5IHNKjpqZPWRsAphgUkwYpVPAgjCndbEdO3sIqfP+DkxHy7JNTdFCl4gquMda7bNrzFfQm5muIV+YOnGEUmTIhq4kfPlX9cIQHAsQwOeTBfpJXoziPkrPtGKdtqPHDHu5G7tfuPEU4J0pqwtpn61skiDkSNVGsHzmV5+YspH84P2dQsG9U59q2F7ryFU9zF4GjfssASb3fbw5X6Ttk8m2VKW3dw86e3yEErlpfMx+C/SHQHEnD8VZv5cXUBYIhhqBL5c1502UvyoxxsRowsxxJuYmuuhs/r+Wox/taYsDbvlp/KMugt9mPAIZYI6IgAkND4Pu9H1CELUYzra+ynJRv60UZgIKDxMQOt1pHD1dgxvTRL8DZQXM0xDXO1Ci8bJ+5/NiTdOGYHxReVAfZ2qWA6G1e+fRdLwQXS864bH0oH4AJ5ra/fF9s1RcQE5Z3+PWtGOoeab8DWyXWSZI51iB2iyuYckC8fjmQfTVtZxYnbyYw61PSsZXCAWqlX1GgAjucB6HCAsjWCH6O+7bmratrH5kCSUo6vUdTWmoQkbmDP5plVpm16GcpQuQn+byAgclAvVCmO/ZVDFD2P8+bTesbqlqcm7OGNT2XGfI8pL4c1Q6gBnQxLe4pFGIQmbiK00zptYGjB5qKEHn5m3Yi+JIojzzBLbgUKZju1Zm/RXpMh7ji6i6loZvcHoUsUJd4wEXALg5pDbGZn0NZlYAQe8rYMqBh+c6B6KcZDGY2vB6x2KcMOTzyZjTpmRImq1AfOEJIH9LWfSdczKm1DCcVLOaHW2oiiFLYsWsKndZIB/uNCKJHKoq+t5+cb2r34dKXlnf1e+e39su5CuS+1J/sVTdxlGgd6DUhzadJpOTXUEbMLFNRIV8a/xF++r4Uw0iD+u93yAjudB6QYO8uvnw05MGvzlgMTi7UjZkeeoJZdspa14XYHVPa9seELdIwbdsTU96mlYvHzw5F3v/8GZHCzq1U+iMrze8DYSot45bCfnoJji16d1lGZ4W7I54b3K4fYf5hVP8+iaDAGszXoFTNZnooSipVEnVf/XHq4JWkVXLR2fWTddHyGOGUR5m+Z7NNdxiRWtKOXomsH/XBs71dZnV+5etfpsUT7ynI5idrqysTBxL7Bu9W0cC7rY+ozAhjeJhzB6DHkQc1fu/xI9kTGv6NwhxFVWChs+NyN2t0YA8T7E02/BER1ZOwRS1NyQe4ukWG0ozQnxRP2k9PjCwLFVZzpwX3xi6NPABQ6k0yLUOeR7vZuqq0zqG0TM9UTuHeZDF8/fyrVl+Xw0/Jxkb/+s5xqU9BmPgnfKQoeWr/Zy3cEbHAJEM52hK1VAdqBuUFVl7N7EEHte/Zx9D4u4G8aUFAQKRULWB7UqWo9QW6bUnudGQE/uSU/ToauKsCJyGPG/1Vsp+dQ6Ux1llmoG6hppvI3cSfMdktCWNHPbBDfVvaMkCvb+VhcK8Cvco49JdWKI17DoSWH/y5ZeCVwttmM41HtKijjguoWNLMEjVObXImVrTDS0FFFOSpFv3JEDC0z6mmvc7MOm2pzIT5KS5KD56g8GDv/kcQtuY3ckRwbmn/2Qof+tExR80m7D9p/FqHpTTK2Qay/9KvvvwafS65H2yC4dlbZkwxFjYUv4NpjeAviOHVUO03zwAxDgy5XbgcofFCICWLigeVnc/OXq1vXXvV/D5z31rtk+1D05TU+qhu2HgZmEkYL4qUauMUbPIQsl5UTMNRukNlL0wVWpndTFN4z0iD5fCBR38N9YKbO1OS33oKw4LKZjoxKNp8u+Ge4OmMWbRj4EdaTLxMFF0oMlUOVM9JC9srYYKBWjRn270fRbqTQea2DVyD6fG3zzUD1sQVdvGiAVlRRyCWA42UG2lRH2EN2W1cIzSocCQxMn9R5lXGmmVek8onO6k+nE7anxZnzGbEgexuA0V/9xA7C7II+i6I037cNbynL+SeIz5tRxF41HGaOtInhozdO9A7mO6R0Jl4zDGwwDqmIWS9TbB6EyabafONts2QXnIrPFTV71m+u/f5qsC4UmCcrk5nJEPwYqmKmJBnQftjCeIfYGBCNTl7Jvfzc0Ldhi2dO66J/69xQJZjJLJgSaZKTOShzBYqhGgDQ4aNvlShoJLJPNAtVzWx5Q7MIuJ1yH2vx+mjah7DcP2rlHpihQ+5vNxazqlk5nPV9V7T/xcuXjqHU94336YJ1yRsc+sXdYYfQ+K4nCH+SQ6gj72RvfN+CCPzMxkWtBmfXDODw1mplrgVHC+LfHeGMbcGEKKaSUiYAOUyVQqWhmYAAAA" alt="Nur Meva" class="avatar-foto">
+      <div class="avatar-yildizlar">
+        <span class="mini-yildiz" style="top: -8px; left: -8px;">⭐</span>
+        <span class="mini-yildiz" style="top: -10px; right: -5px;">✨</span>
+        <span class="mini-yildiz" style="bottom: 5px; left: -12px;">⭐</span>
+        <span class="mini-yildiz" style="bottom: -5px; right: -10px;">✨</span>
+      </div>
+    </div>
+    <h1>Nur Meva</h1>
+    <p>Bugün ne öğrenmek istersin? 🚀</p>
+  </div>
+  
+  <div class="ana-grid">
+    <button class="modul-kart kart-okuma" onclick="ekranAc('okumaEkran')">
+      <span class="ikon">🔤</span>
+      <span>Harfleri Öğreniyorum</span>
+    </button>
+    <button class="modul-kart kart-cizgi" onclick="cizgiEkranAc('anaMenu')">
+      <span class="ikon">✏️</span>
+      <span>Çizgi Çalışmaları</span>
+    </button>
+    <button class="modul-kart kart-matematik" onclick="ekranAc('sayilarEkran')">
+      <span class="ikon">🔢</span>
+      <span>Sayılar</span>
+    </button>
+    <button class="modul-kart kart-hikaye" onclick="ekranAc('hikayelerEkran')">
+      <span class="ikon">📚</span>
+      <span>Hikayelerim</span>
+    </button>
+    <button class="modul-kart kart-zeka" onclick="yakindaAc('Dikkat ve Zeka')">
+      <span class="ikon">🧩</span>
+      <span>Dikkat ve Zeka</span>
+    </button>
+    <button class="modul-kart kart-baba" onclick="yakindaAc('Babamla Oyunlar')">
+      <span class="ikon">👨‍👧</span>
+      <span>Babamla Oyunlar</span>
+    </button>
+  </div>
+</div>
+
+<!-- OKUMA YAZMA - GRUP LİSTESİ -->
+<div class="sayfa" id="okumaEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('anaEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisi2">0</span></div>
+  </div>
+  <h2 class="baslik">Harfleri Öğreniyorum</h2>
+  <div class="gruplar" id="gruplarKonteyner"></div>
+</div>
+
+<!-- HARF DETAY EKRANI -->
+<div class="sayfa" id="harfEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('okumaEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisi3">0</span></div>
+  </div>
+  <div class="harf-detay">
+    <div class="buyuk-harf" id="buyukHarf" onclick="harfSesiSoyle()">A a</div>
+    <button class="ses-btn" onclick="harfSesiSoyle()">
+      <span style="font-size: 24px;">🔊</span>
+      <span>Bana Oku</span>
+    </button>
+    <div class="ornek-kelimeler" id="ornekKelimeler"></div>
+  </div>
+</div>
+
+<!-- YILDIZ KOLEKSİYONU -->
+<div class="sayfa" id="koleksiyonEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('anaEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisi4">0</span></div>
+  </div>
+  <h2 class="baslik">Yıldız Galaksim 🌌</h2>
+  <div class="yildiz-koleksiyonu">
+    <div class="galaksi" id="galaksi"></div>
+  </div>
+</div>
+
+<!-- SAYILAR LİSTESİ -->
+<div class="sayfa" id="sayilarEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('anaEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisi6">0</span></div>
+  </div>
+  <h2 class="baslik">Sayıları Öğreniyorum 🔢</h2>
+  <div class="sayi-grid" id="sayiGrid"></div>
+</div>
+
+<!-- SAYI DETAY -->
+<div class="sayfa" id="sayiDetayEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('sayilarEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisi7">0</span></div>
+  </div>
+  <div class="sayi-detay">
+    <div class="buyuk-sayi" id="buyukSayi" onclick="sayiSesOku()">5</div>
+    <div class="sayi-adi" id="sayiAdi">beş</div>
+    <div class="onluk-bilgi" id="onlukBilgi"></div>
+    <button class="ses-btn" onclick="sayiSesOku()">
+      <span style="font-size:24px">🔊</span><span>Bana Oku</span>
+    </button>
+    <div class="nesne-alani" id="nesneAlani"></div>
+    <div class="sayma-soru" id="saymaSoru">
+      <p id="soruMetin">Kaç tane var?</p>
+      <div class="sayma-secenekler" id="secenekler"></div>
+    </div>
+    <div class="nav-btns">
+      <button class="nav-btn" id="sayiGeriBtn" onclick="sayiGit(-1)">← Önceki</button>
+      <button class="nav-btn ileri" id="sayiIleriBtn" onclick="sayiGit(1)">Sonraki →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HİKAYELER LİSTESİ -->
+<div class="sayfa" id="hikayelerEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('anaEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisi8">0</span></div>
+  </div>
+  <h2 class="baslik">Hikayelerim 📚</h2>
+  <div class="hikaye-liste" id="hikayeListe"></div>
+</div>
+
+<!-- HİKAYE OKUMA -->
+<div class="sayfa" id="hikayeOkumaEkran">
+  <div class="okuma-ust">
+    <button class="geri-btn" onclick="ekranAc('hikayelerEkran')">← Geri</button>
+    <div class="okuma-baslik" id="okuma-baslik-txt">Hikaye</div>
+    <div style="width:60px"></div>
+  </div>
+  <div class="okuma-ilerleme"><div class="okuma-ilerleme-ic" id="okuma-ilerleme-ic" style="width:0%"></div></div>
+  <div class="okuma-ana" id="okuma-ana"></div>
+  <div class="okuma-alt">
+    <button class="tumunu-oku-btn" onclick="tumunuOku()">🔊 Tümünü Oku</button>
+    <button class="bitti-btn" onclick="hikayeBitti()">Bitti → Sorular</button>
+  </div>
+</div>
+
+<!-- SORULAR EKRANI -->
+<div class="sayfa" id="sorularEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('hikayelerEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisi9">0</span></div>
+  </div>
+  <h2 class="baslik" id="soru-baslik">Ne Öğrendik? 🤔</h2>
+  <div class="soru-ekrani" id="soru-ekrani"></div>
+</div>
+
+<!-- YAKINDA EKRANI -->
+<div class="sayfa" id="yakindaEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('anaEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisi5">0</span></div>
+  </div>
+  <div class="yakinda">
+    <div class="roket">🚀</div>
+    <h2 id="yakindaBaslik">Yakında Geliyor!</h2>
+    <p>Babam bu bölümü senin için hazırlıyor canım. Çok yakında burada olacak!</p>
+  </div>
+</div>
+
+<script>
+  // ====== VERİ: HARFLER A'DAN Z'YE SIRAYLA ======
+  const HARF_GRUPLARI = [
+    {
+      ad: "Türk Alfabesi - A'dan Z'ye",
+      harfler: [
+        { harf:"A", kucuk:"a", kelimeler:[{e:"🍎",k:"elma",v:"a"},{e:"🐝",k:"arı",v:"a"},{e:"🌙",k:"ay",v:"a"}]},
+        { harf:"B", kucuk:"b", kelimeler:[{e:"🐟",k:"balık",v:"b"},{e:"🍌",k:"muz",v:"b"},{e:"🚌",k:"bus",v:"b"}]},
+        { harf:"C", kucuk:"c", kelimeler:[{e:"🪟",k:"cam",v:"c"},{e:"🥜",k:"ceviz",v:"c"},{e:"👻",k:"cin",v:"c"}]},
+        { harf:"Ç", kucuk:"ç", kelimeler:[{e:"🌺",k:"çiçek",v:"ç"},{e:"🍓",k:"çilek",v:"ç"},{e:"🧦",k:"çorap",v:"ç"}]},
+        { harf:"D", kucuk:"d", kelimeler:[{e:"🦷",k:"diş",v:"d"},{e:"🌳",k:"dal",v:"d"},{e:"🐬",k:"yunus",v:"d"}]},
+        { harf:"E", kucuk:"e", kelimeler:[{e:"🏠",k:"ev",v:"e"},{e:"🍐",k:"armut",v:"e"},{e:"🐘",k:"fil",v:"e"}]},
+        { harf:"F", kucuk:"f", kelimeler:[{e:"🐘",k:"fil",v:"f"},{e:"🌰",k:"fındık",v:"f"},{e:"🔦",k:"fener",v:"f"}]},
+        { harf:"G", kucuk:"g", kelimeler:[{e:"👁️",k:"göz",v:"g"},{e:"🌹",k:"gül",v:"g"},{e:"🌃",k:"gece",v:"g"}]},
+        { harf:"Ğ", kucuk:"ğ", kelimeler:[{e:"🌳",k:"ağaç",v:"ğ"},{e:"🐑",k:"koyun",v:"ğ"},{e:"🌾",k:"buğday",v:"ğ"}]},
+        { harf:"H", kucuk:"h", kelimeler:[{e:"🥕",k:"havuç",v:"h"},{e:"🐓",k:"horoz",v:"h"},{e:"🌊",k:"dalga",v:"h"}]},
+        { harf:"I", kucuk:"ı", kelimeler:[{e:"🌟",k:"ışık",v:"ı"},{e:"🥦",k:"ıspanak",v:"ı"},{e:"🌡️",k:"ılık",v:"ı"}]},
+        { harf:"İ", kucuk:"i", kelimeler:[{e:"🪡",k:"iğne",v:"i"},{e:"🐄",k:"inek",v:"i"},{e:"🧵",k:"iplik",v:"i"}]},
+        { harf:"J", kucuk:"j", kelimeler:[{e:"🧥",k:"jile",v:"j"},{e:"🃏",k:"joker",v:"j"},{e:"🏋️",k:"jimnastik",v:"j"}]},
+        { harf:"K", kucuk:"k", kelimeler:[{e:"🐱",k:"kedi",v:"k"},{e:"📕",k:"kitap",v:"k"},{e:"🦋",k:"kelebek",v:"k"}]},
+        { harf:"L", kucuk:"l", kelimeler:[{e:"🍋",k:"limon",v:"l"},{e:"🌷",k:"lale",v:"l"},{e:"💡",k:"lamba",v:"l"}]},
+        { harf:"M", kucuk:"m", kelimeler:[{e:"👩",k:"anne",v:"m"},{e:"🍌",k:"muz",v:"m"},{e:"🔵",k:"mavi",v:"m"}]},
+        { harf:"N", kucuk:"n", kelimeler:[{e:"🍋",k:"limon",v:"n"},{e:"👃",k:"burun",v:"n"},{e:"🍞",k:"ekmek",v:"n"}]},
+        { harf:"O", kucuk:"o", kelimeler:[{e:"🚌",k:"otobüs",v:"o"},{e:"🎯",k:"ok",v:"o"},{e:"🪟",k:"oda",v:"o"}]},
+        { harf:"Ö", kucuk:"ö", kelimeler:[{e:"🦆",k:"ördek",v:"ö"},{e:"👨‍🏫",k:"öğretmen",v:"ö"},{e:"💐",k:"örnek",v:"ö"}]},
+        { harf:"P", kucuk:"p", kelimeler:[{e:"🧁",k:"pasta",v:"p"},{e:"🪟",k:"pencere",v:"p"},{e:"🐠",k:"pul",v:"p"}]},
+        { harf:"R", kucuk:"r", kelimeler:[{e:"🚀",k:"roket",v:"r"},{e:"🌈",k:"renk",v:"r"},{e:"🎨",k:"resim",v:"r"}]},
+        { harf:"S", kucuk:"s", kelimeler:[{e:"💧",k:"su",v:"s"},{e:"⏰",k:"saat",v:"s"},{e:"🌻",k:"sarı",v:"s"}]},
+        { harf:"Ş", kucuk:"ş", kelimeler:[{e:"👒",k:"şapka",v:"ş"},{e:"🍬",k:"şeker",v:"ş"},{e:"☂️",k:"şemsiye",v:"ş"}]},
+        { harf:"T", kucuk:"t", kelimeler:[{e:"🐢",k:"tosbağa",v:"t"},{e:"🍅",k:"domates",v:"t"},{e:"🚂",k:"tren",v:"t"}]},
+        { harf:"U", kucuk:"u", kelimeler:[{e:"✈️",k:"uçak",v:"u"},{e:"🪁",k:"uçurtma",v:"u"},{e:"💧",k:"su",v:"u"}]},
+        { harf:"Ü", kucuk:"ü", kelimeler:[{e:"🍇",k:"üzüm",v:"ü"},{e:"🫶",k:"üç",v:"ü"},{e:"🧺",k:"ütü",v:"ü"}]},
+        { harf:"V", kucuk:"v", kelimeler:[{e:"🌸",k:"vazo",v:"v"},{e:"🚢",k:"vapur",v:"v"},{e:"🥳",k:"var",v:"v"}]},
+        { harf:"Y", kucuk:"y", kelimeler:[{e:"🥚",k:"yumurta",v:"y"},{e:"⭐",k:"yıldız",v:"y"},{e:"🌧️",k:"yağmur",v:"y"}]},
+        { harf:"Z", kucuk:"z", kelimeler:[{e:"🦒",k:"zürafa",v:"z"},{e:"🫒",k:"zeytin",v:"z"},{e:"🛎️",k:"zil",v:"z"}]}
+      ]
+    }
+  ];
+
+  // ====== VERİ: SAYILAR ======
+  const SAYI_YAZILARI = ['sıfır','bir','iki','üç','dört','beş','altı','yedi','sekiz','dokuz','on',
+    'on bir','on iki','on üç','on dört','on beş','on altı','on yedi','on sekiz','on dokuz','yirmi',
+    'yirmi bir','yirmi iki','yirmi üç','yirmi dört','yirmi beş','yirmi altı','yirmi yedi','yirmi sekiz','yirmi dokuz','otuz',
+    'kırk','elli','altmış','yetmiş','seksen','doksan','yüz'];
+  const SAYI_DEGERLERI = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,40,50,60,70,80,90,100];
+  const NESNE_EMOJILERI = ['🍎','🌟','🚀','🐝','🦋','🍕','💫','🌈','⭐','🎈','🍓','🐱','🌷','🎯','🧁'];
+  const SAYILAR_LISTESI = SAYI_DEGERLERI.map((s,i)=>({ sayi:s, yazi:SAYI_YAZILARI[i] }));
+
+  // ====== MOTİVASYON CÜMLELERİ ======
+  const MOTIVASYONLAR = [
+    "Aferin canım kızım! 💕",
+    "Nur Meva'ya alkış! 👏",
+    "Bravo, harika! ⭐",
+    "Çok güzel yaptın! 🌟",
+    "Sen bir yıldızsın! ✨",
+    "Süpersin! 🚀"
+  ];
+  
+  // ====== STATE ======
+  let durum = {
+    yildiz: 0,
+    tamamlananHarfler: [],
+    tamamlananSayilar: [],
+    tamamlananHikayeler: [],
+    sonHarf: null
+  };
+  
+  // localStorage'dan yükle
+  function durumYukle() {
+    try {
+      const k = localStorage.getItem('nurmeva_durum');
+      if (k) durum = { ...durum, ...JSON.parse(k) };
+    } catch(e) {}
+    yildizGuncelle();
+  }
+  
+  function durumKaydet() {
+    try {
+      localStorage.setItem('nurmeva_durum', JSON.stringify(durum));
+    } catch(e) {}
+  }
+  
+  function yildizGuncelle() {
+    document.querySelectorAll('[id^="yildizSayisi"]').forEach(el => {
+      el.textContent = durum.yildiz;
+    });
+  }
+  
+  // ====== UZAY ARKA PLANI ======
+  function uzayArkaplaniOlustur() {
+    const k = document.getElementById('yildizArka');
+    for (let i = 0; i < 80; i++) {
+      const y = document.createElement('div');
+      y.className = 'yildiz';
+      const boyut = Math.random() * 3 + 1;
+      y.style.width = boyut + 'px';
+      y.style.height = boyut + 'px';
+      y.style.left = Math.random() * 100 + '%';
+      y.style.top = Math.random() * 100 + '%';
+      y.style.animationDelay = Math.random() * 3 + 's';
+      k.appendChild(y);
+    }
+  }
+  
+  // ====== EKRAN GEÇİŞLERİ ======
+  function ekranAc(id) {
+    document.querySelectorAll('.sayfa').forEach(s => s.classList.remove('aktif'));
+    document.getElementById(id).classList.add('aktif');
+    if (id === 'okumaEkran') gruplariCiz();
+    if (id === 'koleksiyonEkran') galaksiCiz();
+    if (id === 'sayilarEkran') sayiGridCiz();
+    if (id === 'hikayelerEkran') hikayeListesiCiz();
+  }
+  
+  function yakindaAc(baslik) {
+    document.getElementById('yakindaBaslik').textContent = baslik + ' Yakında!';
+    ekranAc('yakindaEkran');
+  }
+  
+  // ====== GRUP LİSTESİ ÇİZ ======
+  function gruplariCiz() {
+    const k = document.getElementById('gruplarKonteyner');
+    k.innerHTML = '';
+    HARF_GRUPLARI.forEach((grup, gi) => {
+      const g = document.createElement('div');
+      g.className = 'grup';
+      // Tek grup olduğundan başlık gösterme
+      if (HARF_GRUPLARI.length > 1) {
+        const h = document.createElement('div');
+        h.className = 'grup-baslik';
+        h.textContent = grup.ad;
+        g.appendChild(h);
+      }
+      const harfKon = document.createElement('div');
+      harfKon.className = 'harfler';
+      grup.harfler.forEach((harf, hi) => {
+        const b = document.createElement('button');
+        b.className = 'harf-kart';
+        if (durum.tamamlananHarfler.includes(`${gi}-${hi}`)) {
+          b.classList.add('tamamlandi');
+        }
+        b.textContent = `${harf.harf}-${harf.kucuk}`;
+        b.onclick = () => harfAc(gi, hi);
+        harfKon.appendChild(b);
+      });
+      g.appendChild(harfKon);
+      k.appendChild(g);
+    });
+  }
+  
+  // ====== HARF DETAY ======
+  function harfAc(gi, hi) {
+    const harf = HARF_GRUPLARI[gi].harfler[hi];
+    durum.sonHarf = { gi, hi };
+    document.getElementById('buyukHarf').textContent = `${harf.harf} ${harf.kucuk}`;
+    
+    const k = document.getElementById('ornekKelimeler');
+    k.innerHTML = '';
+    harf.kelimeler.forEach(kel => {
+      const kart = document.createElement('div');
+      kart.className = 'kelime-kart';
+      kart.innerHTML = `
+        <span class="kelime-emoji">${kel.e}</span>
+        <span class="kelime-yazi">${kel.k}</span>
+      `;
+      kart.onclick = () => kelimeOku(kel.k);
+      k.appendChild(kart);
+    });
+    
+    ekranAc('harfEkran');
+    
+    // Harfi tamamlandı olarak işaretle ve yıldız ver
+    const harfId = `${gi}-${hi}`;
+    if (!durum.tamamlananHarfler.includes(harfId)) {
+      durum.tamamlananHarfler.push(harfId);
+      yildizKazan();
+    }
+    
+    setTimeout(() => harfSesiSoyle(), 400);
+  }
+  
+  // ====== SES SİSTEMİ (Web Speech API) ======
+  function konus(metin, hiz = 0.8) {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(metin);
+    u.lang = 'tr-TR';
+    u.rate = hiz;
+    u.pitch = 1.1;
+    speechSynthesis.speak(u);
+  }
+  
+  function harfSesiSoyle() {
+    if (!durum.sonHarf) {
+      // Ana harf detayda değilsek sonHarf yok, harfin metnini al
+      const buyukHarf = document.getElementById('buyukHarf').textContent;
+      const ilkHarf = buyukHarf.trim().charAt(0);
+      konus(ilkHarf, 0.7);
+      return;
+    }
+    const harf = HARF_GRUPLARI[durum.sonHarf.gi].harfler[durum.sonHarf.hi];
+    // Türkçe ses temelli - kısa harf sesi
+    konus(harf.kucuk, 0.6);
+  }
+  
+  function kelimeOku(kelime) {
+    konus(kelime, 0.75);
+  }
+  
+  // ====== YILDIZ KAZANMA ======
+  function yildizKazan() {
+    durum.yildiz++;
+    durumKaydet();
+    yildizGuncelle();
+    yildizAnimasyonOynat();
+    motivasyonGoster();
+  }
+  
+  function yildizAnimasyonOynat() {
+    const k = document.getElementById('yildizAnim');
+    k.innerHTML = '';
+    k.classList.add('aktif');
+    
+    // Samanyolu efekti
+    const sm = document.createElement('div');
+    sm.className = 'samanyolu';
+    k.appendChild(sm);
+    
+    // Uçan yıldızlar
+    for (let i = 0; i < 12; i++) {
+      const y = document.createElement('div');
+      y.className = 'ucan-yildiz';
+      y.textContent = '⭐';
+      y.style.left = '50%';
+      y.style.top = '50%';
+      y.style.fontSize = (40 + Math.random() * 30) + 'px';
+      
+      const aci = (i / 12) * Math.PI * 2;
+      const mesafe = 200 + Math.random() * 150;
+      const dx = Math.cos(aci) * mesafe;
+      const dy = Math.sin(aci) * mesafe;
+      
+      y.animate([
+        { transform: 'translate(-50%, -50%) scale(0) rotate(0deg)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1) rotate(720deg)`, opacity: 1, offset: 0.7 },
+        { transform: `translate(calc(-50% + ${dx*1.5}px), calc(-50% + ${dy*1.5}px)) scale(0.3) rotate(1080deg)`, opacity: 0 }
+      ], { duration: 1500, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' });
+      
+      k.appendChild(y);
+    }
+    
+    setTimeout(() => k.classList.remove('aktif'), 1600);
+  }
+  
+  function motivasyonGoster() {
+    const m = document.getElementById('motivasyon');
+    m.textContent = MOTIVASYONLAR[Math.floor(Math.random() * MOTIVASYONLAR.length)];
+    m.classList.remove('gor');
+    void m.offsetWidth; // reflow
+    m.classList.add('gor');
+  }
+  
+  // ====== YILDIZ GALAKSİSİ ======
+  function galaksiCiz() {
+    const k = document.getElementById('galaksi');
+    k.innerHTML = '';
+    const toplamHarf = HARF_GRUPLARI.reduce((t, g) => t + g.harfler.length, 0);
+    const hedefSayi = Math.max(toplamHarf * 2, 60);
+    
+    for (let i = 0; i < hedefSayi; i++) {
+      const y = document.createElement('div');
+      y.className = 'yildiz-yuva';
+      if (i < durum.yildiz) {
+        y.classList.add('dolu');
+        y.textContent = '⭐';
+        y.style.animationDelay = (i * 0.05) + 's';
+      } else {
+        y.textContent = '✦';
+      }
+      k.appendChild(y);
+    }
+  }
+  
+  // ====== HİKAYELER ======
+  const HIKAYELER = [
+    {
+      id: 'nh_kaz',
+      baslik: 'Kaz ile Yumurta',
+      kaynak: 'Nasreddin Hoca',
+      kapak: '🪿',
+      renk: '#f59e0b',
+      paragraflar: [
+        'Bir gün Nasreddin Hoca, çarşıda büyük bir kaz gördü. Kazın tüyleri bembeyazdı, yürüyüşü de çok gururluydu.',
+        'Hoca, kazı satın aldı ve eve götürdü. "Bu kaz bana altın yumurta yumurtlayacak!" diye düşündü. Çok mutluydu.',
+        'Ertesi sabah ahıra koştu. Ama kazın yumurttağı yumurta sıradan bir yumurtaydı. Ne altın vardı, ne de gümüş.',
+        'Hoca başını kaşıdı ve güldü. "Demek ki masallardaki kazlar burada yaşamıyor!" dedi. Yumurtayı alıp çorba yaptı.',
+        'O günden sonra Hoca hep dürüst davrandı. "Hayal kurmak güzeldir, ama çalışmak daha güzeldir," derdi.'
+      ],
+      sorular: [
+        { soru: 'Hoca kazi nerede gördü?', secenekler: ['Ormanda', 'Çarşıda', 'Nehir kenarında', 'Bahçede'], dogru: 1 },
+        { soru: 'Hoca kazdan ne bekliyordu?', secenekler: ['Tüy', 'Süt', 'Altın yumurta', 'Yün'], dogru: 2 },
+        { soru: 'Hoca ne öğrendi?', secenekler: ['Kaz beslemek zordur', 'Hayal kurmak yanlıştır', 'Çalışmak önemlidir', 'Çarşıya gitmemeli'], dogru: 2 }
+      ]
+    },
+    {
+      id: 'nh_ay',
+      baslik: 'Ay Nerede?',
+      kaynak: 'Nasreddin Hoca',
+      kapak: '🌙',
+      renk: '#8b5cf6',
+      paragraflar: [
+        'Bir gece Nasreddin Hoca, kuyunun başına oturdu. Kuyunun içinde parlak bir ışık gördü. Ay kuyuya düşmüştü!',
+        '"Aman, ayı kurtarmalıyım!" diye bağırdı. İpini kuyuya sarkıttı. Çekti, çekti, çekti.',
+        'Bir anda ip koptu. Hoca sırt üstü yere düştü. Canı biraz acıdı. Gözlerini açtı ve gökyüzüne baktı.',
+        'Gökyüzünde ay parlıyordu. Hoca güldü. "Ne iyi oldu! Ayı kurtardım, gökyüzüne çıktı!" dedi.',
+        'Komşuları güldü. Ama Hoca hiç utanmadı. "İyi niyet önemlidir," dedi ve evine gitti.'
+      ],
+      sorular: [
+        { soru: 'Hoca ayı nerede gördü?', secenekler: ['Gökyüzünde', 'Nehirde', 'Kuyuda', 'Ağaçta'], dogru: 2 },
+        { soru: 'Hoca ne yapmaya çalıştı?', secenekler: ['Su çekmek', 'Ayı kurtarmak', 'Balık tutmak', 'İp bulmak'], dogru: 1 },
+        { soru: 'Gerçekte ay neredeydi?', secenekler: ['Kuyuda', 'Gökyüzünde', 'Evde', 'Çarşıda'], dogru: 1 }
+      ]
+    },
+    {
+      id: 'nh_kazan',
+      baslik: 'Kazan Doğurdu',
+      kaynak: 'Nasreddin Hoca',
+      kapak: '🪣',
+      renk: '#ef4444',
+      paragraflar: [
+        'Bir gün komşusu Hocaya güzel bir kazan verdi. "Bunu birkaç günlüğüne ödünç alabilir miyim?" dedi.',
+        '"Tabii," dedi Hoca ve kazanı verdi. Birkaç gün sonra Hoca kazanı geri getirdi. İçinde küçük bir tencere vardı.',
+        '"Bu ne?" diye sordu komşu. Hoca güldü. "Kazanın bebeği! Yanında bir tencere doğurdu."',
+        'Komşu çok sevindi. Hem kazanı hem tencereyi aldı. Aradan birkaç gün geçti. Hoca kazanı tekrar ödünç istedi.',
+        'Komşu hemen verdi. Ama Hoca bu sefer geri getirmedi. Merak eden komşu sordu. Hoca üzgün bir yüzle dedi ki: "Kazan öldü!" Komşu şaştı. "Kazan mı ölür?" Hoca omuz silkti: "Doğurabiliyorsa, ölür de!"'
+      ],
+      sorular: [
+        { soru: 'Hoca kazanla birlikte ne getirdi?', secenekler: ['Bir tabak', 'Bir tencere', 'Bir kap', 'Bir kova'], dogru: 1 },
+        { soru: 'Hoca kazanı neden geri getirmedi?', secenekler: ['Kaybetti', 'Sattı', 'Öldü dedi', 'Unuttu'], dogru: 2 },
+        { soru: 'Bu hikayede Hoca ne anlatmak istedi?', secenekler: ['Kazanlar çok pahalıdır', 'Akıllı olmak önemlidir', 'Komşular yardımsever olmalı', 'Kazan almak doğru değil'], dogru: 1 }
+      ]
+    },
+    {
+      id: 'dk_tepegoz',
+      baslik: 'Basat ile Tepegöz',
+      kaynak: 'Dede Korkut',
+      kapak: '🏔️',
+      renk: '#0891b2',
+      paragraflar: [
+        'Çok eskiden, dağların ardında güçlü bir boy yaşardı. Bu boyun yiğitlerinden birinin adı Basat\'tı. Basat, yüreği aslan gibi cesur bir delikanlıydı.',
+        'O yıllarda dağlarda tek gözlü, devasa bir yaratık ortaya çıktı. Adına Tepegöz derlerdi. Tepegöz köyleri basıyor, insanları korkutuyordu.',
+        'Herkes korkup kaçarken Basat ileriye adım attı. "Ben gideceğim, bu yaratığı durduracağım," dedi. Annesi ağladı, babası dua etti.',
+        'Basat dağa çıktı. Tepegöz ile karşılaştı. Büyük bir savaş oldu. Basat zekasını ve cesaretini kullandı.',
+        'Sonunda Basat, Tepegöz\'ü yendi. Köyüne döndü. Herkes sevinçle karşıladı onu. "Yiğitlik yalnız güçten değil, akıldan gelir," dedi yaşlı Dede Korkut.'
+      ],
+      sorular: [
+        { soru: 'Tepegöz nasıl bir yaratıktı?', secenekler: ['Çift kanatlı', 'Tek gözlü', 'Üç ayaklı', 'Dört kollu'], dogru: 1 },
+        { soru: 'Basat Tepegöz\'ü yenmek için ne kullandı?', secenekler: ['Sadece gücünü', 'Ok ve yayını', 'Zekasını ve cesaretini', 'Sihirli bir kılıç'], dogru: 2 },
+        { soru: 'Dede Korkut ne dedi?', secenekler: ['Güç her şeydir', 'Yiğitlik akıldan da gelir', 'Dağa çıkma', 'Kaçmak en iyisi'], dogru: 1 }
+      ]
+    },
+    {
+      id: 'dk_bogazca',
+      baslik: 'Boğaç Han',
+      kaynak: 'Dede Korkut',
+      kapak: '🦅',
+      renk: '#16a34a',
+      paragraflar: [
+        'Dirse Han\'ın uzun yıllar çocuğu olmadı. Sonunda tanrı ona bir oğul verdi. Çocuğa ad koyacaktı ama Dede Korkut dedi: "Ad, iş yapılınca verilir."',
+        'Yıllar geçti. Genç delikanlı büyüdü. Bir gün meydanda büyük ve vahşi bir boğa serbest bırakıldı. Kimse yaklaşamıyordu.',
+        'Genç delikanlı korkmadan boğanın karşısına çıktı. Uzun ve zorlu bir mücadele oldu. Herkes tuttu nefesini.',
+        'Sonunda delikanlı boğayı devirdi! Herkes hayretle baktı. Dede Korkut ilerledi ve dedi: "Bu çocuğun adı artık Boğaç Han\'dır!"',
+        'Boğaç Han büyüyünce adil ve cesur bir han oldu. Halkı onu çok sevdi. Çünkü o hem güçlüydü hem de merhametliydi.'
+      ],
+      sorular: [
+        { soru: 'Dede Korkut\'a göre ad ne zaman verilir?', secenekler: ['Doğunca', 'İş yapılınca', 'Büyüyünce', 'Evlenince'], dogru: 1 },
+        { soru: 'Boğaç Han adını neden aldı?', secenekler: ['Çok hızlı koştuğu için', 'Boğayı yendiği için', 'Güzel şarkı söylediği için', 'Uzak yerlere gittiği için'], dogru: 1 },
+        { soru: 'Boğaç Han büyüyünce nasıl biri oldu?', secenekler: ['Korkak ve sinirli', 'Adaletsiz ve sert', 'Cesur ve merhametli', 'Tembel ve unutkan'], dogru: 2 }
+      ]
+    },
+    {
+      id: 'dk_bamsi',
+      baslik: 'Bamsi Beyrek',
+      kaynak: 'Dede Korkut',
+      kapak: '🏹',
+      renk: '#b45309',
+      paragraflar: [
+        'Bay Büre\'nin oğlu Bamsi, henüz doğmadan nişanlandı. Anneleri ve babaları iki çocuklarını birbirlerine söz vermişlerdi.',
+        'Bamsi büyüdü, yakışıklı ve yiğit bir delikanlı oldu. Sevgilisi Banu Çiçek de onun için yıllar boyu bekledi.',
+        'Ama bir gün düşmanlar Bamsi\'yi yakalayıp zindana attı. Uzun yıllar geçti. Herkes Bamsi\'nin öldüğünü sandı.',
+        'Banu Çiçek, Bamsi olmadan yaşamak istemiyordu. Başka biriyle evlenmek zorunda kaldı. Tam o gün Bamsi kaçıp geldi.',
+        'Bamsi, düğün törenine saz çalan bir ozan kılığında girdi. Sazını çalıp türküler söyledi. Banu Çiçek onu tanıdı. Gözyaşları aktı. İkisi kavuştu. Bamsi, sevdiğini hiç bırakmamıştı çünkü.'
+      ],
+      sorular: [
+        { soru: 'Bamsi nişanlandığında neredeydi?', secenekler: ['Çok küçüktü', 'Henüz doğmamıştı', 'Savaştaydı', 'Uzak bir yerde'], dogru: 1 },
+        { soru: 'Bamsi\'ye ne oldu?', secenekler: ['Ülkeden kaçtı', 'Düşmanlarca yakalandı', 'Hastalandı', 'Kayboldu'], dogru: 1 },
+        { soru: 'Bamsi düğüne nasıl girdi?', secenekler: ['Asker kılığında', 'Tüccar kılığında', 'Ozan kılığında', 'Derviş kılığında'], dogru: 2 }
+      ]
+    }
+  ];
+
+  // ====== HİKAYE FONKSİYONLARI ======
+  let aktifHikaye = null;
+  let soruCevaplandi = [];
+  let sesDevam = false;
+
+  function hikayeListesiCiz() {
+    const k = document.getElementById('hikayeListe');
+    k.innerHTML = '';
+
+    // Kaynak grupları
+    const nasreddin = HIKAYELER.filter(h => h.kaynak === 'Nasreddin Hoca');
+    const dede = HIKAYELER.filter(h => h.kaynak === 'Dede Korkut');
+
+    [[' Nasreddin Hoca Hikayeleri 🧔', nasreddin], ['Dede Korkut Masalları 📜', dede]].forEach(([baslik, liste]) => {
+      const gb = document.createElement('div');
+      gb.style.cssText = 'font-size:clamp(14px,3vw,18px);font-weight:700;color:var(--sari);padding:4px 2px 2px;';
+      gb.textContent = baslik;
+      k.appendChild(gb);
+
+      liste.forEach(h => {
+        const tam = (durum.tamamlananHikayeler||[]).includes(h.id);
+        const div = document.createElement('div');
+        div.className = 'hikaye-kart' + (tam ? ' tamamlandi' : '');
+        div.style.borderColor = tam ? h.renk : '';
+        div.innerHTML = `
+          <div class="hikaye-kapak">${h.kapak}</div>
+          <div class="hikaye-bilgi">
+            <h3>${h.baslik}</h3>
+            <p>${h.kaynak} • ${h.paragraflar.length} bölüm</p>
+          </div>
+          <div class="hikaye-rozet">${tam ? '⭐' : '→'}</div>
+        `;
+        div.onclick = () => hikayeAc(h.id);
+        k.appendChild(div);
+      });
+    });
+  }
+
+  function hikayeAc(id) {
+    aktifHikaye = HIKAYELER.find(h => h.id === id);
+    if (!aktifHikaye) return;
+    sesDevam = false;
+    speechSynthesis.cancel();
+
+    document.getElementById('okuma-baslik-txt').textContent = `${aktifHikaye.kapak} ${aktifHikaye.baslik}`;
+
+    const ana = document.getElementById('okuma-ana');
+    ana.innerHTML = '';
+
+    aktifHikaye.paragraflar.forEach((p, i) => {
+      const blok = document.createElement('div');
+      blok.className = 'paragraf-blok';
+      blok.id = 'para-' + i;
+      blok.style.borderLeftColor = aktifHikaye.renk;
+      blok.innerHTML = `${p}<span class="ses-ipucu">🔊 Dokunarak dinle</span>`;
+      blok.onclick = () => paragrafOku(i);
+      ana.appendChild(blok);
+    });
+
+    ilerlemeGuncelle(0);
+    ekranAc('hikayeOkumaEkran');
+  }
+
+  function paragrafOku(idx) {
+    speechSynthesis.cancel();
+    const bloklar = document.querySelectorAll('.paragraf-blok');
+    bloklar.forEach(b => b.classList.remove('aktif-okuma'));
+    bloklar[idx].classList.add('aktif-okuma');
+    bloklar[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    const metin = aktifHikaye.paragraflar[idx];
+    const u = new SpeechSynthesisUtterance(metin);
+    u.lang = 'tr-TR'; u.rate = 0.82; u.pitch = 1.05;
+    u.onend = () => {
+      bloklar[idx].classList.remove('aktif-okuma');
+      ilerlemeGuncelle(idx + 1);
+      if (sesDevam && idx + 1 < aktifHikaye.paragraflar.length) {
+        setTimeout(() => paragrafOku(idx + 1), 500);
+      }
+    };
+    speechSynthesis.speak(u);
+    ilerlemeGuncelle(idx);
+  }
+
+  function tumunuOku() {
+    sesDevam = true;
+    paragrafOku(0);
+  }
+
+  function ilerlemeGuncelle(okunan) {
+    const yuzde = Math.round(okunan / aktifHikaye.paragraflar.length * 100);
+    document.getElementById('okuma-ilerleme-ic').style.width = yuzde + '%';
+  }
+
+  function hikayeBitti() {
+    speechSynthesis.cancel();
+    sesDevam = false;
+    soruCevaplandi = new Array(aktifHikaye.sorular.length).fill(false);
+
+    document.getElementById('soru-baslik').textContent = `${aktifHikaye.kapak} Ne Öğrendik?`;
+    const se = document.getElementById('soru-ekrani');
+    se.innerHTML = '';
+
+    aktifHikaye.sorular.forEach((s, si) => {
+      const blok = document.createElement('div');
+      blok.className = 'soru-blok';
+      blok.style.borderColor = aktifHikaye.renk + '55';
+
+      const metin = document.createElement('div');
+      metin.className = 'soru-metin';
+      metin.textContent = `${si + 1}. ${s.soru}`;
+      blok.appendChild(metin);
+
+      const secDiv = document.createElement('div');
+      secDiv.className = 'soru-secenekler';
+
+      const bildirim = document.createElement('div');
+      bildirim.className = 'soru-geri-bildirim';
+
+      s.secenekler.forEach((sec, seci) => {
+        const btn = document.createElement('button');
+        btn.className = 'soru-secim';
+        btn.textContent = sec;
+        btn.onclick = () => {
+          if (soruCevaplandi[si]) return;
+          soruCevaplandi[si] = true;
+
+          secDiv.querySelectorAll('.soru-secim').forEach(b => b.disabled = true);
+
+          if (seci === s.dogru) {
+            btn.classList.add('dogru');
+            bildirim.className = 'soru-geri-bildirim dogru';
+            bildirim.textContent = '✅ Harika! Doğru cevap!';
+            konus('Aferin! Doğru!', 0.9);
+            if (!soruCevaplandi._yildizVerildi) {
+              soruCevaplandi._yildizVerildi = true;
+            }
+            motivasyonGoster();
+          } else {
+            btn.classList.add('yanlis');
+            bildirim.className = 'soru-geri-bildirim yanlis';
+            bildirim.textContent = `❌ Doğru cevap: "${s.secenekler[s.dogru]}"`;
+            secDiv.querySelectorAll('.soru-secim')[s.dogru].classList.add('goster');
+          }
+
+          // Tüm sorular cevaplandı mı kontrol et
+          const hepsiCevaplandi = soruCevaplandi.slice(0, aktifHikaye.sorular.length).every(Boolean);
+          if (hepsiCevaplandi) {
+            setTimeout(() => hikayeTamamla(), 800);
+          }
+        };
+        secDiv.appendChild(btn);
+      });
+
+      blok.appendChild(secDiv);
+      blok.appendChild(bildirim);
+      se.appendChild(blok);
+    });
+
+    ekranAc('sorularEkran');
+  }
+
+  function hikayeTamamla() {
+    if (!durum.tamamlananHikayeler) durum.tamamlananHikayeler = [];
+    if (!durum.tamamlananHikayeler.includes(aktifHikaye.id)) {
+      durum.tamamlananHikayeler.push(aktifHikaye.id);
+      yildizKazan();
+      yildizKazan(); // Hikaye için 2 yıldız
+    }
+  }
+  let aktifSayiIdx = 0;
+  let sayiSoruCevaplandi = false;
+
+  function sayiGridCiz() {
+    const k = document.getElementById('sayiGrid');
+    k.innerHTML = '';
+    SAYILAR_LISTESI.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'sayi-kart';
+      if (s.sayi >= 40) btn.classList.add('buyuk');
+      else if (s.sayi > 0 && s.sayi % 10 === 0) btn.classList.add('onluk');
+      if ((durum.tamamlananSayilar||[]).includes(i)) btn.classList.add('tamamlandi');
+      btn.innerHTML = `${s.sayi}<span class="sayi-alti">${s.yazi}</span>`;
+      btn.onclick = () => sayiAc(i);
+      k.appendChild(btn);
+    });
+  }
+
+  function sayiAc(idx) {
+    aktifSayiIdx = idx;
+    const s = SAYILAR_LISTESI[idx];
+    document.getElementById('buyukSayi').textContent = s.sayi;
+    document.getElementById('sayiAdi').textContent = s.yazi;
+
+    // Onluk bilgi
+    const ob = document.getElementById('onlukBilgi');
+    if (s.sayi >= 11 && s.sayi <= 30 && s.sayi !== 20) {
+      const on = Math.floor(s.sayi / 10);
+      const bir = s.sayi % 10;
+      ob.textContent = `${on} onluk + ${bir} birlik = ${s.sayi}`;
+      ob.style.display = 'block';
+    } else {
+      ob.style.display = 'none';
+    }
+
+    // Nesne göster (max 30, büyük sayılar için 10ar grup)
+    const na = document.getElementById('nesneAlani');
+    na.innerHTML = '';
+    const emoji = NESNE_EMOJILERI[idx % NESNE_EMOJILERI.length];
+    const gosterim = Math.min(s.sayi, 30);
+    if (s.sayi <= 30) {
+      for (let i = 0; i < gosterim; i++) {
+        const sp = document.createElement('span');
+        sp.className = 'nesne-item';
+        sp.style.animationDelay = (i * 0.05) + 's';
+        sp.textContent = emoji;
+        na.appendChild(sp);
+      }
+    } else {
+      // Büyük sayılar: 10'ar gruplar
+      const grupSayisi = s.sayi / 10;
+      for (let i = 0; i < grupSayisi; i++) {
+        const sp = document.createElement('span');
+        sp.className = 'nesne-item';
+        sp.style.animationDelay = (i * 0.08) + 's';
+        sp.textContent = '🔟';
+        na.appendChild(sp);
+      }
+      const bilgi = document.createElement('div');
+      bilgi.style.cssText = 'width:100%;text-align:center;font-size:13px;color:rgba(255,255,255,.6);margin-top:4px';
+      bilgi.textContent = `Her 🔟 = on tane`;
+      na.appendChild(bilgi);
+    }
+
+    // Sayma sorusu
+    sayiSoruOlustur(s.sayi, idx);
+
+    // Nav butonları
+    document.getElementById('sayiGeriBtn').style.display = idx === 0 ? 'none' : '';
+    document.getElementById('sayiIleriBtn').style.display = idx === SAYILAR_LISTESI.length-1 ? 'none' : '';
+
+    ekranAc('sayiDetayEkran');
+
+    // Tamamlandı işaretle
+    if (!durum.tamamlananSayilar) durum.tamamlananSayilar = [];
+    if (!durum.tamamlananSayilar.includes(idx)) {
+      durum.tamamlananSayilar.push(idx);
+      yildizKazan();
+    }
+    setTimeout(() => sayiSesOku(), 400);
+  }
+
+  function sayiSoruOlustur(dogru, idx) {
+    sayiSoruCevaplandi = false;
+    const sor = document.getElementById('saymaSoru');
+    const metin = document.getElementById('soruMetin');
+    const sec = document.getElementById('secenekler');
+    sec.innerHTML = '';
+
+    metin.textContent = `"${SAYI_YAZILARI[idx]}" kaç?`;
+
+    // 4 seçenek üret
+    const set = new Set([dogru]);
+    while (set.size < 4) {
+      const r = SAYI_DEGERLERI[Math.floor(Math.random() * SAYI_DEGERLERI.length)];
+      if (r !== dogru) set.add(r);
+    }
+    const secenekler = [...set].sort(() => Math.random() - .5);
+
+    secenekler.forEach(val => {
+      const btn = document.createElement('button');
+      btn.className = 'secim-btn';
+      btn.textContent = val;
+      btn.onclick = () => {
+        if (sayiSoruCevaplandi) return;
+        sayiSoruCevaplandi = true;
+        if (val === dogru) {
+          btn.classList.add('dogru');
+          konus('Aferin! Doğru!', 0.9);
+          motivasyonGoster();
+        } else {
+          btn.classList.add('yanlis');
+          // doğruyu göster
+          sec.querySelectorAll('.secim-btn').forEach(b => {
+            if (parseInt(b.textContent) === dogru) b.classList.add('dogru');
+          });
+          konus(dogru + '', 0.8);
+        }
+      };
+      sec.appendChild(btn);
+    });
+  }
+
+  function sayiSesOku() {
+    const s = SAYILAR_LISTESI[aktifSayiIdx];
+    konus(s.yazi, 0.75);
+  }
+
+  function sayiGit(yon) {
+    const yeni = aktifSayiIdx + yon;
+    if (yeni >= 0 && yeni < SAYILAR_LISTESI.length) sayiAc(yeni);
+  }
+
+  // ====== BAŞLAT ======
+  uzayArkaplaniOlustur();
+  durumYukle();
+  
+  // İlk açılışta hoş geldin sesi (kullanıcı etkileşimi gerekir)
+  document.body.addEventListener('click', function ilkTiklama() {
+    konus('Hoş geldin Nur Meva!', 0.85);
+    document.body.removeEventListener('click', ilkTiklama);
+  }, { once: true });
+</script>
+
+
+
+
+
+
+
+<div class="yildizlar" id="cizgiYldz" style="position:fixed;inset:0;pointer-events:none;z-index:0;display:none;"></div>
+  <div class="yildiz-efekt" id="yldEfekt" style="position:fixed;inset:0;pointer-events:none;z-index:9999;display:none;"></div>
+  <!-- ══ ÇİZGİ ÇALIŞMALARI SAYFALARI ══ -->
+  <div class="kutlama" id="kutlama">
+  <div class="kutlama-kart">
+    <span class="kutlama-emoji" id="kutlamaEmoji">⭐</span>
+    <h2 id="kutlamaBaslik">Harika!</h2>
+    <p id="kutlamaMesaj">Çizgiyi tamamladın!</p>
+    <div class="kutlama-btns">
+      <button class="kutlama-btn ikincil" onclick="kutlamaKapat()">Tekrar</button>
+      <button class="kutlama-btn" id="kutlamaSonrakiBtn" onclick="sonrakiAlistirma()">Sonraki →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ANA MENU -->
+<div class="sayfa" id="anaMenu">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="anaSayfayaDon()">← Ana Sayfa</button>
+    <span class="baslik-bar">✏️ Çizgi Çalışmaları</span>
+    <button class="yildiz-chip" id="chipYildiz">⭐ <span id="chipSayi">0</span></button>
+  </div>
+  <div class="icerik">
+    <h2>Ne yapalım bugün?</h2>
+    <div class="menu-kartlar">
+      <button class="menu-kart kart-rehber" onclick="cizgiEkranAc('rehberMenu')">
+        <span class="byk-ikon">🐝</span>
+        <span>Çizgi Takip<br>Alıştırmaları</span>
+      </button>
+      <button class="menu-kart kart-tahta" onclick="cizgiEkranAc('tahtaEkran'); tahtaBaslat()">
+        <span class="byk-ikon">🖊️</span>
+        <span>Kara Tahta</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- REHBERLİ TAKİP MENU -->
+<div class="sayfa" id="rehberMenu">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="cizgiEkranAc('anaMenu')">← Geri</button>
+    <span class="baslik-bar">🐝 Çizgi Takip</span>
+    <button class="yildiz-chip">⭐ <span id="rehberYildiz">0</span></button>
+  </div>
+  <div class="liste" id="alistirmaListe"></div>
+</div>
+
+<!-- ÇİZİM EKRANI (Rehberli) -->
+<div class="sayfa" id="cizimEkran">
+  <div class="cizim-ust">
+    <button class="geri-btn" onclick="cizgiEkranAc('rehberMenu'); cizimTemizle()">← Geri</button>
+    <div class="baslik-ust" id="cizimBaslik">🐝 → 🍯</div>
+    <div style="width:60px"></div>
+  </div>
+  <div class="cizim-ana">
+    <canvas id="rehberCanvas"></canvas>
+    <canvas id="cizimCanvas"></canvas>
+    <div class="ilerleme-goster" id="ilerlemeTxt">0%</div>
+  </div>
+  <div class="cizim-alt">
+    <div class="kalem-kalinlik">
+      <button class="kalinlik-btn aktif" style="width:20px;height:20px;" data-k="6" onclick="kalinlikSec(this,6)"></button>
+      <button class="kalinlik-btn" style="width:28px;height:28px;" data-k="12" onclick="kalinlikSec(this,12)"></button>
+      <button class="kalinlik-btn" style="width:36px;height:36px;" data-k="20" onclick="kalinlikSec(this,20)"></button>
+    </div>
+    <button class="arac-btn sil-btn" onclick="cizimTemizle()">🗑️ Temizle</button>
+    <button class="arac-btn ileri-btn" id="ileriBtn" onclick="ileriGit()" style="display:none">Sonraki →</button>
+  </div>
+</div>
+
+<!-- KARA TAHTA -->
+<div class="sayfa" id="tahtaEkran">
+  <div class="tahta-ust">
+    <button class="geri-btn" onclick="cizgiEkranAc('anaMenu')">← Geri</button>
+    <div class="tahta-baslik">🖊️ Kara Tahta</div>
+    <div style="width:60px"></div>
+  </div>
+  <div class="tahta-ana">
+    <div class="tahta-cerceve">
+      <canvas id="tahtaCanvas"></canvas>
+    </div>
+  </div>
+  <div class="tahta-alt">
+    <div class="renk-paleti" id="renkPaleti">
+      <!-- Tebeşir renkleri JS ile eklenecek -->
+    </div>
+    <div class="tebesir-kalinlik">
+      <button class="tb-btn aktif" style="width:22px;height:22px;" onclick="tbKalinlik(this,4)"></button>
+      <button class="tb-btn" style="width:30px;height:30px;" onclick="tbKalinlik(this,9)"></button>
+      <button class="tb-btn" style="width:38px;height:38px;" onclick="tbKalinlik(this,16)"></button>
+    </div>
+    <div class="tahta-araclari">
+      <button class="tahta-btn sil" onclick="tahtaSil()">🧹 Sil</button>
+    </div>
+  </div>
+</div>
+
+  <script>
+  /* ── Çizgi Çalışmaları JS ── */
+  
+// ──────────── VERİ / DURUM ────────────
+let cizgiDurum = { yildiz: 0, tamamlanan: [] };
+try { const k=localStorage.getItem('cizgi_durum'); if(k) cizgiDurum={...cizgiDurum,...JSON.parse(k)}; } catch(e){}
+function cizgiKaydet() { try { localStorage.setItem('cizgi_durum',JSON.stringify(cizgiDurum)); }catch(e){} }
+function cizgiYildizGuncelle() {
+  document.querySelectorAll('#chipSayi,#rehberYildiz').forEach(el=>el.textContent=cizgiDurum.yildiz);
+}
+
+// ──────────── ALIŞTİRMALAR ────────────
+// Her alıştırma: {id, baslik, aciklama, ikon, hedef, yol}
+// yol: SVG path komutları dizisi (yüzde cinsinden koordinatlar 0-100)
+const ALISTIRMALAR = [
+  {
+    id:'kelebek_cicek', baslik:'Kelebek → Çiçek', aciklama:'Kelebeği çiçeğe uçur!',
+    ikon:'🦋', hedef:'🌸', renk:'#ec4899',
+    yol: [
+      {x:12,y:55},{x:22,y:48},{x:35,y:42},{x:50,y:45},
+      {x:65,y:42},{x:78,y:48},{x:88,y:55}
+    ]
+  },
+  {
+    id:'ari_bal', baslik:'Arı → Bal', aciklama:'Arıyı bal peteğine götür!',
+    ikon:'🐝', hedef:'🍯', renk:'#f59e0b',
+    yol: [
+      {x:10,y:70},{x:18,y:50},{x:30,y:35},{x:50,y:30},
+      {x:70,y:35},{x:82,y:50},{x:90,y:70}
+    ]
+  },
+  {
+    id:'roket_yildiz', baslik:'Roket → Yıldız', aciklama:'Roketi yıldıza uçur!',
+    ikon:'🚀', hedef:'⭐', renk:'#8b5cf6',
+    yol: [
+      {x:10,y:80},{x:15,y:65},{x:22,y:50},{x:32,y:38},
+      {x:45,y:28},{x:60,y:22},{x:75,y:20},{x:88,y:22}
+    ]
+  },
+  {
+    id:'balik_deniz', baslik:'Balık → Deniz', aciklama:'Balığı suya bırak!',
+    ikon:'🐟', hedef:'🌊', renk:'#06b6d4',
+    yol: [
+      {x:10,y:40},{x:22,y:55},{x:35,y:65},{x:50,y:60},
+      {x:65,y:55},{x:78,y:60},{x:90,y:55}
+    ]
+  },
+  {
+    id:'ay_bulut', baslik:'Ay → Bulut', aciklama:'Ayı buluta götür!',
+    ikon:'🌙', hedef:'☁️', renk:'#a78bfa',
+    yol: [
+      {x:12,y:75},{x:20,y:60},{x:32,y:48},{x:45,y:40},
+      {x:58,y:38},{x:70,y:42},{x:80,y:50},{x:88,y:42}
+    ]
+  },
+  {
+    id:'kedi_ev', baslik:'Kedi → Ev', aciklama:'Kediyi evine götür!',
+    ikon:'🐱', hedef:'🏠', renk:'#f97316',
+    yol: [
+      {x:10,y:50},{x:25,y:50},{x:40,y:55},{x:55,y:45},
+      {x:70,y:50},{x:85,y:50},{x:90,y:50}
+    ]
+  },
+  {
+    id:'karinca_seker', baslik:'Karınca → Şeker', aciklama:'Karıncayı şekere götür!',
+    ikon:'🐜', hedef:'🍬', renk:'#ef4444',
+    yol: [
+      {x:10,y:60},{x:20,y:45},{x:28,y:60},{x:38,y:45},
+      {x:48,y:60},{x:58,y:45},{x:68,y:60},{x:78,y:45},{x:88,y:55}
+    ]
+  },
+  {
+    id:'kopek_kemik', baslik:'Köpek → Kemik', aciklama:'Köpeği kemiğe götür!',
+    ikon:'🐶', hedef:'🦴', renk:'#84cc16',
+    yol: [
+      {x:10,y:50},{x:30,y:35},{x:50,y:50},{x:70,y:65},{x:90,y:50}
+    ]
+  },
+  {
+    id:'tavsan_havuc', baslik:'Tavşan → Havuç', aciklama:'Tavşanı havuca zıplat!',
+    ikon:'🐰', hedef:'🥕', renk:'#f97316',
+    yol: [
+      {x:10,y:65},{x:18,y:45},{x:26,y:65},{x:38,y:40},
+      {x:50,y:65},{x:62,y:40},{x:74,y:65},{x:82,y:45},{x:90,y:60}
+    ]
+  },
+  {
+    id:'bulut_yagmur', baslik:'Bulut → Yağmur', aciklama:'Bulutu yağmura götür!',
+    ikon:'☁️', hedef:'🌧️', renk:'#60a5fa',
+    yol: [
+      {x:10,y:25},{x:22,y:22},{x:35,y:28},{x:50,y:20},
+      {x:65,y:28},{x:78,y:38},{x:82,y:55},{x:80,y:72},{x:82,y:88}
+    ]
+  },
+  {
+    id:'gezegen_teleskop', baslik:'Gezegen → Teleskop', aciklama:'Gezegende keşfe çık!',
+    ikon:'🌍', hedef:'🔭', renk:'#a78bfa',
+    yol: [
+      {x:10,y:50},{x:18,y:35},{x:30,y:25},{x:42,y:32},
+      {x:50,y:48},{x:60,y:38},{x:72,y:28},{x:82,y:38},{x:90,y:55}
+    ]
+  },
+];
+
+// ──────────── YILDIZ ARKA PLAN ────────────
+function cizgiYildizOlustur() {
+  const k=document.getElementById('cizgiYldz');
+  if(!k) return;
+  for(let i=0;i<70;i++){
+    const y=document.createElement('div'); y.className='yildiz';
+    const b=Math.random()*3+1;
+    y.style.cssText=`width:${b}px;height:${b}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s`;
+    k.appendChild(y);
+  }
+}
+
+// ──────────── EKRAN GEÇİŞ ────────────
+function cizgiEkranAc(id) {
+  document.querySelectorAll('.sayfa').forEach(s=>s.classList.remove('aktif'));
+  document.getElementById(id).classList.add('aktif');
+  // Çizgi arka plan yıldızlarını göster/gizle
+  const cizgiYldz = document.getElementById('cizgiYldz');
+  if(cizgiYldz) cizgiYldz.style.display = 'block';
+  if(id==='rehberMenu') alistirmaListesiCiz();
+}
+function anaSayfayaDon() { document.querySelectorAll('.sayfa').forEach(s=>s.classList.remove('aktif')); document.getElementById('anaEkran').classList.add('aktif'); var cy=document.getElementById('cizgiYldz'); if(cy) cy.style.display='none';; }
+
+// ──────────── ALIŞTİRMA LİSTESİ ────────────
+function alistirmaListesiCiz() {
+  const k=document.getElementById('alistirmaListe'); k.innerHTML='';
+  ALISTIRMALAR.forEach((a,i)=>{
+    const tam=cizgiDurum.tamamlanan.includes(a.id);
+    const div=document.createElement('div');
+    div.className='alistirma-kart'+(tam?' tamamlandi':'');
+    div.innerHTML=`
+      <div class="kart-ikon">${a.ikon}</div>
+      <div class="alistirma-bilgi">
+        <h3>${a.baslik}</h3>
+        <p>${a.aciklama}</p>
+      </div>
+      <div class="kart-rozet">${tam?'⭐':'→'}</div>
+    `;
+    div.onclick=()=>alistirmaAc(i);
+    k.appendChild(div);
+  });
+}
+
+// ──────────── REHBERLİ ÇİZİM ────────────
+let aktifIdx=0;
+let cizimKalinlik=6;
+let cizimRenk='#ff4d8d';
+let cizilen=false;
+let toplamMesafe=0;
+let kapsananMesafe=0;
+let noktalar=[];
+let rChx,rChy; // rehber canvas boyutları
+
+function alistirmaAc(idx) {
+  aktifIdx=idx;
+  cizgiEkranAc('cizimEkran');
+  const a=ALISTIRMALAR[idx];
+  document.getElementById('cizimBaslik').textContent=`${a.ikon} → ${a.hedef}`;
+  cizimRenk=a.renk;
+  document.getElementById('ileriBtn').style.display='none';
+  cizimTemizle();
+  setTimeout(()=>rehberCiz(a),80);
+}
+
+function boyutlariAyarla(canvas) {
+  const rect=canvas.parentElement.getBoundingClientRect();
+  canvas.width=rect.width;
+  canvas.height=rect.height;
+  return {w:rect.width, h:rect.height};
+}
+
+function rehberCiz(a) {
+  const rc=document.getElementById('rehberCanvas');
+  const cc=document.getElementById('cizimCanvas');
+  const {w,h}=boyutlariAyarla(rc);
+  boyutlariAyarla(cc);
+  rChx=w; rChy=h;
+
+  const ctx=rc.getContext('2d');
+  ctx.clearRect(0,0,w,h);
+
+  // Yol noktalarını piksel koordinatlara çevir
+  noktalar=a.yol.map(p=>({x:p.x/100*w, y:p.y/100*h}));
+
+  // Toplam yol uzunluğu
+  toplamMesafe=0;
+  for(let i=1;i<noktalar.length;i++){
+    const dx=noktalar[i].x-noktalar[i-1].x;
+    const dy=noktalar[i].y-noktalar[i-1].y;
+    toplamMesafe+=Math.sqrt(dx*dx+dy*dy);
+  }
+
+  // Noktalı rehber çizgi
+  ctx.save();
+  ctx.setLineDash([14,10]);
+  ctx.lineWidth=8;
+  ctx.strokeStyle='rgba(255,255,255,0.25)';
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+  ctx.beginPath();
+  ctx.moveTo(noktalar[0].x,noktalar[0].y);
+  noktalar.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+  ctx.restore();
+
+  // Başlangıç ikonu
+  ctx.font=`${Math.min(w,h)*0.1}px serif`;
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(a.ikon, noktalar[0].x, noktalar[0].y);
+
+  // Bitiş ikonu (soluk)
+  ctx.globalAlpha=0.5;
+  ctx.fillText(a.hedef, noktalar[noktalar.length-1].x, noktalar[noktalar.length-1].y);
+  ctx.globalAlpha=1;
+
+  // Oklar
+  for(let i=0;i<noktalar.length-1;i+=Math.ceil(noktalar.length/4)){
+    const p1=noktalar[i], p2=noktalar[i+1]||noktalar[noktalar.length-1];
+    const aci=Math.atan2(p2.y-p1.y,p2.x-p1.x);
+    const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
+    ctx.save();
+    ctx.translate(mx,my); ctx.rotate(aci);
+    ctx.fillStyle='rgba(255,255,255,0.35)';
+    ctx.beginPath();
+    ctx.moveTo(12,0); ctx.lineTo(-6,-7); ctx.lineTo(-6,7);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  // Çizim canvas olayları
+  kapsananMesafe=0;
+  cizimCanvasOlaylar();
+}
+
+let ciziyorum=false;
+let sonKonum={x:0,y:0};
+let cizimCtx=null;
+
+function cizimCanvasOlaylar() {
+  const cc=document.getElementById('cizimCanvas');
+  cizimCtx=cc.getContext('2d');
+
+  const baslat=(e)=>{
+    ciziyorum=true;
+    const pos=konum(e,cc);
+    sonKonum=pos;
+    cizimCtx.beginPath();
+    cizimCtx.moveTo(pos.x,pos.y);
+  };
+  const ciz=(e)=>{
+    if(!ciziyorum) return;
+    e.preventDefault();
+    const pos=konum(e,cc);
+
+    // Tebeşir/kalem efekti - biraz gürültü
+    cizimCtx.save();
+    cizimCtx.globalAlpha=0.85;
+    cizimCtx.lineWidth=cizimKalinlik;
+    cizimCtx.strokeStyle=cizimRenk;
+    cizimCtx.lineCap='round';
+    cizimCtx.lineJoin='round';
+    cizimCtx.shadowColor=cizimRenk;
+    cizimCtx.shadowBlur=cizimKalinlik*0.5;
+    cizimCtx.beginPath();
+    cizimCtx.moveTo(sonKonum.x,sonKonum.y);
+    cizimCtx.lineTo(pos.x,pos.y);
+    cizimCtx.stroke();
+    cizimCtx.restore();
+
+    // Mesafe hesapla
+    const dx=pos.x-sonKonum.x, dy=pos.y-sonKonum.y;
+    kapsananMesafe+=Math.sqrt(dx*dx+dy*dy);
+    sonKonum=pos;
+
+    // İlerleme güncelle
+    const yuzde=Math.min(100,Math.round(kapsananMesafe/toplamMesafe*100));
+    document.getElementById('ilerlemeTxt').textContent=yuzde+'%';
+
+    if(yuzde>=80 && !cizilen) {
+      cizilen=true;
+      setTimeout(()=>cizimTamamlandi(),400);
+    }
+  };
+  const bitir=()=>{ ciziyorum=false; };
+
+  cc.removeEventListener('mousedown',cc._md);
+  cc.removeEventListener('mousemove',cc._mm);
+  cc.removeEventListener('mouseup',cc._mu);
+  cc.removeEventListener('touchstart',cc._ts);
+  cc.removeEventListener('touchmove',cc._tm);
+  cc.removeEventListener('touchend',cc._te);
+
+  cc._md=baslat; cc._mm=ciz; cc._mu=bitir;
+  cc._ts=baslat; cc._tm=ciz; cc._te=bitir;
+
+  cc.addEventListener('mousedown',baslat);
+  cc.addEventListener('mousemove',ciz);
+  cc.addEventListener('mouseup',bitir);
+  cc.addEventListener('touchstart',baslat,{passive:false});
+  cc.addEventListener('touchmove',ciz,{passive:false});
+  cc.addEventListener('touchend',bitir);
+
+  cizilen=false;
+}
+
+function konum(e,canvas) {
+  const rect=canvas.getBoundingClientRect();
+  if(e.touches) {
+    return {x:e.touches[0].clientX-rect.left, y:e.touches[0].clientY-rect.top};
+  }
+  return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+}
+
+function kalinlikSec(btn,k) {
+  document.querySelectorAll('.kalinlik-btn').forEach(b=>b.classList.remove('aktif'));
+  btn.classList.add('aktif');
+  cizimKalinlik=k;
+}
+
+function cizimTemizle() {
+  const cc=document.getElementById('cizimCanvas');
+  if(cc.width) cc.getContext('2d').clearRect(0,0,cc.width,cc.height);
+  kapsananMesafe=0; cizilen=false;
+  document.getElementById('ilerlemeTxt').textContent='0%';
+  document.getElementById('ileriBtn').style.display='none';
+}
+
+function cizimTamamlandi() {
+  const a=ALISTIRMALAR[aktifIdx];
+  // Yıldız kazan
+  if(!cizgiDurum.tamamlanan.includes(a.id)) {
+    cizgiDurum.tamamlanan.push(a.id);
+    cizgiDurum.yildiz++;
+    cizgiKaydet(); cizgiYildizGuncelle();
+    yildizAnimasyonu();
+  }
+  // Kutlama
+  document.getElementById('kutlamaEmoji').textContent='⭐';
+  document.getElementById('kutlamaBaslik').textContent='Süpersin Nur Meva!';
+  document.getElementById('kutlamaMesaj').textContent=`${a.ikon} → ${a.hedef} çizgisini tamamladın!`;
+  const snrBtn=document.getElementById('kutlamaSonrakiBtn');
+  if(aktifIdx<ALISTIRMALAR.length-1) {
+    snrBtn.style.display=''; snrBtn.textContent='Sonraki →';
+  } else {
+    snrBtn.style.display=''; snrBtn.textContent='Listeye Dön';
+  }
+  document.getElementById('kutlama').classList.add('goster');
+}
+
+function kutlamaKapat() {
+  document.getElementById('kutlama').classList.remove('goster');
+  cizimTemizle();
+  rehberCiz(ALISTIRMALAR[aktifIdx]);
+}
+
+function sonrakiAlistirma() {
+  document.getElementById('kutlama').classList.remove('goster');
+  if(aktifIdx<ALISTIRMALAR.length-1) {
+    alistirmaAc(aktifIdx+1);
+  } else {
+    cizgiEkranAc('rehberMenu'); cizimTemizle();
+  }
+}
+
+function ileriGit() { sonrakiAlistirma(); }
+
+// ──────────── YILDIZ EFEKTİ ────────────
+function yildizAnimasyonu() {
+  const k=document.getElementById('yldEfekt');
+  k.innerHTML=''; k.classList.add('aktif');
+  for(let i=0;i<10;i++){
+    const y=document.createElement('div'); y.className='ucan'; y.textContent='⭐';
+    y.style.left='50%'; y.style.top='50%';
+    const aci=(i/10)*Math.PI*2;
+    const m=150+Math.random()*120;
+    const dx=Math.cos(aci)*m, dy=Math.sin(aci)*m;
+    y.animate([
+      {transform:'translate(-50%,-50%) scale(0)',opacity:1},
+      {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1)`,opacity:1,offset:.7},
+      {transform:`translate(calc(-50% + ${dx*1.4}px),calc(-50% + ${dy*1.4}px)) scale(.3)`,opacity:0}
+    ],{duration:1200,easing:'ease-out'});
+    k.appendChild(y);
+  }
+  setTimeout(()=>k.classList.remove('aktif'),1300);
+}
+
+// ──────────── KARA TAHTA ────────────
+const TEBESIR_RENKLERI=[
+  {r:'#f0ede6',ad:'Beyaz'},  // klasik tebeşir
+  {r:'#ffd93d',ad:'Sarı'},
+  {r:'#ff9f9f',ad:'Pembe'},
+  {r:'#9bf6ff',ad:'Mavi'},
+  {r:'#a0f0a0',ad:'Yeşil'},
+  {r:'#ffb347',ad:'Turuncu'},
+];
+let tahtaRenk=TEBESIR_RENKLERI[0].r;
+let tahtaKalinlik=4;
+let tahtaCiziyorum=false;
+let tahtaSonKonum={x:0,y:0};
+let tahtaCtx=null;
+
+function tahtaBaslat() {
+  setTimeout(()=>{
+    const tc=document.getElementById('tahtaCanvas');
+    const cerceve=tc.parentElement;
+    tc.width=cerceve.offsetWidth;
+    tc.height=cerceve.offsetHeight;
+    tahtaCtx=tc.getContext('2d');
+    tahtaArkaplan();
+    tahtaOlaylar(tc);
+    renkPaletiOlustur();
+  },80);
+}
+
+function tahtaArkaplan() {
+  // Tahta çizgilerini çiz (hafif yatay çizgiler)
+  const w=tahtaCtx.canvas.width, h=tahtaCtx.canvas.height;
+  tahtaCtx.clearRect(0,0,w,h);
+  tahtaCtx.strokeStyle='rgba(255,255,255,0.04)';
+  tahtaCtx.lineWidth=1;
+  for(let y=50;y<h;y+=50){
+    tahtaCtx.beginPath();
+    tahtaCtx.moveTo(0,y); tahtaCtx.lineTo(w,y);
+    tahtaCtx.stroke();
+  }
+}
+
+function renkPaletiOlustur() {
+  const k=document.getElementById('renkPaleti'); k.innerHTML='';
+  TEBESIR_RENKLERI.forEach((renk,i)=>{
+    const btn=document.createElement('button');
+    btn.className='renk-top'+(i===0?' aktif':'');
+    btn.style.background=renk.r;
+    btn.title=renk.ad;
+    btn.onclick=()=>{
+      document.querySelectorAll('.renk-top').forEach(b=>b.classList.remove('aktif'));
+      btn.classList.add('aktif');
+      tahtaRenk=renk.r;
+    };
+    k.appendChild(btn);
+  });
+}
+
+function tahtaOlaylar(tc) {
+  const baslat=(e)=>{
+    tahtaCiziyorum=true;
+    tahtaSonKonum=tahtaKonum(e,tc);
+  };
+  const ciz=(e)=>{
+    if(!tahtaCiziyorum) return;
+    e.preventDefault();
+    const pos=tahtaKonum(e,tc);
+    tebesirCiz(tahtaSonKonum,pos);
+    tahtaSonKonum=pos;
+  };
+  const bitir=()=>{ tahtaCiziyorum=false; };
+
+  tc.addEventListener('mousedown',baslat);
+  tc.addEventListener('mousemove',ciz);
+  tc.addEventListener('mouseup',bitir);
+  tc.addEventListener('mouseleave',bitir);
+  tc.addEventListener('touchstart',baslat,{passive:false});
+  tc.addEventListener('touchmove',ciz,{passive:false});
+  tc.addEventListener('touchend',bitir);
+}
+
+function tebesirCiz(dan,e) {
+  const ctx=tahtaCtx;
+  // Tebeşir dokusu efekti — birden fazla paralel çizgi hafif kaydırılmış
+  const sayilar=tahtaKalinlik>8 ? 4 : 2;
+  for(let i=0;i<sayilar;i++){
+    const ofset=(Math.random()-0.5)*tahtaKalinlik*0.4;
+    ctx.save();
+    ctx.globalAlpha=0.6+Math.random()*0.3;
+    ctx.lineWidth=tahtaKalinlik*(0.4+Math.random()*0.4);
+    ctx.strokeStyle=tahtaRenk;
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+    // Hafif gürültü
+    ctx.shadowColor=tahtaRenk;
+    ctx.shadowBlur=1;
+    ctx.beginPath();
+    ctx.moveTo(dan.x+ofset,dan.y+ofset);
+    ctx.lineTo(e.x+ofset,e.y+ofset);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // Ana çizgi
+  ctx.save();
+  ctx.globalAlpha=0.7;
+  ctx.lineWidth=tahtaKalinlik;
+  ctx.strokeStyle=tahtaRenk;
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+  ctx.beginPath();
+  ctx.moveTo(dan.x,dan.y);
+  ctx.lineTo(e.x,e.y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function tahtaKonum(e,canvas) {
+  const rect=canvas.getBoundingClientRect();
+  if(e.touches) return {x:e.touches[0].clientX-rect.left,y:e.touches[0].clientY-rect.top};
+  return {x:e.clientX-rect.left,y:e.clientY-rect.top};
+}
+
+function tahtaSil() {
+  if(tahtaCtx) tahtaArkaplan();
+}
+
+function tbKalinlik(btn,k) {
+  document.querySelectorAll('.tb-btn').forEach(b=>b.classList.remove('aktif'));
+  btn.classList.add('aktif');
+  tahtaKalinlik=k;
+}
+
+// ──────────── BAŞLAT ────────────
+cizgiYildizOlustur();
+cizgiYildizGuncelle();
+
+  </script>
+
+</body>
+</html>
