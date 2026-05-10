@@ -425,6 +425,18 @@
     font-size: clamp(18px, 3.5vw, 26px);
     color: white;
   }
+  .kelime-kart.ingilizce-kart {
+    border-color: rgba(0,217,217,0.4);
+    background: rgba(0,217,217,0.08);
+  }
+  .en-etiket {
+    font-size: clamp(10px, 2vw, 13px);
+    color: var(--turkuaz);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
+  }
   .kelime-yazi .vurgu { color: var(--sari); }
   
   /* YILDIZ KAZANMA ANIMASYONU */
@@ -1300,35 +1312,35 @@
     {
       ad: "Türk Alfabesi - A'dan Z'ye",
       harfler: [
-        { harf:"A", kucuk:"a", kelimeler:[{e:"🍎",k:"elma",v:"a"},{e:"🐝",k:"arı",v:"a"},{e:"🌙",k:"ay",v:"a"}]},
-        { harf:"B", kucuk:"b", kelimeler:[{e:"🐟",k:"balık",v:"b"},{e:"🍌",k:"muz",v:"b"},{e:"🚌",k:"bus",v:"b"}]},
-        { harf:"C", kucuk:"c", kelimeler:[{e:"🪟",k:"cam",v:"c"},{e:"🥜",k:"ceviz",v:"c"},{e:"👻",k:"cin",v:"c"}]},
+        { harf:"A", kucuk:"a", kelimeler:[{e:"🍎",k:"arı",v:"a"},{e:"🌙",k:"ay",v:"a"},{e:"🍎",k:"apple",v:"a"}]},
+        { harf:"B", kucuk:"b", kelimeler:[{e:"🐟",k:"balık",v:"b"},{e:"🎈",k:"balon",v:"b"},{e:"🦋",k:"butterfly",v:"b"}]},
+        { harf:"C", kucuk:"c", kelimeler:[{e:"🪟",k:"cam",v:"c"},{e:"🥜",k:"ceviz",v:"c"},{e:"🐱",k:"cat",v:"c"}]},
         { harf:"Ç", kucuk:"ç", kelimeler:[{e:"🌺",k:"çiçek",v:"ç"},{e:"🍓",k:"çilek",v:"ç"},{e:"🧦",k:"çorap",v:"ç"}]},
-        { harf:"D", kucuk:"d", kelimeler:[{e:"🦷",k:"diş",v:"d"},{e:"🌳",k:"dal",v:"d"},{e:"🐬",k:"yunus",v:"d"}]},
-        { harf:"E", kucuk:"e", kelimeler:[{e:"🏠",k:"ev",v:"e"},{e:"🍐",k:"armut",v:"e"},{e:"🐘",k:"fil",v:"e"}]},
-        { harf:"F", kucuk:"f", kelimeler:[{e:"🐘",k:"fil",v:"f"},{e:"🌰",k:"fındık",v:"f"},{e:"🔦",k:"fener",v:"f"}]},
-        { harf:"G", kucuk:"g", kelimeler:[{e:"👁️",k:"göz",v:"g"},{e:"🌹",k:"gül",v:"g"},{e:"🌃",k:"gece",v:"g"}]},
-        { harf:"Ğ", kucuk:"ğ", kelimeler:[{e:"🌳",k:"ağaç",v:"ğ"},{e:"🐑",k:"koyun",v:"ğ"},{e:"🌾",k:"buğday",v:"ğ"}]},
-        { harf:"H", kucuk:"h", kelimeler:[{e:"🥕",k:"havuç",v:"h"},{e:"🐓",k:"horoz",v:"h"},{e:"🌊",k:"dalga",v:"h"}]},
-        { harf:"I", kucuk:"ı", kelimeler:[{e:"🌟",k:"ışık",v:"ı"},{e:"🥦",k:"ıspanak",v:"ı"},{e:"🌡️",k:"ılık",v:"ı"}]},
-        { harf:"İ", kucuk:"i", kelimeler:[{e:"🪡",k:"iğne",v:"i"},{e:"🐄",k:"inek",v:"i"},{e:"🧵",k:"iplik",v:"i"}]},
-        { harf:"J", kucuk:"j", kelimeler:[{e:"🧥",k:"jile",v:"j"},{e:"🃏",k:"joker",v:"j"},{e:"🏋️",k:"jimnastik",v:"j"}]},
-        { harf:"K", kucuk:"k", kelimeler:[{e:"🐱",k:"kedi",v:"k"},{e:"📕",k:"kitap",v:"k"},{e:"🦋",k:"kelebek",v:"k"}]},
-        { harf:"L", kucuk:"l", kelimeler:[{e:"🍋",k:"limon",v:"l"},{e:"🌷",k:"lale",v:"l"},{e:"💡",k:"lamba",v:"l"}]},
-        { harf:"M", kucuk:"m", kelimeler:[{e:"👩",k:"anne",v:"m"},{e:"🍌",k:"muz",v:"m"},{e:"🔵",k:"mavi",v:"m"}]},
-        { harf:"N", kucuk:"n", kelimeler:[{e:"🍋",k:"limon",v:"n"},{e:"👃",k:"burun",v:"n"},{e:"🍞",k:"ekmek",v:"n"}]},
-        { harf:"O", kucuk:"o", kelimeler:[{e:"🚌",k:"otobüs",v:"o"},{e:"🎯",k:"ok",v:"o"},{e:"🪟",k:"oda",v:"o"}]},
-        { harf:"Ö", kucuk:"ö", kelimeler:[{e:"🦆",k:"ördek",v:"ö"},{e:"👨‍🏫",k:"öğretmen",v:"ö"},{e:"💐",k:"örnek",v:"ö"}]},
-        { harf:"P", kucuk:"p", kelimeler:[{e:"🧁",k:"pasta",v:"p"},{e:"🪟",k:"pencere",v:"p"},{e:"🐠",k:"pul",v:"p"}]},
-        { harf:"R", kucuk:"r", kelimeler:[{e:"🚀",k:"roket",v:"r"},{e:"🌈",k:"renk",v:"r"},{e:"🎨",k:"resim",v:"r"}]},
-        { harf:"S", kucuk:"s", kelimeler:[{e:"💧",k:"su",v:"s"},{e:"⏰",k:"saat",v:"s"},{e:"🌻",k:"sarı",v:"s"}]},
+        { harf:"D", kucuk:"d", kelimeler:[{e:"🦷",k:"diş",v:"d"},{e:"🌳",k:"dal",v:"d"},{e:"🐬",k:"dolphin",v:"d"}]},
+        { harf:"E", kucuk:"e", kelimeler:[{e:"🏠",k:"ev",v:"e"},{e:"🎽",k:"etek",v:"e"},{e:"🐘",k:"elephant",v:"e"}]},
+        { harf:"F", kucuk:"f", kelimeler:[{e:"🌰",k:"fındık",v:"f"},{e:"🔦",k:"fener",v:"f"},{e:"🐸",k:"frog",v:"f"}]},
+        { harf:"G", kucuk:"g", kelimeler:[{e:"👁️",k:"göz",v:"g"},{e:"🌹",k:"gül",v:"g"},{e:"🍇",k:"grape",v:"g"}]},
+        { harf:"Ğ", kucuk:"ğ", kelimeler:[{e:"🌳",k:"ağaç",v:"ğ"},{e:"🌾",k:"buğday",v:"ğ"},{e:"🐑",k:"koyun",v:"ğ"}]},
+        { harf:"H", kucuk:"h", kelimeler:[{e:"🥕",k:"havuç",v:"h"},{e:"🐓",k:"horoz",v:"h"},{e:"🏠",k:"house",v:"h"}]},
+        { harf:"I", kucuk:"ı", kelimeler:[{e:"🌟",k:"ışık",v:"ı"},{e:"🥦",k:"ıspanak",v:"ı"},{e:"🏝️",k:"island",v:"ı"}]},
+        { harf:"İ", kucuk:"i", kelimeler:[{e:"🪡",k:"iğne",v:"i"},{e:"🐄",k:"inek",v:"i"},{e:"🍦",k:"ice cream",v:"i"}]},
+        { harf:"J", kucuk:"j", kelimeler:[{e:"🧥",k:"jile",v:"j"},{e:"🃏",k:"joker",v:"j"},{e:"🦒",k:"jaguar",v:"j"}]},
+        { harf:"K", kucuk:"k", kelimeler:[{e:"🐱",k:"kedi",v:"k"},{e:"📕",k:"kitap",v:"k"},{e:"🦘",k:"kangaroo",v:"k"}]},
+        { harf:"L", kucuk:"l", kelimeler:[{e:"🍋",k:"limon",v:"l"},{e:"🌷",k:"lale",v:"l"},{e:"🦁",k:"lion",v:"l"}]},
+        { harf:"M", kucuk:"m", kelimeler:[{e:"🍌",k:"muz",v:"m"},{e:"🔵",k:"mavi",v:"m"},{e:"🐭",k:"mouse",v:"m"}]},
+        { harf:"N", kucuk:"n", kelimeler:[{e:"👃",k:"nefes",v:"n"},{e:"🎶",k:"nota",v:"n"},{e:"🌙",k:"night",v:"n"}]},
+        { harf:"O", kucuk:"o", kelimeler:[{e:"🚌",k:"otobüs",v:"o"},{e:"🪟",k:"oda",v:"o"},{e:"🐙",k:"octopus",v:"o"}]},
+        { harf:"Ö", kucuk:"ö", kelimeler:[{e:"🦆",k:"ördek",v:"ö"},{e:"👨‍🏫",k:"öğretmen",v:"ö"},{e:"🦉",k:"owl",v:"ö"}]},
+        { harf:"P", kucuk:"p", kelimeler:[{e:"🧁",k:"pasta",v:"p"},{e:"🪟",k:"pencere",v:"p"},{e:"🐧",k:"penguin",v:"p"}]},
+        { harf:"R", kucuk:"r", kelimeler:[{e:"🚀",k:"roket",v:"r"},{e:"🌈",k:"renk",v:"r"},{e:"🌹",k:"rose",v:"r"}]},
+        { harf:"S", kucuk:"s", kelimeler:[{e:"💧",k:"su",v:"s"},{e:"⏰",k:"saat",v:"s"},{e:"⭐",k:"star",v:"s"}]},
         { harf:"Ş", kucuk:"ş", kelimeler:[{e:"👒",k:"şapka",v:"ş"},{e:"🍬",k:"şeker",v:"ş"},{e:"☂️",k:"şemsiye",v:"ş"}]},
-        { harf:"T", kucuk:"t", kelimeler:[{e:"🐢",k:"tosbağa",v:"t"},{e:"🍅",k:"domates",v:"t"},{e:"🚂",k:"tren",v:"t"}]},
-        { harf:"U", kucuk:"u", kelimeler:[{e:"✈️",k:"uçak",v:"u"},{e:"🪁",k:"uçurtma",v:"u"},{e:"💧",k:"su",v:"u"}]},
-        { harf:"Ü", kucuk:"ü", kelimeler:[{e:"🍇",k:"üzüm",v:"ü"},{e:"🫶",k:"üç",v:"ü"},{e:"🧺",k:"ütü",v:"ü"}]},
-        { harf:"V", kucuk:"v", kelimeler:[{e:"🌸",k:"vazo",v:"v"},{e:"🚢",k:"vapur",v:"v"},{e:"🥳",k:"var",v:"v"}]},
-        { harf:"Y", kucuk:"y", kelimeler:[{e:"🥚",k:"yumurta",v:"y"},{e:"⭐",k:"yıldız",v:"y"},{e:"🌧️",k:"yağmur",v:"y"}]},
-        { harf:"Z", kucuk:"z", kelimeler:[{e:"🦒",k:"zürafa",v:"z"},{e:"🫒",k:"zeytin",v:"z"},{e:"🛎️",k:"zil",v:"z"}]}
+        { harf:"T", kucuk:"t", kelimeler:[{e:"🐢",k:"tosbağa",v:"t"},{e:"🚂",k:"tren",v:"t"},{e:"🐯",k:"tiger",v:"t"}]},
+        { harf:"U", kucuk:"u", kelimeler:[{e:"✈️",k:"uçak",v:"u"},{e:"🪁",k:"uçurtma",v:"u"},{e:"☂️",k:"umbrella",v:"u"}]},
+        { harf:"Ü", kucuk:"ü", kelimeler:[{e:"🍇",k:"üzüm",v:"ü"},{e:"🧺",k:"ütü",v:"ü"},{e:"🦄",k:"unicorn",v:"ü"}]},
+        { harf:"V", kucuk:"v", kelimeler:[{e:"🌸",k:"vazo",v:"v"},{e:"🚢",k:"vapur",v:"v"},{e:"🎻",k:"violin",v:"v"}]},
+        { harf:"Y", kucuk:"y", kelimeler:[{e:"🥚",k:"yumurta",v:"y"},{e:"⭐",k:"yıldız",v:"y"},{e:"🟡",k:"yellow",v:"y"}]},
+        { harf:"Z", kucuk:"z", kelimeler:[{e:"🦒",k:"zürafa",v:"z"},{e:"🫒",k:"zeytin",v:"z"},{e:"🦓",k:"zebra",v:"z"}]}
       ]
     }
   ];
@@ -1452,14 +1464,16 @@
     
     const k = document.getElementById('ornekKelimeler');
     k.innerHTML = '';
-    harf.kelimeler.forEach(kel => {
+    harf.kelimeler.forEach((kel, ki) => {
+      const ingilizce = ki === 2;
       const kart = document.createElement('div');
-      kart.className = 'kelime-kart';
+      kart.className = 'kelime-kart' + (ingilizce ? ' ingilizce-kart' : '');
       kart.innerHTML = `
         <span class="kelime-emoji">${kel.e}</span>
+        ${ingilizce ? '<span class="en-etiket">🇬🇧 English</span>' : ''}
         <span class="kelime-yazi">${kel.k}</span>
       `;
-      kart.onclick = () => kelimeOku(kel.k);
+      kart.onclick = () => ingilizce ? kelimeOkuEN(kel.k) : kelimeOku(kel.k);
       k.appendChild(kart);
     });
     
@@ -1501,6 +1515,16 @@
   
   function kelimeOku(kelime) {
     konus(kelime, 0.75);
+  }
+
+  function kelimeOkuEN(kelime) {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(kelime);
+    u.lang = 'en-US';
+    u.rate = 0.8;
+    u.pitch = 1.1;
+    speechSynthesis.speak(u);
   }
   
   // ====== YILDIZ KAZANMA ======
