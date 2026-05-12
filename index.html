@@ -1479,14 +1479,16 @@
     
     ekranAc('harfEkran');
     
-    // Harfi tamamlandı olarak işaretle ve yıldız ver
+    // Önce harf sesini çal
+    setTimeout(() => harfSesiSoyle(), 300);
+    
+    // Harfi tamamlandı olarak işaretle - motivasyonu harf sesinden SONRA göster
     const harfId = `${gi}-${hi}`;
     if (!durum.tamamlananHarfler.includes(harfId)) {
       durum.tamamlananHarfler.push(harfId);
-      yildizKazan();
+      // Harf sesi bittikten sonra yıldız animasyonu + motivasyon (ses olmadan)
+      setTimeout(() => yildizKazan(), 2200);
     }
-    
-    setTimeout(() => harfSesiSoyle(), 400);
   }
   
   // ====== SES SİSTEMİ ======
@@ -1726,23 +1728,60 @@
 
   // fetch+blob: CORS sorununu aşar
   async function sesCalUrl(url, onBitis) {
+    if (aktifSes) { aktifSes.pause(); aktifSes.src = ''; aktifSes = null; }
     try {
       const resp = await fetch(url);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const blob = await resp.blob();
       const blobUrl = URL.createObjectURL(blob);
       const audio = new Audio(blobUrl);
       aktifSes = audio;
-      audio.onended = () => { URL.revokeObjectURL(blobUrl); if(onBitis) onBitis(); };
-      audio.play();
+      audio.onended = () => { URL.revokeObjectURL(blobUrl); aktifSes = null; if(onBitis) onBitis(); };
+      audio.onerror = () => { URL.revokeObjectURL(blobUrl); aktifSes = null; if(onBitis) onBitis(); };
+      audio.play().catch(e => { console.warn('Hikaye ses hatası:', e); if(onBitis) onBitis(); });
     } catch(e) {
       console.warn('Ses yüklenemedi:', url, e);
       if(onBitis) onBitis();
     }
   }
 
+  // ====== MERKEZI SES YÖNETİCİSİ ======
+  function sesCal_tek(dataUrl, onBitis) {
+    // Mevcut sesi durdur
+    if (aktifSes) { aktifSes.pause(); aktifSes.src = ''; aktifSes = null; }
+    try {
+      // base64 data URL'i Blob'a çevir (mobile uyumluluğu için)
+      if (dataUrl.startsWith('data:')) {
+        const arr = dataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bStr = atob(arr[1]);
+        const u8arr = new Uint8Array(bStr.length);
+        for (let i = 0; i < bStr.length; i++) u8arr[i] = bStr.charCodeAt(i);
+        const blob = new Blob([u8arr], {type: mime});
+        const blobUrl = URL.createObjectURL(blob);
+        const audio = new Audio(blobUrl);
+        aktifSes = audio;
+        audio.onended = () => { URL.revokeObjectURL(blobUrl); aktifSes = null; if (onBitis) onBitis(); };
+        audio.onerror = () => { URL.revokeObjectURL(blobUrl); aktifSes = null; if (onBitis) onBitis(); };
+        audio.play().catch(e => { console.warn('Ses çalınamadı:', e); if (onBitis) onBitis(); });
+      } else {
+        const audio = new Audio(dataUrl);
+        aktifSes = audio;
+        audio.onended = () => { aktifSes = null; if (onBitis) onBitis(); };
+        audio.onerror = () => { aktifSes = null; if (onBitis) onBitis(); };
+        audio.play().catch(e => { console.warn('Ses çalınamadı:', e); if (onBitis) onBitis(); });
+      }
+    } catch(e) {
+      console.warn('sesCal_tek hata:', e);
+      if (onBitis) onBitis();
+    }
+  }
+
   function harfMp3Cal(harf) {
     const buyukHarf = harf.toUpperCase();
-    if (!HARF_SESLER[buyukHarf]) {
+    const sesData = HARF_SESLER[buyukHarf] || HARF_SESLER[harf];
+    if (!sesData) {
+      // Ses yoksa speechSynthesis fallback
       if ('speechSynthesis' in window) {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(harf);
@@ -1751,10 +1790,7 @@
       }
       return;
     }
-    if (aktifSes) { aktifSes.pause(); aktifSes = null; }
-    const audio = new Audio(HARF_SESLER[buyukHarf]);
-    aktifSes = audio;
-    audio.play().catch(() => {});
+    sesCal_tek(sesData);
   }
 
   function konus(metin, hiz = 0.8) {
@@ -1779,10 +1815,7 @@
   function kelimeOku(kelime) {
     const kelimeKucuk = kelime.toLowerCase();
     if (KEL_SESLER[kelimeKucuk]) {
-      if (aktifSes) { aktifSes.pause(); aktifSes = null; }
-      const audio = new Audio(KEL_SESLER[kelimeKucuk]);
-      aktifSes = audio;
-      audio.play().catch(() => {});
+      sesCal_tek(KEL_SESLER[kelimeKucuk]);
     } else {
       konus(kelime, 0.75);
     }
@@ -1843,19 +1876,18 @@
     setTimeout(() => k.classList.remove('aktif'), 1600);
   }
   
-  function motivasyonGoster() {
+  function motivasyonGoster(sesCal = true) {
     const m = document.getElementById('motivasyon');
     m.textContent = MOTIVASYONLAR[Math.floor(Math.random() * MOTIVASYONLAR.length)];
-    // Rastgele motivasyon sesi çal
-    const motKey = MOT_ANAHTARLAR[Math.floor(Math.random() * MOT_ANAHTARLAR.length)];
-    if (MOT_SESLER[motKey]) {
-      if (aktifSes) { aktifSes.pause(); aktifSes = null; }
-      const audio = new Audio(MOT_SESLER[motKey]);
-      aktifSes = audio;
-      audio.play().catch(() => {});
+    // Motivasyon sesi - sadece istenirse çal
+    if (sesCal) {
+      const motKey = MOT_ANAHTARLAR[Math.floor(Math.random() * MOT_ANAHTARLAR.length)];
+      if (MOT_SESLER[motKey]) {
+        sesCal_tek(MOT_SESLER[motKey]);
+      }
     }
     m.classList.remove('gor');
-    void m.offsetWidth; // reflow
+    void m.offsetWidth;
     m.classList.add('gor');
   }
   
