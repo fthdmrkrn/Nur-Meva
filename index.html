@@ -1489,7 +1489,258 @@
     setTimeout(() => harfSesiSoyle(), 400);
   }
   
-  // ====== SES SİSTEMİ (Web Speech API) ======
+  // ====== SES SİSTEMİ ======
+  const HARF_SESLER = {
+  "A": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_a.mp3",
+  "B": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_b.mp3",
+  "C": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_c.mp3",
+  "Ç": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_c2.mp3",
+  "D": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_d.mp3",
+  "E": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_e.mp3",
+  "F": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_f.mp3",
+  "G": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_g.mp3",
+  "Ğ": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_g2.mp3",
+  "H": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_h.mp3",
+  "İ": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_i1.mp3",
+  "I": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_i2.mp3",
+  "J": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_j.mp3",
+  "K": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_k.mp3",
+  "L": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_l.mp3",
+  "M": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_m.mp3",
+  "N": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_n.mp3",
+  "O": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_o.mp3",
+  "Ö": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_o2.mp3",
+  "P": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_p.mp3",
+  "R": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_r.mp3",
+  "S": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_s.mp3",
+  "Ş": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_s2.mp3",
+  "T": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_t.mp3",
+  "U": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_u.mp3",
+  "Ü": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_u2.mp3",
+  "V": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_v.mp3",
+  "Y": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_y.mp3",
+  "Z": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/harf_z.mp3"
+};
+
+  const KEL_SESLER = {
+  "arı": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ari.mp3",
+  "ay": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ay.mp3",
+  "balık": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_balik.mp3",
+  "balon": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_balon.mp3",
+  "cam": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_cam.mp3",
+  "ceviz": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ceviz.mp3",
+  "çiçek": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_cicek.mp3",
+  "çilek": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_cilek.mp3",
+  "çorap": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_corap.mp3",
+  "diş": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_dis.mp3",
+  "dal": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_dal.mp3",
+  "etek": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_etek.mp3",
+  "ev": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ev.mp3",
+  "fener": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_fener.mp3",
+  "fındık": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_findik.mp3",
+  "göz": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_goz.mp3",
+  "gül": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_gul.mp3",
+  "havuç": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_havuc.mp3",
+  "horoz": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_horoz.mp3",
+  "iğne": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_igne.mp3",
+  "inek": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_inek.mp3",
+  "ışık": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_isik.mp3",
+  "ıspanak": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ispanak.mp3",
+  "jile": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_jile.mp3",
+  "joker": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_joker.mp3",
+  "zürafa": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_zurafa.mp3",
+  "zeytin": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_zeytin.mp3",
+  "yıldız": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_yildiz.mp3",
+  "ütü": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_utu.mp3",
+  "vapur": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_vapur.mp3",
+  "üzüm": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_uzum.mp3",
+  "uçak": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ucak.mp3",
+  "vazo": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_vazo.mp3",
+  "tren": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_tren.mp3",
+  "yumurta": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_yumurta.mp3",
+  "su": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_su.mp3",
+  "şeker": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_seker.mp3",
+  "tosbağa": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_tosbaga.mp3",
+  "uçurtma": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ucurtma.mp3",
+  "şemsiye": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_semsiye.mp3",
+  "saat": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_saat.mp3",
+  "şapka": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_sapka.mp3",
+  "roket": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_roket.mp3",
+  "öğretmen": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ogretmen.mp3",
+  "nefes": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_nefes.mp3",
+  "mavi": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_mavi.mp3",
+  "oda": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_oda.mp3",
+  "muz": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_muz.mp3",
+  "otobüs": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_otobus.mp3",
+  "lale": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_lale.mp3",
+  "renk": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_renk.mp3",
+  "nota": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_nota.mp3",
+  "pasta": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_pasta.mp3",
+  "pencere": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_pencere.mp3",
+  "ördek": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_ordek.mp3",
+  "kedi": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_kedi.mp3",
+  "kitap": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_kitap.mp3",
+  "limon": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/kel_limon.mp3",
+  "dolphin": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_dolphin.mp3",
+  "elephant": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_elephant.mp3",
+  "frog": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_frog.mp3",
+  "grape": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_grape.mp3",
+  "house": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_house.mp3",
+  "cat": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_cat.mp3",
+  "apple": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_apple.mp3",
+  "butterfly": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_butterfly.mp3",
+  "unicorn": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_unicorn.mp3",
+  "octopus": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_octopus.mp3",
+  "jaguar": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_jaguar.mp3",
+  "violin": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_violin.mp3",
+  "yellow": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_yellow.mp3",
+  "night": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_night.mp3",
+  "owl": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_owl.mp3",
+  "tiger": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_tiger.mp3",
+  "star": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_star.mp3",
+  "icecream": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_icecream.mp3",
+  "penguin": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_penguin.mp3",
+  "rose": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_rose.mp3",
+  "umbrella": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_umbrella.mp3",
+  "zebra": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_zebra.mp3",
+  "kangaroo": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_kangaroo.mp3",
+  "lion": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_lion.mp3",
+  "island": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_island.mp3",
+  "mouse": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/en_mouse.mp3"
+};
+
+  // Hikaye paragraf sesleri
+  const HIK_SESLER = {
+  "nh_kaz": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kaz_p9.mp3"
+  },
+  "nh_ay": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_ay_p9.mp3"
+  },
+  "nh_kazan": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_nh_kazan_p9.mp3"
+  },
+  "dk_tepegoz": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_tepegoz_p9.mp3"
+  },
+  "dk_bogazca": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bogazca_p9.mp3"
+  },
+  "dk_bamsi": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_dk_bamsi_p9.mp3"
+  },
+  "mk_yunus": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_yunus_p9.mp3"
+  },
+  "mk_lokman": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_lokman_p9.mp3"
+  },
+  "mk_hz_ali": {
+  "p1": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p1.mp3",
+  "p2": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p2.mp3",
+  "p3": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p3.mp3",
+  "p4": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p4.mp3",
+  "p5": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p5.mp3",
+  "p6": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p6.mp3",
+  "p7": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p7.mp3",
+  "p8": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p8.mp3",
+  "p9": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/hik_mk_hz_ali_p9.mp3"
+  }
+};
+
+  const MOT_SESLER = {
+  "alkis": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/mot_alkis.mp3",
+  "bravo": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/mot_bravo.mp3",
+  "aferin": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/mot_aferin.mp3",
+  "hosgeldin": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/mot_hosgeldin.mp3",
+  "guzel": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/mot_guzel.mp3",
+  "yildiz": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/mot_yildiz.mp3",
+  "super": "https://raw.githubusercontent.com/fthdmrkrn/Nur-Meva/main/ses/mot_super.mp3"
+};
+  const MOT_ANAHTARLAR = ["alkis", "bravo", "aferin", "hosgeldin", "guzel", "yildiz", "super"];
+
+  let aktifSes = null;
+  function harfMp3Cal(harf) {
+    const buyukHarf = harf.toUpperCase();
+    if (!HARF_SESLER[buyukHarf]) {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(harf);
+        u.lang = 'tr-TR'; u.rate = 0.6; u.pitch = 1.1;
+        speechSynthesis.speak(u);
+      }
+      return;
+    }
+    if (aktifSes) { aktifSes.pause(); aktifSes = null; }
+    const audio = new Audio(HARF_SESLER[buyukHarf]);
+    aktifSes = audio;
+    audio.play().catch(() => {});
+  }
+
   function konus(metin, hiz = 0.8) {
     if (!('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
@@ -1499,22 +1750,28 @@
     u.pitch = 1.1;
     speechSynthesis.speak(u);
   }
-  
+
   function harfSesiSoyle() {
     if (!durum.sonHarf) {
-      // Ana harf detayda değilsek sonHarf yok, harfin metnini al
       const buyukHarf = document.getElementById('buyukHarf').textContent;
       const ilkHarf = buyukHarf.trim().charAt(0);
-      konus(ilkHarf, 0.7);
+      harfMp3Cal(ilkHarf);
       return;
     }
     const harf = HARF_GRUPLARI[durum.sonHarf.gi].harfler[durum.sonHarf.hi];
-    // Türkçe ses temelli - kısa harf sesi
-    konus(harf.kucuk, 0.6);
+    harfMp3Cal(harf.harf);
   }
-  
+
   function kelimeOku(kelime) {
-    konus(kelime, 0.75);
+    const kelimeKucuk = kelime.toLowerCase();
+    if (KEL_SESLER[kelimeKucuk]) {
+      if (aktifSes) { aktifSes.pause(); aktifSes = null; }
+      const audio = new Audio(KEL_SESLER[kelimeKucuk]);
+      aktifSes = audio;
+      audio.play().catch(() => {});
+    } else {
+      konus(kelime, 0.75);
+    }
   }
 
   function kelimeOkuEN(kelime) {
@@ -1575,6 +1832,14 @@
   function motivasyonGoster() {
     const m = document.getElementById('motivasyon');
     m.textContent = MOTIVASYONLAR[Math.floor(Math.random() * MOTIVASYONLAR.length)];
+    // Rastgele motivasyon sesi çal
+    const motKey = MOT_ANAHTARLAR[Math.floor(Math.random() * MOT_ANAHTARLAR.length)];
+    if (MOT_SESLER[motKey]) {
+      if (aktifSes) { aktifSes.pause(); aktifSes = null; }
+      const audio = new Audio(MOT_SESLER[motKey]);
+      aktifSes = audio;
+      audio.play().catch(() => {});
+    }
     m.classList.remove('gor');
     void m.offsetWidth; // reflow
     m.classList.add('gor');
@@ -1610,16 +1875,20 @@
       kapak: '🪿',
       renk: '#f59e0b',
       paragraflar: [
-        'Bir gün Nasreddin Hoca, çarşıda büyük bir kaz gördü. Kazın tüyleri bembeyazdı, yürüyüşü de çok gururluydu.',
-        'Hoca, kazı satın aldı ve eve götürdü. "Bu kaz bana altın yumurta yumurtlayacak!" diye düşündü. Çok mutluydu.',
-        'Ertesi sabah ahıra koştu. Ama kazın yumurttağı yumurta sıradan bir yumurtaydı. Ne altın vardı, ne de gümüş.',
-        'Hoca başını kaşıdı ve güldü. "Demek ki masallardaki kazlar burada yaşamıyor!" dedi. Yumurtayı alıp çorba yaptı.',
-        'O günden sonra Hoca hep dürüst davrandı. "Hayal kurmak güzeldir, ama çalışmak daha güzeldir," derdi.'
+        'Bir sonbahar sabahı Nasreddin Hoca, Akşehir çarşısında dolaşıyordu. Sepetler meyve doluydu, tezgahlar rengarenkti. Tam o sırada bir köylünün elinde kocaman, bembeyaz bir kaz gördü.',
+        'Kazın tüyleri ipek gibi parlıyordu. Yürüyüşü o kadar gururluydu ki sanki kendisi de bir hanmış gibi dimdik yürüyordu. Hoca durdu, gözlerini kıstı ve düşünmeye başladı.',
+        '"Bu kaz sıradan bir kaz değil," dedi kendi kendine. "Masallarda altın yumurta yumurtlayan kazlar vardı ya, işte o kazlardan biri bu olmalı!" Heyecanla köylüye koştu ve kazı satın aldı.',
+        'Eve gelince kazı en güzel ahıra koydu. Altına temiz saman döşedi, yanına su ve yem bıraktı. Karısı sordu: "Bu kaza ne kadar verdin?" Hoca güldü: "Hiç sorma, ama yarın pişman olmayacaksın!"',
+        'O gece Hoca uyuyamadı. Sabahı zor etti. Tan yeri ağarmadan ahıra fırladı. Kaz orada, sakin sakin oturuyordu. Yanında bir yumurta vardı. Hoca yumurtayı kaptı, ışığa tuttu.',
+        'Ne altın vardı, ne gümüş. Sıradan, düpedüz bir yumurtaydı. Hoca bir süre öylece baktı yumurtaya. Sonra başını kaşıdı.',
+        '"Demek ki masallardaki kazlar başka bir ülkede yaşıyor," dedi usulca. Güldü kendi kendine. Yumurtayı alıp içeri girdi. Karısına uzattı: "Al, çorba yap. Hem de güzel bir çorba olsun!"',
+        'O günden sonra Hoca kaza çok iyi baktı. Kaz her gün bir yumurta yumurtladı. Hoca o yumurtaları çarşıda sattı. Zamanla güzel bir harçlık biriktirdi.',
+        '"Altın yumurta beklemek yerine her günkü yumurtayı değerlendirmek daha akıllıca," dedi bir gün komşularına. "Hayal kurmak güzeldir, ama elindekine şükretmek daha güzeldir."'
       ],
       sorular: [
-        { soru: 'Hoca kazi nerede gördü?', secenekler: ['Ormanda', 'Çarşıda', 'Nehir kenarında', 'Bahçede'], dogru: 1 },
+        { soru: 'Hoca kazı nerede gördü?', secenekler: ['Ormanda', 'Çarşıda', 'Nehir kenarında', 'Bahçede'], dogru: 1 },
         { soru: 'Hoca kazdan ne bekliyordu?', secenekler: ['Tüy', 'Süt', 'Altın yumurta', 'Yün'], dogru: 2 },
-        { soru: 'Hoca ne öğrendi?', secenekler: ['Kaz beslemek zordur', 'Hayal kurmak yanlıştır', 'Çalışmak önemlidir', 'Çarşıya gitmemeli'], dogru: 2 }
+        { soru: 'Hoca ne öğrendi?', secenekler: ['Kaz beslemek zordur', 'Hayal kurmak yanlıştır', 'Elindekine şükretmek önemlidir', 'Çarşıya gitmemeli'], dogru: 2 }
       ]
     },
     {
@@ -1629,11 +1898,15 @@
       kapak: '🌙',
       renk: '#8b5cf6',
       paragraflar: [
-        'Bir gece Nasreddin Hoca, kuyunun başına oturdu. Kuyunun içinde parlak bir ışık gördü. Ay kuyuya düşmüştü!',
-        '"Aman, ayı kurtarmalıyım!" diye bağırdı. İpini kuyuya sarkıttı. Çekti, çekti, çekti.',
-        'Bir anda ip koptu. Hoca sırt üstü yere düştü. Canı biraz acıdı. Gözlerini açtı ve gökyüzüne baktı.',
-        'Gökyüzünde ay parlıyordu. Hoca güldü. "Ne iyi oldu! Ayı kurtardım, gökyüzüne çıktı!" dedi.',
-        'Komşuları güldü. Ama Hoca hiç utanmadı. "İyi niyet önemlidir," dedi ve evine gitti.'
+        'Bir sonbahar gecesi, ay tepeden parlıyordu. Nasreddin Hoca bahçesinde dolaşırken kuyunun başına geldi. Kuyuya baktı ve gözleri açıldı.',
+        'Kuyunun dibinde bembeyaz, yuvarlak bir ışık parlıyordu. Hoca eğildi, daha dikkatli baktı. Hiç şüphe yoktu; ay kuyuya düşmüştü!',
+        '"Aman yarabbi!" diye bağırdı. "Ay kuyuya düştü, onu kurtarmalıyım!" Hemen koştu, ahırdan uzun bir ip getirdi. Ucuna da kanca bağladı.',
+        'İpi kuyuya sarkıttı. Kanca kuyunun dibindeki taşlara takıldı. Hoca çekmeye başladı. Çekti, çekti, çekti. "Neredeyse çıkıyor!" diye inledi.',
+        'Bir anda kanca taştan fırladı. Hoca olduğu yerde sırt üstü yere düştü. Sırtı acıdı, ama aldırmadı. Gözlerini açtı ve yukarı baktı.',
+        'Gökyüzünde ay, her zamanki gibi sakin sakin parlıyordu. Hoca bir süre öylece baktı. Sonra yüzünde büyük bir gülümseme belirdi.',
+        '"Ne iyi oldu!" diye bağırdı sevinçle. "Ayı kurtardım! Tekrar gökyüzüne çıktı!" Sırtını ovuştura ovuştura kalktı.',
+        'Komşular pencereden seyrediyordu. Güldüler. Biri seslendi: "Hoca, ay hiç düşmemişti ki! O kuyudaki sadece yansımasıydı!" Hoca elini salladı.',
+        '"Fark etmez!" dedi gülerek. "Önemli olan iyi niyet! Ben iyi niyetle çalıştım, ay da yerli yerine döndü. Bu bana yeter!" Ve şarkı söyleye söyleye evine gitti.'
       ],
       sorular: [
         { soru: 'Hoca ayı nerede gördü?', secenekler: ['Gökyüzünde', 'Nehirde', 'Kuyuda', 'Ağaçta'], dogru: 2 },
@@ -1648,11 +1921,15 @@
       kapak: '🪣',
       renk: '#ef4444',
       paragraflar: [
-        'Bir gün komşusu Hocaya güzel bir kazan verdi. "Bunu birkaç günlüğüne ödünç alabilir miyim?" dedi.',
-        '"Tabii," dedi Hoca ve kazanı verdi. Birkaç gün sonra Hoca kazanı geri getirdi. İçinde küçük bir tencere vardı.',
-        '"Bu ne?" diye sordu komşu. Hoca güldü. "Kazanın bebeği! Yanında bir tencere doğurdu."',
-        'Komşu çok sevindi. Hem kazanı hem tencereyi aldı. Aradan birkaç gün geçti. Hoca kazanı tekrar ödünç istedi.',
-        'Komşu hemen verdi. Ama Hoca bu sefer geri getirmedi. Merak eden komşu sordu. Hoca üzgün bir yüzle dedi ki: "Kazan öldü!" Komşu şaştı. "Kazan mı ölür?" Hoca omuz silkti: "Doğurabiliyorsa, ölür de!"'
+        'Nasreddin Hoca\'nın komşusu Mehmet Efendi, büyük ve güzel bir bakır kazana sahipti. Kazan o kadar parlak ve temizdi ki içine bakınca yüzünü görebilirdin.',
+        'Bir gün Hoca kapıyı çaldı. "Mehmet Efendi, misafirlerim var. Kazanınızı birkaç günlüğüne ödünç verir misiniz?" dedi. Mehmet Efendi düşündü, kazanını çok severdi. Ama komşuluğun hakkı vardı.',
+        '"Al götür Hoca," dedi sonunda. "Ama dikkatli kullan, kazanım çok kıymetlidir." Hoca kazanı aldı, teşekkür etti ve gitti.',
+        'Üç gün sonra Hoca kapıyı çaldı. Elinde büyük kazan vardı, ama yanında küçük bir tencere de vardı. Mehmet Efendi şaştı.',
+        '"Hoca, bu küçük tencere ne?" diye sordu. Hoca ciddi bir yüzle cevap verdi: "Komşu, müjde! Kazanınız doğurdu! Yanında bu tencereyi dünyaya getirdi. Buyurun, ikisi de sizin."',
+        'Mehmet Efendi ne diyeceğini bilemedi. Böyle şey olur muydu? Ama bedava bir tencere kazanmıştı. "Sağ ol Hoca," dedi ve hem kazanı hem tencereyi aldı.',
+        'Aradan bir hafta geçti. Hoca yine kapıyı çaldı. "Mehmet Efendi, kazanınızı tekrar ödünç verseydiniz..." dedi. Komşu bu sefer hiç düşünmeden kazanı uzattı. Hoca aldı ve gitti.',
+        'Bir hafta geçti, iki hafta geçti. Kazan gelmedi. Mehmet Efendi dayanamadı, Hoca\'nın kapısını çaldı. "Hoca, kazanım ne oldu?" diye sordu.',
+        'Hoca kapıyı açtı, yüzü üzgündü. Başını öne eğdi ve derin bir iç çekti. "Mehmet Efendi, sana kötü bir haberim var," dedi yavaşça. "Kazanın... öldü." Komşu gözlerini açtı: "Ne? Kazan mı öldü? Kazan ölür mü?" Hoca omzunu silkti: "Komşu, doğurabildiyse, ölür de!"'
       ],
       sorular: [
         { soru: 'Hoca kazanla birlikte ne getirdi?', secenekler: ['Bir tabak', 'Bir tencere', 'Bir kap', 'Bir kova'], dogru: 1 },
@@ -1667,11 +1944,15 @@
       kapak: '🏔️',
       renk: '#0891b2',
       paragraflar: [
-        'Çok eskiden, dağların ardında güçlü bir boy yaşardı. Bu boyun yiğitlerinden birinin adı Basat\'tı. Basat, yüreği aslan gibi cesur bir delikanlıydı.',
-        'O yıllarda dağlarda tek gözlü, devasa bir yaratık ortaya çıktı. Adına Tepegöz derlerdi. Tepegöz köyleri basıyor, insanları korkutuyordu.',
-        'Herkes korkup kaçarken Basat ileriye adım attı. "Ben gideceğim, bu yaratığı durduracağım," dedi. Annesi ağladı, babası dua etti.',
-        'Basat dağa çıktı. Tepegöz ile karşılaştı. Büyük bir savaş oldu. Basat zekasını ve cesaretini kullandı.',
-        'Sonunda Basat, Tepegöz\'ü yendi. Köyüne döndü. Herkes sevinçle karşıladı onu. "Yiğitlik yalnız güçten değil, akıldan gelir," dedi yaşlı Dede Korkut.'
+        'Çok eski zamanlarda, yüksek dağların eteğinde Oğuz boyları yaşardı. Bu boyların en yiğit savaşçılarından birinin adı Basat\'tı. Basat, küçük yaştan beri at sürer, ok atar, hiçbir şeyden korkmazdı.',
+        'O yıllarda dağlardan korkunç bir haber geldi. Tepegöz adında tek gözlü, dev gibi bir yaratık ortaya çıkmıştı. Tepegöz öyle büyüktü ki bir adımda üç köyü geçerdi. Öyle güçlüydü ki eliyle kaya parçalardı.',
+        'Tepegöz köylere indi. Hayvanları kaçırdı, evleri yıktı, insanları korkuttu. Halk ne yapacağını bilemedi. Yiğitler silahlarını kuşandı ama Tepegöz\'ün derisi demir gibiydi, hiçbir ok işlemiyordu.',
+        'Herkes umutsuzluğa düşmüşken Basat öne çıktı. "Ben gideceğim," dedi sakin bir sesle. Çevresindekiler şaştı. "Ama Basat, kimse onu yenemedi. Sen nasıl yeneceksin?" dediler.',
+        'Basat gülümsedi. "Güç güce yetmez. Ama akıl her şeye yeter," dedi. Annesinden dua aldı, babasından öğüt. Ardından silahlarını kuşanıp yola çıktı.',
+        'Günlerce yürüdü. Dağları aştı, dereleri geçti. Sonunda Tepegöz\'ün mağarasını buldu. Mağaranın önünde duran dev yaratık, Basat\'ı görünce güldü. "Küçük bir insan! Seni bir lokmada yerim!" diye bağırdı.',
+        'Basat korkmadı. Tepegöz\'ün tek gözünün zayıf noktası olduğunu biliyordu. Sabırla bekledi, doğru anı kolladı. Tepegöz saldırırken Basat bir yana sıçradı ve bütün gücüyle Tepegöz\'ün gözünü hedef aldı.',
+        'Tepegöz acıyla bağırdı. Gözü görmez oldu. Basat bu fırsatı kaçırmadı. Zekasını ve cesaretini sonuna kadar kullandı. Uzun ve zorlu bir mücadelenin ardından Tepegöz yenik düştü.',
+        'Basat köyüne döndü. Halk onu sevinçle karşıladı. Yaşlı Dede Korkut öne çıktı ve elini Basat\'ın omzuna koydu. "Oğul," dedi derin sesiyle, "yiğitlik yalnız güçten değil, akıldan gelir. Sen bugün bunu herkese gösterdin.'
       ],
       sorular: [
         { soru: 'Tepegöz nasıl bir yaratıktı?', secenekler: ['Çift kanatlı', 'Tek gözlü', 'Üç ayaklı', 'Dört kollu'], dogru: 1 },
@@ -1686,11 +1967,15 @@
       kapak: '🦅',
       renk: '#16a34a',
       paragraflar: [
-        'Dirse Han\'ın uzun yıllar çocuğu olmadı. Sonunda tanrı ona bir oğul verdi. Çocuğa ad koyacaktı ama Dede Korkut dedi: "Ad, iş yapılınca verilir."',
-        'Yıllar geçti. Genç delikanlı büyüdü. Bir gün meydanda büyük ve vahşi bir boğa serbest bırakıldı. Kimse yaklaşamıyordu.',
-        'Genç delikanlı korkmadan boğanın karşısına çıktı. Uzun ve zorlu bir mücadele oldu. Herkes tuttu nefesini.',
-        'Sonunda delikanlı boğayı devirdi! Herkes hayretle baktı. Dede Korkut ilerledi ve dedi: "Bu çocuğun adı artık Boğaç Han\'dır!"',
-        'Boğaç Han büyüyünce adil ve cesur bir han oldu. Halkı onu çok sevdi. Çünkü o hem güçlüydü hem de merhametliydi.'
+        'Oğuz beylerinden Dirse Han\'ın uzun yıllar çocuğu olmadı. Saçları ağardı, sakalı uzadı ama evi hâlâ boştu. Hanımıyla birlikte çok dua etti, çok sadaka verdi.',
+        'Sonunda Allah onlara bir oğul verdi. Bebek dünyaya geldiğinde bütün çadır sevince doldu. Dirse Han büyük bir toy verdi, fakiri doyurdu, yoksulu giydirdi.',
+        'Çocuğa ad koymak istediler. Ama bilge Dede Korkut geldi ve dedi: "Ad kolay verilmez. Ad, iş yapılınca verilir. Bu çocuk bir iş başarırsa, o zaman adını koyarız."',
+        'Yıllar geçti. Çocuk büyüdü, güçlü ve cesur bir delikanlı oldu. Boylu poslu, geniş omuzluydu. Ama henüz adı yoktu. Bu onu üzüyordu.',
+        'Bir gün Oğuz beylerinin meydanında büyük bir tören düzenlendi. Törende devasa, vahşi bir boğa serbest bırakıldı. Boğanın gözleri kıpkırmızıydı, burunlarından buhar çıkıyordu. Herkes geri çekildi.',
+        'Tam o anda adsız delikanlı öne fırladı. Halk tuttu nefesini. Annesi yüzünü kapattı. Babası ayağa kalktı. Delikanlı boğanın karşısına dikildi, hiç korkmadı.',
+        'Boğa hücum etti. Delikanlı yana çekildi. Boğa döndü, tekrar hücum etti. Delikanlı bu sefer tam zamanında boğanın boynuzlarını kavradı. Büyük bir güreş başladı.',
+        'Uzun ve çetin bir mücadelenin ardından delikanlı boğayı yere serdi. Meydan coşkuyla çınladı. Herkes ayağa kalktı, alkışladı.',
+        'Dede Korkut ağır adımlarla öne yürüdü. Delikanlının alnından öptü ve yüksek sesle duyurdu: "Bu yiğidin adı artık Boğaç Han\'dır!" Boğaç Han büyüdü, adil ve merhametli bir han oldu. Halkı onu çok sevdi. Çünkü o, gücünü hep iyilik için kullandı.'
       ],
       sorular: [
         { soru: 'Dede Korkut\'a göre ad ne zaman verilir?', secenekler: ['Doğunca', 'İş yapılınca', 'Büyüyünce', 'Evlenince'], dogru: 1 },
@@ -1705,16 +1990,89 @@
       kapak: '🏹',
       renk: '#b45309',
       paragraflar: [
-        'Bay Büre\'nin oğlu Bamsi, henüz doğmadan nişanlandı. Anneleri ve babaları iki çocuklarını birbirlerine söz vermişlerdi.',
-        'Bamsi büyüdü, yakışıklı ve yiğit bir delikanlı oldu. Sevgilisi Banu Çiçek de onun için yıllar boyu bekledi.',
-        'Ama bir gün düşmanlar Bamsi\'yi yakalayıp zindana attı. Uzun yıllar geçti. Herkes Bamsi\'nin öldüğünü sandı.',
-        'Banu Çiçek, Bamsi olmadan yaşamak istemiyordu. Başka biriyle evlenmek zorunda kaldı. Tam o gün Bamsi kaçıp geldi.',
-        'Bamsi, düğün törenine saz çalan bir ozan kılığında girdi. Sazını çalıp türküler söyledi. Banu Çiçek onu tanıdı. Gözyaşları aktı. İkisi kavuştu. Bamsi, sevdiğini hiç bırakmamıştı çünkü.'
+        'Oğuz\'un ünlü beylerinden Bay Büre Han\'ın bir oğlu yoktu. Komşusu Bay Bican Han\'ın da kızı. İkisi dost canı dosttu. Bir gün ikisi birlikte and içti: "Allah bize bir oğul, bir kız verirse, onları birbirine nikâhlayalım."',
+        'Aradan zaman geçti. Bay Büre Han\'a bir oğul, Bay Bican Han\'a bir kız verildi. Oğlanın adı Bamsi Beyrek oldu. Kızın adı ise Banu Çiçek. İkisi daha beşikte iken nişanlandı.',
+        'Bamsi büyüdü. At binen, ok atan, saz çalan, türkü söyleyen yakışıklı bir yiğit oldu. Banu Çiçek de akıllı ve cesur bir kız olarak büyüdü. İkisi birbirini çok severdi.',
+        'Ama kader onlara ağır bir sınav hazırladı. Bir savaş sırasında düşmanlar Bamsi\'yi yakaladı ve uzak bir ülkenin zindan derinliklerine attı. Kapıya ağır zincirler vuruldu.',
+        'Oğuz\'a kötü haber ulaştı: Bamsi Beyrek öldü! Herkes yasa büründü. Banu Çiçek günlerce ağladı. Ama içinde bir ses "o yaşıyor" diyordu. Yıllarca bekledi.',
+        'Yıllar geçti. Banu Çiçek\'in ailesi artık dayanamadı. "Bamsi geri dönmeyecek, sen hayatına devam etmelisin," dediler. Çaresiz kalan Banu Çiçek başka biriyle evlenmeye razı oldu.',
+        'Tam düğün günü, uzaktan bir ozan geldi. Elinde sazı vardı, yüzü peçeliydi. Düğün sofrasına oturdu, sazını çekti ve öyle bir türkü söyledi ki herkesin yüreği sızladı.',
+        'Banu Çiçek türküyü duyunca titredi. O sesi tanıyordu. Kalbi hızla çarpmaya başladı. Ozanın yanına gitti, peçeyi kaldırdı. Bamsi Beyrek! Gözleri doldu, sesi titredi.',
+        'Bamsi zindandan kaçmıştı. Sevdiğini bulmak için dağları aşmış, çölleri geçmişti. O gün herkes anladı: Gerçek sevgi, ne zindan tanır ne de yıllar. Bamsi ile Banu Çiçek sonunda kavuştu ve ömürlerinin sonuna dek birlikte yaşadı.'
       ],
       sorular: [
         { soru: 'Bamsi nişanlandığında neredeydi?', secenekler: ['Çok küçüktü', 'Henüz doğmamıştı', 'Savaştaydı', 'Uzak bir yerde'], dogru: 1 },
         { soru: 'Bamsi\'ye ne oldu?', secenekler: ['Ülkeden kaçtı', 'Düşmanlarca yakalandı', 'Hastalandı', 'Kayboldu'], dogru: 1 },
         { soru: 'Bamsi düğüne nasıl girdi?', secenekler: ['Asker kılığında', 'Tüccar kılığında', 'Ozan kılığında', 'Derviş kılığında'], dogru: 2 }
+      ]
+    },
+    {
+      id: 'mk_hz_ali',
+      baslik: 'Hz. Ali\'nin Adaleti',
+      kaynak: 'Menkıbe',
+      kapak: '⚖️',
+      renk: '#0e7490',
+      paragraflar: [
+        'Hz. Ali, hem çok güçlü hem de çok adaletli biri olarak bilinirdi. Onun adaletinden herkes söz ederdi; zengin de yoksul da, güçlü de zayıf da onun önünde eşitti.',
+        'Bir gün Hz. Ali\'nin zırhı çalındı. Çok kıymetli bir zırhtı, onu savaşlarda kullanırdı. Şehirde arandı, soruldu. Sonunda bir Hristiyan\'ın elinde görüldü.',
+        'Konu kadıya, yani hâkime taşındı. Kadı, Hz. Ali\'yi gördüğünde ayağa kalkmak istedi, saygı göstermek istedi. Ama Hz. Ali eliyle durmasını işaret etti.',
+        '"Burada ben halife değilim," dedi Hz. Ali. "Ben bir davacıyım. Herkesle aynı yerde oturacağım." Ve karşı taraftaki adamın yanına, sıradan bir sandalyeye oturdu.',
+        'Kadı sordu: "Zırhın senin olduğunu nasıl ispat edeceksin?" Hz. Ali düşündü. "İki şahidim var," dedi. "Oğlum Hasan ve kölesi Kanber." Kadı başını salladı.',
+        '"Oğlun senin lehine tanıklık edemez, bu kurallara aykırı," dedi kadı. "Kanber ise kölen, senin lehine konuşur. Bu şahitler yeterli değil." Hz. Ali itiraz etmedi.',
+        '"Kadı haklı," dedi sakin sakin. "Kural kuraldir, kim olursa olsun." Ve davayı kaybetti. Zırh adamda kaldı.',
+        'Adam bu adaleti görünce şaştı. "Bu nasıl mümkün?" diye düşündü. "Halife bile olsa herkesle aynı kurallara tabi." İçi sızladı. Öne çıktı ve zırhı uzattı.',
+        '"Bu zırh gerçekten senin," dedi adamın sesi titreyerek. "Ben savaş alanında bulmuştum, senin olduğunu biliyordum ama kendime mal ettim. Özür dilerim." O gün adam, Hz. Ali\'nin adaletini görünce Müslüman oldu. Çünkü o güne kadar böyle bir adalet görmemişti.'
+      ],
+      sorular: [
+        { soru: 'Hz. Ali mahkemede nereye oturdu?', secenekler: ['Hakimin yanına', 'Tahta', 'Sıradan bir sandalyeye', 'Ayakta durdu'], dogru: 2 },
+        { soru: 'Hz. Ali davayı neden kaybetti?', secenekler: ['Şahitleri kurallara göre geçersizdi', 'Zırh onun değildi', 'Hakim haksız davrandı', 'Kaçtı'], dogru: 0 },
+        { soru: 'Adam neden zırhı geri verdi?', secenekler: ['Korktuğu için', 'Hz. Ali\'nin adaletinden etkilendiği için', 'Para aldığı için', 'Zorlandığı için'], dogru: 1 }
+      ]
+    },
+    {
+      id: 'mk_lokman',
+      baslik: 'Lokman Hekim ve Aslan',
+      kaynak: 'Menkıbe',
+      kapak: '🦁',
+      renk: '#15803d',
+      paragraflar: [
+        'Lokman Hekim, dağları, ovaları, ormanlardaki her bitkiyi tanırdı. Hangi yaprağın hangi derde deva olduğunu bilirdi. İnsanlar ona "Allah\'ın verdiği ilimle herkesi iyileştirir" derdi.',
+        'Bir gün Lokman Hekim, dağ yolunda ilerlerken önünde büyük bir aslan gördü. Aslan yerde yatıyordu ve inliyordu. Pençesi şişmişti, içinde bir diken vardı.',
+        'Çevresindekiler kaçtı. "Aslan yaralı, daha da tehlikeli!" diye bağırdılar. Ama Lokman Hekim durup aslana baktı. Hayvanın gözlerinde acı vardı, ama saldırganlık yoktu.',
+        '"Bir canlı acı çekiyor," dedi Lokman Hekim. "Ben hekim olarak bu acıya seyirci kalamam." Yavaşça aslana yaklaştı. Aslan büyük gözlerini açtı, baktı.',
+        'Lokman Hekim usulca eğildi. "Korma kardeş," dedi yumuşak bir sesle. "Sana yardım edeceğim." Pençeyi dikkatlice tuttu ve dikeni çekip çıkardı.',
+        'Aslan önce gerildi. Sonra acının geçtiğini hissetti. Pençesini yavaşça kaldırdı, Lokman Hekim\'e baktı. O bakışta derin bir şükran vardı.',
+        'Lokman Hekim yarayı temizledi, çantasından çıkardığı ot ezgisiyle sardı. Aslan boyun eğmiş gibi uslu durdu. Sanki anlıyordu.',
+        'İşi bitince Lokman Hekim kalktı ve yoluna devam etti. Aslan da kalktı. Ve Lokman Hekim\'in arkasından yürüdü. O gün boyunca onu takip etti, köye kadar eşlik etti.',
+        'Köylüler şaştı. "Lokman Hekim, bu aslan seni neden takip etti?" diye sordular. Hekim güldü. "Şefkat bir dil bilir ki, o dili hem insan hem hayvan anlar. Ben ona şefkatle davrandım, o da sadakatle karşılık verdi. İyilik asla boşa gitmez."'
+      ],
+      sorular: [
+        { soru: 'Aslanın sorunu neydi?', secenekler: ['Aç kalmıştı', 'Pençesinde diken vardı', 'Yolu kaybolmuştu', 'Hasta düşmüştü'], dogru: 1 },
+        { soru: 'Diğerleri kaçarken Lokman Hekim ne yaptı?', secenekler: ['O da kaçtı', 'Aslana yardım etti', 'Bağırdı', 'Bekledi'], dogru: 1 },
+        { soru: 'Lokman Hekim\'e göre iyilik ne yapar?', secenekler: ['Boşa gider', 'Asla boşa gitmez', 'Tehlikelidir', 'Zaman alır'], dogru: 1 }
+      ]
+    },
+    {
+      id: 'mk_yunus',
+      baslik: 'Yunus Emre\'nin Sevgisi',
+      kaynak: 'Menkıbe',
+      kapak: '🌹',
+      renk: '#9333ea',
+      paragraflar: [
+        'Yunus Emre, Anadolu\'nun küçük bir köyünde yaşardı. Çift sürer, tarla ekip biçer, akşamları da şiir söylerdi. Şiirleri o kadar güzeldi ki, dağlar bile onu dinler gibi durgunlaşırdı.',
+        'Bir yıl kıtlık oldu. Köyde yiyecek kalmadı. Yunus, Tapduk Emre adlı büyük bir bilgenin dergâhına gitti. "Bize biraz buğday verir misiniz?" diye yalvardı.',
+        'Tapduk Emre Yunus\'u gördü ve içinde bir şeyler hissetti. "Sana buğday verebilirim," dedi. "Ama bir şey seç: Ya buğday, ya bir dua, ya da himmet." Yunus düşünmedi bile.',
+        '"Buğday," dedi. "Köyümde açlar var, onları doyurmam lazım." Tapduk Emre güldü. "Al buğdayını." Ama Yunus giderken arkasından seslendi: "Bir gün geri gel."',
+        'Yunus köye döndü, açları doyurdu. Ama o gece rüyasında Tapduk Emre\'yi gördü. "Buğdayı aldın, ama asıl hazineyi bıraktın," dedi rüyada. Yunus uyandı, düşündü.',
+        'Ertesi sabah tekrar yola çıktı. Dergâha döndü. "Geri geldim," dedi Tapduk Emre\'ye. "Ama bu sefer buğday istemiyorum. Siz ne öğretirseniz onu öğrenmek istiyorum."',
+        'Tapduk Emre onu kabul etti. Yunus yıllarca dergâhta kaldı. Her gün dağdan odun taşıdı, çarşıdan su getirdi, küçük işler yaptı. Ama o işleri severek, gönülden yaptı.',
+        'Bir gün Tapduk Emre sordu: "Yunus, sen burada yıllarca odun taşıdın. Eğrisi çıktı mı hiç?" Yunus başını salladı. "Hayır, hiç eğri odun getirmedim. Hocamın ocağına eğri odun yaraşmaz." Tapduk Emre\'nin gözleri doldu.',
+        '"İşte bu yürek," dedi bilge, "seni büyük yapacak." Gerçekten de Yunus Emre zamanla öyle şiirler söyledi ki yüzyıllar geçse de o şiirler unutulmadı. Çünkü o şiirlerde sevgi vardı, ve sevgi hiç ölmez.'
+      ],
+      sorular: [
+        { soru: 'Yunus Emre dergâha neden gitti?', secenekler: ['Şiir söylemek için', 'Buğday istemek için', 'Öğrenci olmak için', 'Gezmek için'], dogru: 1 },
+        { soru: 'Yunus dergâhta ne yaptı?', secenekler: ['Şiir yazdı', 'Odun taşıdı ve su getirdi', 'Ders verdi', 'Uyudu'], dogru: 1 },
+        { soru: 'Tapduk Emre\'ye göre Yunus\'u büyük yapan neydi?', secenekler: ['Güçlü olması', 'Zengin olması', 'Sevgi dolu yüreği', 'Zeki olması'], dogru: 2 }
       ]
     }
   ];
@@ -1731,8 +2089,9 @@
     // Kaynak grupları
     const nasreddin = HIKAYELER.filter(h => h.kaynak === 'Nasreddin Hoca');
     const dede = HIKAYELER.filter(h => h.kaynak === 'Dede Korkut');
+    const menkibe = HIKAYELER.filter(h => h.kaynak === 'Menkıbe');
 
-    [[' Nasreddin Hoca Hikayeleri 🧔', nasreddin], ['Dede Korkut Masalları 📜', dede]].forEach(([baslik, liste]) => {
+    [['Nasreddin Hoca Hikayeleri 🧔', nasreddin], ['Dede Korkut Masalları 📜', dede], ['Menkıbeler 🌙', menkibe]].forEach(([baslik, liste]) => {
       const gb = document.createElement('div');
       gb.style.cssText = 'font-size:clamp(14px,3vw,18px);font-weight:700;color:var(--sari);padding:4px 2px 2px;';
       gb.textContent = baslik;
@@ -1784,23 +2143,36 @@
 
   function paragrafOku(idx) {
     speechSynthesis.cancel();
+    if (aktifSes) { aktifSes.pause(); aktifSes = null; }
     const bloklar = document.querySelectorAll('.paragraf-blok');
     bloklar.forEach(b => b.classList.remove('aktif-okuma'));
     bloklar[idx].classList.add('aktif-okuma');
     bloklar[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    ilerlemeGuncelle(idx);
 
-    const metin = aktifHikaye.paragraflar[idx];
-    const u = new SpeechSynthesisUtterance(metin);
-    u.lang = 'tr-TR'; u.rate = 0.82; u.pitch = 1.05;
-    u.onend = () => {
+    const parca = 'p' + (idx + 1);
+    const mp3 = HIK_SESLER[aktifHikaye.id] && HIK_SESLER[aktifHikaye.id][parca];
+
+    const onBitis = () => {
       bloklar[idx].classList.remove('aktif-okuma');
       ilerlemeGuncelle(idx + 1);
       if (sesDevam && idx + 1 < aktifHikaye.paragraflar.length) {
-        setTimeout(() => paragrafOku(idx + 1), 500);
+        setTimeout(() => paragrafOku(idx + 1), 400);
       }
     };
-    speechSynthesis.speak(u);
-    ilerlemeGuncelle(idx);
+
+    if (mp3) {
+      const audio = new Audio(mp3);
+      aktifSes = audio;
+      audio.onended = onBitis;
+      audio.play().catch(() => {});
+    } else {
+      const metin = aktifHikaye.paragraflar[idx];
+      const u = new SpeechSynthesisUtterance(metin);
+      u.lang = 'tr-TR'; u.rate = 0.82; u.pitch = 1.05;
+      u.onend = onBitis;
+      speechSynthesis.speak(u);
+    }
   }
 
   function tumunuOku() {
