@@ -2286,11 +2286,6 @@ function rehberCiz(a) {
     ctx.restore();
   }
 
-  // Başlangıç ikonunu çizim canvas'ına çiz (sürüklenecek)
-  const cctx=cc.getContext('2d');
-  cctx.clearRect(0,0,w,h);
-  _ikonCiz(cctx, a.ikon, noktalar[0].x, noktalar[0].y, ikonBoyut);
-
   // Çizim canvas olayları
   kapsananMesafe=0;
   cizimCanvasOlaylar(a, ikonBoyut);
@@ -2312,102 +2307,162 @@ function _ikonCiz(ctx, emoji, x, y, boyut){
   ctx.restore();
 }
 
+// Sürükleme state
+let surukle={tutuldu:false, aktif:false};
+let emojiPozX=0, emojiPozY=0;
+let yolIlerleme=0; // 0..1
+let izNoktalar=[];
+let animFrame=null;
+let aktifAlistirma=null;
+
 function cizimCanvasOlaylar(alistirma, ikonBoyut) {
   const cc=document.getElementById('cizimCanvas');
   cizimCtx=cc.getContext('2d');
   const a = alistirma || ALISTIRMALAR[aktifIdx];
   const ib = ikonBoyut || Math.min(cc.offsetWidth, cc.offsetHeight)*0.11;
+  aktifAlistirma = a;
 
-  // Yol üzerinde ilerleyen mesafeye göre pozisyon hesapla
-  function yolPozisyon(mesafe) {
-    let kalan = mesafe;
-    for(let i=1;i<noktalar.length;i++){
-      const dx=noktalar[i].x-noktalar[i-1].x;
-      const dy=noktalar[i].y-noktalar[i-1].y;
-      const seg=Math.sqrt(dx*dx+dy*dy);
-      if(kalan<=seg){
-        const t=kalan/seg;
-        return {x:noktalar[i-1].x+dx*t, y:noktalar[i-1].y+dy*t};
-      }
-      kalan-=seg;
-    }
-    return noktalar[noktalar.length-1];
-  }
-
-  const baslat=(e)=>{
-    e.preventDefault();
-    ciziyorum=true;
-    const pos=konum(e,cc);
-    sonKonum=pos;
-  };
-
-  const ciz=(e)=>{
-    if(!ciziyorum) return;
-    e.preventDefault();
-    const pos=konum(e,cc);
-
-    // İz çiz
-    cizimCtx.save();
-    cizimCtx.globalAlpha=0.7;
-    cizimCtx.lineWidth=cizimKalinlik;
-    cizimCtx.strokeStyle=a.renk;
-    cizimCtx.lineCap='round'; cizimCtx.lineJoin='round';
-    cizimCtx.shadowColor=a.renk; cizimCtx.shadowBlur=cizimKalinlik*0.6;
-    cizimCtx.beginPath();
-    cizimCtx.moveTo(sonKonum.x,sonKonum.y);
-    cizimCtx.lineTo(pos.x,pos.y);
-    cizimCtx.stroke();
-    cizimCtx.restore();
-
-    // Mesafe güncelle
-    const dx=pos.x-sonKonum.x, dy=pos.y-sonKonum.y;
-    kapsananMesafe+=Math.sqrt(dx*dx+dy*dy);
-    sonKonum=pos;
-
-    // İkonu yol üzerinde ilerlet
-    const ilerlemeMes=Math.min(kapsananMesafe, toplamMesafe);
-    const ikonPos=yolPozisyon(ilerlemeMes);
-
-    // Çizim canvas'ını temizleme — sadece ikon bölgesini temizle (iz kalıcı kalsın)
-    // İkonu mevcut pozisyonda yeniden çiz: önceki ikonun üstüne
-    // Strateji: ikon katmanı için ayrı bir overlay çiz
-    // Mevcut iz üzerine ikonu çiz (ikon iz üstünde görünür)
-    _ikonCiz(cizimCtx, a.ikon, ikonPos.x, ikonPos.y, ib);
-
-    // İlerleme yüzdesi
-    const yuzde=Math.min(100,Math.round(kapsananMesafe/toplamMesafe*100));
-    document.getElementById('ilerlemeTxt').textContent=yuzde+'%';
-
-    if(yuzde>=80 && !cizilen){
-      cizilen=true;
-      // İkonu bitiş noktasına snap et
-      const son=noktalar[noktalar.length-1];
-      _ikonCiz(cizimCtx, a.ikon, son.x, son.y, ib);
-      setTimeout(()=>cizimTamamlandi(),400);
-    }
-  };
-
-  const bitir=()=>{ ciziyorum=false; };
+  // Emoji başlangıç pozisyonu
+  emojiPozX = noktalar[0].x;
+  emojiPozY = noktalar[0].y;
+  yolIlerleme = 0;
+  izNoktalar = [];
+  surukle = {tutuldu:false, aktif:false};
 
   // Önceki dinleyicileri temizle
-  ['mousedown','mousemove','mouseup','mouseleave','touchstart','touchmove','touchend','touchcancel'].forEach(ev=>{
-    const key='_'+ev.replace('mouse','m').replace('touch','t').replace('start','s').replace('move','m2').replace('end','e').replace('leave','l').replace('cancel','c').replace('down','d').replace('up','u');
+  ['mousedown','mousemove','mouseup','touchstart','touchmove','touchend','touchcancel'].forEach(ev=>{
+    const key='_ev_'+ev;
     if(cc[key]) cc.removeEventListener(ev, cc[key]);
   });
 
-  cc._md=baslat; cc._mm=ciz; cc._mu=bitir; cc._ml=bitir;
-  cc._ts=baslat; cc._tm2=ciz; cc._te=bitir; cc._tc=bitir;
+  const _baslat=(e)=>{
+    const pos=konum(e,cc);
+    // Emojiye yeterince yakın mı?
+    const dx=pos.x-emojiPozX, dy=pos.y-emojiPozY;
+    if(Math.sqrt(dx*dx+dy*dy) < ib*1.2){
+      surukle.tutuldu=true;
+      if(e.cancelable) e.preventDefault();
+    }
+  };
 
-  cc.addEventListener('mousedown',baslat);
-  cc.addEventListener('mousemove',ciz);
-  cc.addEventListener('mouseup',bitir);
-  cc.addEventListener('mouseleave',bitir);
-  cc.addEventListener('touchstart',baslat,{passive:false});
-  cc.addEventListener('touchmove',ciz,{passive:false});
-  cc.addEventListener('touchend',bitir,{passive:false});
-  cc.addEventListener('touchcancel',bitir,{passive:false});
+  const _ciz=(e)=>{
+    if(!surukle.tutuldu) return;
+    if(e.cancelable) e.preventDefault();
+    surukle.aktif=true;
+    const pos=konum(e,cc);
+    const enYakin=_yolEnYakin(pos);
+    // Sadece ileri
+    if(enYakin.t > yolIlerleme){
+      yolIlerleme=enYakin.t;
+      emojiPozX=enYakin.x;
+      emojiPozY=enYakin.y;
+      izNoktalar.push({x:emojiPozX, y:emojiPozY});
+      const yuzde=Math.min(100,Math.round(yolIlerleme*100));
+      document.getElementById('ilerlemeTxt').textContent=yuzde+'%';
+      if(yuzde>=95 && !cizilen){
+        cizilen=true;
+        surukle.tutuldu=false;
+        setTimeout(()=>cizimTamamlandi(),400);
+      }
+    }
+  };
+
+  const _bitir=()=>{ surukle.tutuldu=false; surukle.aktif=false; };
+
+  cc['_ev_mousedown']=_baslat; cc['_ev_mousemove']=_ciz;
+  cc['_ev_mouseup']=_bitir;
+  cc['_ev_touchstart']=_baslat; cc['_ev_touchmove']=_ciz;
+  cc['_ev_touchend']=_bitir; cc['_ev_touchcancel']=_bitir;
+
+  cc.addEventListener('mousedown',_baslat);
+  cc.addEventListener('mousemove',_ciz);
+  cc.addEventListener('mouseup',_bitir);
+  cc.addEventListener('touchstart',_baslat,{passive:false});
+  cc.addEventListener('touchmove',_ciz,{passive:false});
+  cc.addEventListener('touchend',_bitir);
+  cc.addEventListener('touchcancel',_bitir);
 
   cizilen=false;
+
+  // Animasyon döngüsü
+  if(animFrame) cancelAnimationFrame(animFrame);
+  _animDongusu(a, ib);
+}
+
+function _yolEnYakin(pos){
+  let enT=yolIlerleme, enX=emojiPozX, enY=emojiPozY, enD=Infinity;
+  let birik=0;
+  for(let i=1;i<noktalar.length;i++){
+    const p1=noktalar[i-1], p2=noktalar[i];
+    const sdx=p2.x-p1.x, sdy=p2.y-p1.y;
+    const segLen=Math.sqrt(sdx*sdx+sdy*sdy);
+    if(segLen===0){birik+=segLen;continue;}
+    const t=Math.max(0,Math.min(1,((pos.x-p1.x)*sdx+(pos.y-p1.y)*sdy)/(segLen*segLen)));
+    const px=p1.x+t*sdx, py=p1.y+t*sdy;
+    const d=Math.sqrt((pos.x-px)**2+(pos.y-py)**2);
+    const gT=(birik+t*segLen)/toplamMesafe;
+    if(d<enD && gT>=yolIlerleme-0.01){enD=d;enT=gT;enX=px;enY=py;}
+    birik+=segLen;
+  }
+  return {t:enT,x:enX,y:enY};
+}
+
+function _animDongusu(a, ib){
+  const cc=document.getElementById('cizimCanvas');
+  if(!cc){return;}
+  const ctx=cc.getContext('2d');
+  const w=cc.offsetWidth, h=cc.offsetHeight;
+  // Transform sıfırla
+  ctx.save(); ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,cc.width,cc.height);
+  ctx.restore();
+
+  // İz
+  if(izNoktalar.length>1){
+    ctx.save();
+    ctx.lineWidth=ib*0.32;
+    ctx.strokeStyle=a.renk;
+    ctx.globalAlpha=0.55;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.shadowColor=a.renk; ctx.shadowBlur=ib*0.4;
+    ctx.beginPath();
+    ctx.moveTo(izNoktalar[0].x,izNoktalar[0].y);
+    izNoktalar.forEach(p=>ctx.lineTo(p.x,p.y));
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Emoji — tutulunca büyür
+  const olcek=surukle.tutuldu?1.25:1.0;
+  ctx.save();
+  ctx.font=`${ib*olcek}px serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  if(surukle.tutuldu){ctx.shadowColor='gold';ctx.shadowBlur=20;}
+  ctx.fillText(a.ikon, emojiPozX, emojiPozY);
+  ctx.restore();
+
+  animFrame=requestAnimationFrame(()=>_animDongusu(a,ib));
+}
+
+function konum(e,canvas) {
+  const rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  if(e.touches) {
+    return {
+      x:(e.touches[0].clientX-rect.left),
+      y:(e.touches[0].clientY-rect.top)
+    };
+  }
+  return {
+    x:(e.clientX-rect.left),
+    y:(e.clientY-rect.top)
+  };
+}
+
+function kalinlikSec(btn,k) {
+  document.querySelectorAll('.kalinlik-btn').forEach(b=>b.classList.remove('aktif'));
+  btn.classList.add('aktif');
+  cizimKalinlik=k;
 }
 
 function konum(e,canvas) {
@@ -2433,20 +2488,19 @@ function kalinlikSec(btn,k) {
 }
 
 function cizimTemizle() {
+  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+  izNoktalar=[];
+  yolIlerleme=0;
+  cizilen=false;
+  surukle={tutuldu:false,aktif:false};
+  kapsananMesafe=0;
   const cc=document.getElementById('cizimCanvas');
-  if(cc.width){
+  if(cc && cc.width){
     const ctx=cc.getContext('2d');
     ctx.save(); ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0,0,cc.width,cc.height);
     ctx.restore();
-    // İkonu başlangıç noktasına geri koy
-    if(noktalar && noktalar.length>0){
-      const a=ALISTIRMALAR[aktifIdx];
-      const ib=Math.min(cc.offsetWidth,cc.offsetHeight)*0.11;
-      _ikonCiz(ctx, a.ikon, noktalar[0].x, noktalar[0].y, ib);
-    }
   }
-  kapsananMesafe=0; cizilen=false;
   document.getElementById('ilerlemeTxt').textContent='0%';
   document.getElementById('ileriBtn').style.display='none';
 }
@@ -4477,17 +4531,21 @@ function yazmaCizimModuBaslat() {
   // Mevcut stroke'un başlangıç noktasını göster
   yazmaStrokIpucu();
 
-  // Olayları bağla
+  // Olayları bağla — touch ve mouse ayrı ayrı, çakışma olmasın
   const canvas = cc;
-  canvas.onmousedown = canvas.ontouchstart = (e) => {
+  // Önceki listener'ları temizle
+  canvas.onmousedown = null; canvas.ontouchstart = null;
+  canvas.onmousemove = null; canvas.ontouchmove = null;
+  canvas.onmouseup = null; canvas.ontouchend = null; canvas.onmouseleave = null;
+
+  const _baslat = (e) => {
     if(YM.mod !== 'cizim') return;
     e.preventDefault();
     yazmaCiziyorum = true;
     yazmaSonKonum = yazmaKonum(e, canvas);
-    // Bu stroke için yeni çizim başlat
     YM_cizim.canvasCizimler.push([yazmaSonKonum]);
   };
-  canvas.onmousemove = canvas.ontouchmove = (e) => {
+  const _ciz = (e) => {
     if(!yazmaCiziyorum || YM.mod !== 'cizim') return;
     e.preventDefault();
     const pos = yazmaKonum(e, canvas);
@@ -4503,17 +4561,24 @@ function yazmaCizimModuBaslat() {
     ctx.stroke();
     ctx.restore();
     yazmaSonKonum = pos;
-    // Çizimi kaydet
     if(YM_cizim.canvasCizimler.length > 0) {
       YM_cizim.canvasCizimler[YM_cizim.canvasCizimler.length-1].push(pos);
     }
   };
-  canvas.onmouseup = canvas.ontouchend = canvas.onmouseleave = () => {
+  const _bitir = () => {
     if(!yazmaCiziyorum) return;
     yazmaCiziyorum = false;
-    // Parmak kalktı → bu stroke'u kontrol et
     setTimeout(() => yazmaStrokKontrol(), 100);
   };
+
+  canvas.addEventListener('mousedown', _baslat);
+  canvas.addEventListener('mousemove', _ciz);
+  canvas.addEventListener('mouseup', _bitir);
+  // mouseleave'i kaldırdık — parmak canvas dışına çıkınca stroke iptal olmasın
+  canvas.addEventListener('touchstart', _baslat, {passive: false});
+  canvas.addEventListener('touchmove', _ciz, {passive: false});
+  canvas.addEventListener('touchend', _bitir);
+  canvas.addEventListener('touchcancel', _bitir);
 }
 
 function yazmaStrokIpucu() {
