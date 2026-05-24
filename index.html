@@ -4075,8 +4075,73 @@ function yilanGuncelleSkor() {
 <script>
 /* ══════════════════════════════════════════
    YAZMA ALIŞTIRMASI MODÜLÜ
-   Canvas tabanlı — piksel örtüşme karşılaştırması
+   Nokta Takip Sistemi — sıralı kontrol noktaları
    ══════════════════════════════════════════ */
+
+// ── Her harf için yazım noktaları (% cinsinden, canvas 0-100) ──
+// Büyük harf için sol yarı (x:5-48), küçük harf için sağ yarı (x:52-95)
+// Her harf: birden fazla "stroke" (çizgi) olabilir — dizi içinde dizi
+const HARF_NOKTALAR = {
+  // A: sol çapraz aşağı, sağ çapraz aşağı, orta yatay
+  'A': [ [{x:22,y:82},{x:30,y:55},{x:38,y:28}], [{x:38,y:28},{x:46,y:55},{x:54,y:82}], [{x:26,y:60},{x:40,y:60},{x:50,y:60}] ],
+  'a': [ [{x:67,y:42},{x:74,y:35},{x:81,y:42},{x:81,y:65},{x:74,y:72},{x:67,y:65},{x:67,y:42}], [{x:81,y:42},{x:81,y:72}] ],
+  'B': [ [{x:22,y:28},{x:22,y:55},{x:22,y:82}], [{x:22,y:28},{x:38,y:28},{x:44,y:35},{x:38,y:50},{x:22,y:50}], [{x:22,y:50},{x:40,y:50},{x:46,y:58},{x:40,y:82},{x:22,y:82}] ],
+  'b': [ [{x:62,y:28},{x:62,y:50},{x:62,y:72}], [{x:62,y:50},{x:70,y:42},{x:78,y:45},{x:81,y:55},{x:78,y:65},{x:70,y:70},{x:62,y:65}] ],
+  'C': [ [{x:46,y:35},{x:36,y:28},{x:24,y:35},{x:20,y:50},{x:24,y:65},{x:36,y:72},{x:46,y:65}] ],
+  'c': [ [{x:81,y:45},{x:73,y:38},{x:64,y:42},{x:62,y:52},{x:64,y:62},{x:73,y:66},{x:81,y:60}] ],
+  'Ç': [ [{x:46,y:35},{x:36,y:28},{x:24,y:35},{x:20,y:50},{x:24,y:65},{x:36,y:72},{x:46,y:65}], [{x:36,y:76},{x:32,y:84}] ],
+  'ç': [ [{x:81,y:45},{x:73,y:38},{x:64,y:42},{x:62,y:52},{x:64,y:62},{x:73,y:66},{x:81,y:60}], [{x:72,y:70},{x:68,y:80}] ],
+  'D': [ [{x:22,y:28},{x:22,y:55},{x:22,y:82}], [{x:22,y:28},{x:36,y:28},{x:46,y:38},{x:48,y:55},{x:46,y:68},{x:36,y:82},{x:22,y:82}] ],
+  'd': [ [{x:81,y:28},{x:81,y:50},{x:81,y:72}], [{x:81,y:50},{x:73,y:42},{x:64,y:45},{x:62,y:55},{x:64,y:65},{x:73,y:70},{x:81,y:65}] ],
+  'E': [ [{x:46,y:28},{x:22,y:28},{x:22,y:55},{x:22,y:82},{x:46,y:82}], [{x:22,y:55},{x:40,y:55}] ],
+  'e': [ [{x:62,y:52},{x:81,y:52},{x:81,y:44},{x:73,y:38},{x:64,y:42},{x:62,y:52},{x:62,y:62},{x:73,y:68},{x:81,y:62}] ],
+  'F': [ [{x:22,y:28},{x:22,y:55},{x:22,y:82}], [{x:22,y:28},{x:46,y:28}], [{x:22,y:55},{x:40,y:55}] ],
+  'f': [ [{x:78,y:28},{x:72,y:32},{x:70,y:42},{x:70,y:55},{x:70,y:72}], [{x:62,y:48},{x:78,y:48}] ],
+  'G': [ [{x:46,y:35},{x:36,y:28},{x:24,y:35},{x:20,y:50},{x:24,y:65},{x:36,y:72},{x:46,y:65},{x:46,y:55},{x:38,y:55}] ],
+  'g': [ [{x:81,y:42},{x:73,y:38},{x:64,y:42},{x:62,y:52},{x:64,y:62},{x:73,y:66},{x:81,y:62},{x:81,y:42}], [{x:81,y:42},{x:81,y:75},{x:73,y:82},{x:64,y:78}] ],
+  'Ğ': [ [{x:46,y:35},{x:36,y:28},{x:24,y:35},{x:20,y:50},{x:24,y:65},{x:36,y:72},{x:46,y:65},{x:46,y:55},{x:38,y:55}], [{x:30,y:22},{x:42,y:16}] ],
+  'ğ': [ [{x:81,y:42},{x:73,y:38},{x:64,y:42},{x:62,y:52},{x:64,y:62},{x:73,y:66},{x:81,y:62},{x:81,y:42}], [{x:81,y:42},{x:81,y:75},{x:73,y:82},{x:64,y:78}], [{x:67,y:35},{x:78,y:30}] ],
+  'H': [ [{x:22,y:28},{x:22,y:55},{x:22,y:82}], [{x:48,y:28},{x:48,y:55},{x:48,y:82}], [{x:22,y:55},{x:48,y:55}] ],
+  'h': [ [{x:62,y:28},{x:62,y:50},{x:62,y:72}], [{x:62,y:50},{x:70,y:42},{x:78,y:42},{x:81,y:50},{x:81,y:72}] ],
+  'I': [ [{x:22,y:28},{x:35,y:28}], [{x:35,y:28},{x:35,y:55},{x:35,y:82}], [{x:22,y:82},{x:48,y:82}] ],
+  'ı': [ [{x:72,y:42},{x:72,y:55},{x:72,y:72}] ],
+  'İ': [ [{x:22,y:28},{x:35,y:28}], [{x:35,y:28},{x:35,y:55},{x:35,y:82}], [{x:22,y:82},{x:48,y:82}], [{x:35,y:18},{x:35,y:15}] ],
+  'i': [ [{x:72,y:42},{x:72,y:55},{x:72,y:72}], [{x:72,y:35},{x:72,y:34}] ],
+  'J': [ [{x:38,y:28},{x:38,y:60},{x:34,y:72},{x:24,y:78},{x:18,y:72}] ],
+  'j': [ [{x:72,y:42},{x:72,y:68},{x:68,y:78},{x:62,y:80}], [{x:72,y:35},{x:72,y:34}] ],
+  'K': [ [{x:22,y:28},{x:22,y:55},{x:22,y:82}], [{x:46,y:28},{x:34,y:50},{x:22,y:55}], [{x:22,y:55},{x:34,y:62},{x:46,y:82}] ],
+  'k': [ [{x:62,y:28},{x:62,y:55},{x:62,y:72}], [{x:80,y:42},{x:70,y:53},{x:62,y:58}], [{x:62,y:58},{x:70,y:62},{x:80,y:72}] ],
+  'L': [ [{x:22,y:28},{x:22,y:55},{x:22,y:82},{x:48,y:82}] ],
+  'l': [ [{x:72,y:28},{x:72,y:55},{x:72,y:72}] ],
+  'M': [ [{x:18,y:82},{x:18,y:50},{x:18,y:28},{x:35,y:55},{x:52,y:28},{x:52,y:55},{x:52,y:82}] ],
+  'm': [ [{x:62,y:42},{x:62,y:55},{x:62,y:72}], [{x:62,y:48},{x:68,y:42},{x:74,y:42},{x:76,y:48},{x:76,y:72}], [{x:76,y:48},{x:82,y:42},{x:88,y:42},{x:90,y:48},{x:90,y:72}] ],
+  'N': [ [{x:22,y:82},{x:22,y:50},{x:22,y:28},{x:48,y:82},{x:48,y:50},{x:48,y:28}] ],
+  'n': [ [{x:62,y:42},{x:62,y:55},{x:62,y:72}], [{x:62,y:50},{x:70,y:42},{x:78,y:42},{x:81,y:50},{x:81,y:72}] ],
+  'O': [ [{x:35,y:28},{x:22,y:38},{x:18,y:55},{x:22,y:68},{x:35,y:78},{x:48,y:68},{x:52,y:55},{x:48,y:38},{x:35,y:28}] ],
+  'o': [ [{x:72,y:38},{x:64,y:42},{x:62,y:52},{x:64,y:62},{x:72,y:67},{x:80,y:62},{x:82,y:52},{x:80,y:42},{x:72,y:38}] ],
+  'Ö': [ [{x:35,y:28},{x:22,y:38},{x:18,y:55},{x:22,y:68},{x:35,y:78},{x:48,y:68},{x:52,y:55},{x:48,y:38},{x:35,y:28}], [{x:28,y:18},{x:34,y:15}], [{x:42,y:18},{x:36,y:15}] ],
+  'ö': [ [{x:72,y:38},{x:64,y:42},{x:62,y:52},{x:64,y:62},{x:72,y:67},{x:80,y:62},{x:82,y:52},{x:80,y:42},{x:72,y:38}], [{x:68,y:32},{x:66,y:28}], [{x:76,y:32},{x:74,y:28}] ],
+  'P': [ [{x:22,y:28},{x:22,y:55},{x:22,y:82}], [{x:22,y:28},{x:38,y:28},{x:46,y:36},{x:38,y:55},{x:22,y:55}] ],
+  'p': [ [{x:62,y:42},{x:62,y:60},{x:62,y:82}], [{x:62,y:50},{x:70,y:42},{x:78,y:45},{x:81,y:55},{x:78,y:65},{x:70,y:70},{x:62,y:65}] ],
+  'R': [ [{x:22,y:28},{x:22,y:55},{x:22,y:82}], [{x:22,y:28},{x:38,y:28},{x:46,y:36},{x:38,y:55},{x:22,y:55}], [{x:34,y:55},{x:48,y:82}] ],
+  'r': [ [{x:62,y:42},{x:62,y:55},{x:62,y:72}], [{x:62,y:50},{x:68,y:44},{x:75,y:42}] ],
+  'S': [ [{x:46,y:35},{x:36,y:28},{x:24,y:32},{x:20,y:42},{x:26,y:52},{x:44,y:58},{x:48,y:68},{x:42,y:78},{x:28,y:82},{x:18,y:76}] ],
+  's': [ [{x:80,y:44},{x:72,y:38},{x:64,y:42},{x:62,y:50},{x:68,y:56},{x:78,y:60},{x:82,y:66},{x:78,y:72},{x:68,y:72}] ],
+  'Ş': [ [{x:46,y:35},{x:36,y:28},{x:24,y:32},{x:20,y:42},{x:26,y:52},{x:44,y:58},{x:48,y:68},{x:42,y:78},{x:28,y:82},{x:18,y:76}], [{x:34,y:82},{x:30,y:90}] ],
+  'ş': [ [{x:80,y:44},{x:72,y:38},{x:64,y:42},{x:62,y:50},{x:68,y:56},{x:78,y:60},{x:82,y:66},{x:78,y:72},{x:68,y:72}], [{x:70,y:74},{x:66,y:82}] ],
+  'T': [ [{x:18,y:28},{x:52,y:28}], [{x:35,y:28},{x:35,y:55},{x:35,y:82}] ],
+  't': [ [{x:70,y:28},{x:70,y:50},{x:70,y:72}], [{x:62,y:46},{x:80,y:46}] ],
+  'U': [ [{x:22,y:28},{x:22,y:60},{x:28,y:74},{x:35,y:80},{x:42,y:74},{x:48,y:60},{x:48,y:28}] ],
+  'u': [ [{x:62,y:42},{x:62,y:60},{x:68,y:70},{x:72,y:72},{x:78,y:70},{x:81,y:60},{x:81,y:42},{x:81,y:72}] ],
+  'Ü': [ [{x:22,y:28},{x:22,y:60},{x:28,y:74},{x:35,y:80},{x:42,y:74},{x:48,y:60},{x:48,y:28}], [{x:26,y:18},{x:26,y:15}], [{x:44,y:18},{x:44,y:15}] ],
+  'ü': [ [{x:62,y:42},{x:62,y:60},{x:68,y:70},{x:72,y:72},{x:78,y:70},{x:81,y:60},{x:81,y:42},{x:81,y:72}], [{x:66,y:35},{x:66,y:33}], [{x:78,y:35},{x:78,y:33}] ],
+  'V': [ [{x:18,y:28},{x:35,y:78},{x:52,y:28}] ],
+  'v': [ [{x:62,y:42},{x:72,y:72},{x:81,y:42}] ],
+  'Y': [ [{x:18,y:28},{x:35,y:55}], [{x:52,y:28},{x:35,y:55},{x:35,y:82}] ],
+  'y': [ [{x:62,y:42},{x:72,y:62}], [{x:81,y:42},{x:72,y:62},{x:68,y:72},{x:62,y:78}] ],
+  'Z': [ [{x:18,y:28},{x:52,y:28},{x:18,y:82},{x:52,y:82}] ],
+  'z': [ [{x:62,y:42},{x:81,y:42},{x:62,y:72},{x:81,y:72}] ],
+};
 
 // ── Tüm harfleri düz liste olarak çıkar ──
 const YAZMA_HARFLER = [];
@@ -4217,224 +4282,352 @@ function yazmaRehberCiz() {
   ctx.restore();
 }
 
-// ══ ANİMASYON: SVG stroke-dashoffset benzeri efekt ══
-// Canvas üzerinde harfi path olarak çiziyoruz, sonra "kalem" animasyonu yapıyoruz.
-
+// ══ ANİMASYON: Nokta yolunu çiz ══
 function yazmaAnimasyonOynat() {
-  // Animasyon canvas'ını temizle, çizim canvas'ını da temizle
+  if(YM.animFrame) { cancelAnimationFrame(YM.animFrame); YM.animFrame = null; }
+  const ac = document.getElementById('yazmaAnimCanvas');
+  const cc = document.getElementById('yazmaCizimCanvas');
+  const w = ac.width, h = ac.height;
+  ac.getContext('2d').clearRect(0,0,w,h);
+  cc.getContext('2d').clearRect(0,0,w,h);
+  yazmaSonucGizle();
+  YM.mod = 'anim';
+  document.getElementById('yazmaBtnCizim').disabled = true;
+
+  const harf = YAZMA_HARFLER[YM.aktifIdx];
+  const ctx = ac.getContext('2d');
+
+  // Harfin piksel noktalarını al
+  const buyukNoktalar = HARF_NOKTALAR[harf.buyuk] || [];
+  const kucukNoktalar = HARF_NOKTALAR[harf.kucuk] || [];
+
+  // Tüm strokeları birleştir
+  const tumStroklar = [...buyukNoktalar, ...kucukNoktalar];
+
+  // Önce arka plan rehber çizgilerini tekrar çiz
+  yazmaRehberCiz();
+
+  let strokeIdx = 0;
+  let nokIdx = 0;
+  let oncekiX = 0, oncekiY = 0;
+
+  function animAdim() {
+    if(YM.mod !== 'anim') { document.getElementById('yazmaBtnCizim').disabled = false; return; }
+    if(strokeIdx >= tumStroklar.length) {
+      // Animasyon bitti — gradient ile son hali çiz
+      yazmaGradientHarfCiz(ctx, harf.buyuk, harf.kucuk, w, h);
+      YM.mod = 'bekle';
+      document.getElementById('yazmaBtnCizim').disabled = false;
+      return;
+    }
+
+    const stroke = tumStroklar[strokeIdx];
+    if(nokIdx >= stroke.length - 1) {
+      // Bu stroke bitti, sıradakine geç
+      strokeIdx++;
+      nokIdx = 0;
+      setTimeout(() => { YM.animFrame = requestAnimationFrame(animAdim); }, 120);
+      return;
+    }
+
+    const p1 = stroke[nokIdx];
+    const p2 = stroke[nokIdx + 1];
+    const x1 = p1.x/100*w, y1 = p1.y/100*h;
+    const x2 = p2.x/100*w, y2 = p2.y/100*h;
+
+    // İz çiz
+    const oran = (strokeIdx * 10 + nokIdx) / (tumStroklar.length * 10);
+    const renk = yazmaRenkHesapla(oran);
+    ctx.save();
+    ctx.lineWidth = Math.min(w,h) * 0.045;
+    ctx.strokeStyle = renk;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.shadowColor = renk; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.restore();
+
+    // Kalem imleci — öncekini temizle, yenisini çiz
+    if(oncekiX || oncekiY) ctx.clearRect(oncekiX-2, oncekiY-34, 34, 34);
+    ctx.save(); ctx.font = '26px serif';
+    ctx.fillText('✏️', x2-4, y2-10);
+    ctx.restore();
+    oncekiX = x2; oncekiY = y2;
+
+    nokIdx++;
+    YM.animFrame = setTimeout(() => requestAnimationFrame(animAdim), 60);
+  }
+  YM.animFrame = requestAnimationFrame(animAdim);
+}
+
+function yazmaRenkHesapla(oran) {
+  if(oran < 0.5) {
+    const t = oran*2;
+    return `rgb(${Math.round(255+(155-255)*t)},${Math.round(77+12*t)},${Math.round(141+(255-141)*t)})`;
+  } else {
+    const t = (oran-0.5)*2;
+    return `rgb(${Math.round(155-155*t)},${Math.round(89+(217-89)*t)},${Math.round(255-38*t)})`;
+  }
+}
+
+function yazmaGradientHarfCiz(ctx, buyuk, kucuk, w, h) {
+  // Büyük harf — sol yarı
+  const fs1 = Math.min(w,h)*0.50;
+  ctx.save();
+  const grad1 = ctx.createLinearGradient(w*0.05,h*0.2,w*0.48,h*0.8);
+  grad1.addColorStop(0,'#ff4d8d'); grad1.addColorStop(0.5,'#9b59ff'); grad1.addColorStop(1,'#00d9d9');
+  ctx.font = `bold ${fs1}px 'Bubblegum Sans', cursive`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle=grad1; ctx.shadowColor='#9b59ff'; ctx.shadowBlur=16;
+  ctx.fillText(buyuk, w*0.26, h*0.50);
+  ctx.restore();
+
+  // Küçük harf — sağ yarı
+  const fs2 = Math.min(w,h)*0.42;
+  ctx.save();
+  const grad2 = ctx.createLinearGradient(w*0.52,h*0.2,w*0.95,h*0.8);
+  grad2.addColorStop(0,'#00d9d9'); grad2.addColorStop(0.5,'#9b59ff'); grad2.addColorStop(1,'#ff4d8d');
+  ctx.font = `bold ${fs2}px 'Bubblegum Sans', cursive`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle=grad2; ctx.shadowColor='#00d9d9'; ctx.shadowBlur=14;
+  ctx.fillText(kucuk, w*0.76, h*0.52);
+  ctx.restore();
+}
+
+// ══ ÇİZİM MODU — NOKTA TAKİP SİSTEMİ ══
+// Her harf için aktif stroke ve nokta indexi tutulur
+// Parmak sıradaki noktaya yaklaşınca → onaylanır, sonrakine geç
+
+let YM_cizim = {
+  aktifStroke: 0,      // kaçıncı stroke
+  aktifNok: 0,         // o stroke'ta kaçıncı noktayı bekliyoruz
+  gecilen: [],         // [{si,ni}] geçilen noktalar
+  ciziyorum: false,
+  sonKonum: {x:0,y:0},
+  tamamlandi: false,
+  stroklar: []         // piksel koordinatlı stroke listesi
+};
+
+function yazmaCizimModuBaslat() {
+  if(YM.animFrame) { clearTimeout(YM.animFrame); cancelAnimationFrame(YM.animFrame); YM.animFrame = null; }
+  YM.mod = 'cizim';
+
   const ac = document.getElementById('yazmaAnimCanvas');
   const cc = document.getElementById('yazmaCizimCanvas');
   ac.getContext('2d').clearRect(0,0,ac.width,ac.height);
   cc.getContext('2d').clearRect(0,0,cc.width,cc.height);
   yazmaSonucGizle();
 
-  YM.mod = 'anim';
-  document.getElementById('yazmaBtnCizim').disabled = true;
+  const w = cc.width, h = cc.height;
+  const harf = YAZMA_HARFLER[YM.aktifIdx];
 
-  const h = YAZMA_HARFLER[YM.aktifIdx];
-  const w = ac.width, ht = ac.height;
-  const ctx = ac.getContext('2d');
-
-  // Büyük harfi sol yarıda, küçüğü sağ yarıda çizeceğiz
-  // Her biri için offscreen canvas'a çiz, sonra piksel verisi alarak animasyon yap
-  yazmaHarfiAnimEt(ctx, h.buyuk, w * 0.22, ht * 0.48, Math.min(w,ht)*0.48, w, ht, () => {
-    // Büyük harf bitti → küçük harfi animasyonla çiz
-    setTimeout(() => {
-      yazmaHarfiAnimEt(ctx, h.kucuk, w * 0.72, ht * 0.53, Math.min(w,ht)*0.40, w, ht, () => {
-        // İkisi de bitti
-        YM.mod = 'bekle';
-        document.getElementById('yazmaBtnCizim').disabled = false;
-      });
-    }, 300);
-  });
-}
-
-function yazmaHarfiAnimEt(ctx, harf, cx, cy, fs, w, h, bitti) {
-  // 1) Harfi offscreen canvas'a çiz → piksel haritası al
-  const off = document.createElement('canvas');
-  off.width = w; off.height = h;
-  const octx = off.getContext('2d');
-  octx.font = `bold ${fs}px 'Bubblegum Sans', cursive`;
-  octx.textAlign = 'center';
-  octx.textBaseline = 'middle';
-  octx.fillStyle = 'white';
-  octx.fillText(harf, cx, cy);
-
-  const imgData = octx.getImageData(0, 0, w, h);
-  const data = imgData.data;
-
-  // 2) Dolu pikselleri satır-satır topla, sonra her satırda soldan sağa sırala
-  //    → kalem doğal yazma yönünde (yukarıdan aşağı, satır içinde sol→sağ) hareket eder
-  const satirlar = {};
-  for(let y=0; y<h; y++) {
-    for(let x=0; x<w; x++) {
-      const idx = (y*w+x)*4;
-      if(data[idx+3] > 60) {
-        if(!satirlar[y]) satirlar[y] = [];
-        satirlar[y].push(x);
-      }
-    }
-  }
-  // Sıralı piksel listesi oluştur
-  const sirali = [];
-  Object.keys(satirlar).sort((a,b)=>+a-+b).forEach(y => {
-    const xs = satirlar[+y];
-    xs.sort((a,b)=>a-b);
-    xs.forEach(x => sirali.push({x, y:+y}));
-  });
-
-  if(sirali.length === 0) { if(bitti) bitti(); return; }
-
-  // 3) Animasyon parametreleri
-  const SURE = 1400; // ms — animasyon toplam süresi
-  const ADIM_SAYISI = 80; // kare sayısı
-  const ADIM_BASINA = Math.max(1, Math.floor(sirali.length / ADIM_SAYISI));
-  let adim = 0;
-  let oncekiKalemX = sirali[0].x;
-  let oncekiKalemY = sirali[0].y;
-
-  // Renk interpolasyonu yardımcısı
-  function renkHesapla(oran) {
-    // pembe → mor → turkuaz geçişi
-    if(oran < 0.5) {
-      const t = oran * 2;
-      const r = Math.round(255 + (155-255)*t);
-      const g = Math.round(77  + (89 -77 )*t * 0.3);
-      const b = Math.round(141 + (255-141)*t);
-      return `rgb(${r},${g},${b})`;
-    } else {
-      const t = (oran-0.5)*2;
-      const r = Math.round(155 + (0  -155)*t);
-      const g = Math.round(26  + (217-26 )*t);
-      const b = Math.round(255 + (217-255)*t);
-      return `rgb(${r},${g},${b})`;
-    }
-  }
-
-  function animKare() {
-    if(YM.mod !== 'anim') { if(bitti) bitti(); return; }
-
-    const bas = adim * ADIM_BASINA;
-    const bit = Math.min(bas + ADIM_BASINA, sirali.length);
-
-    // Önceki kalem imlecini sil (harfin üstüne geçmesin diye clip yok, sadece temizle)
-    ctx.clearRect(oncekiKalemX - 2, oncekiKalemY - 36, 38, 38);
-
-    // Bu adımdaki pikselleri çiz
-    for(let i = bas; i < bit; i++) {
-      const p = sirali[i];
-      const oran = i / sirali.length;
-      ctx.fillStyle = renkHesapla(oran);
-      // Biraz daha kalın çiz → daha dolgun görünür
-      ctx.fillRect(p.x - 1, p.y - 1, 3, 3);
-    }
-
-    // Güncel kalem konumu
-    const sonP = sirali[Math.min(bit-1, sirali.length-1)];
-    oncekiKalemX = sonP.x;
-    oncekiKalemY = sonP.y;
-
-    // Kalem imlecini çiz
-    ctx.save();
-    ctx.font = '26px serif';
-    ctx.fillText('✏️', oncekiKalemX - 4, oncekiKalemY - 10);
-    ctx.restore();
-
-    adim++;
-    if(bas < sirali.length) {
-      YM.animFrame = requestAnimationFrame(animKare);
-    } else {
-      // Kalem imlecini son kez temizle
-      ctx.clearRect(oncekiKalemX - 2, oncekiKalemY - 36, 38, 38);
-
-      // Temiz gradient fill ile harfi son kez çiz
-      ctx.save();
-      const grad = ctx.createLinearGradient(cx - fs*0.5, cy - fs*0.5, cx + fs*0.5, cy + fs*0.5);
-      grad.addColorStop(0,   '#ff4d8d');
-      grad.addColorStop(0.5, '#9b59ff');
-      grad.addColorStop(1,   '#00d9d9');
-      ctx.font = `bold ${fs}px 'Bubblegum Sans', cursive`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = grad;
-      ctx.shadowColor = '#9b59ff';
-      ctx.shadowBlur = 18;
-      ctx.fillText(harf, cx, cy);
-      ctx.restore();
-
-      if(bitti) setTimeout(bitti, 200);
-    }
-  }
-  YM.animFrame = requestAnimationFrame(animKare);
-}
-
-// ══ ÇİZİM MODU ══
-let yazmaCiziyorum = false;
-let yazmaSonKonum = {x:0, y:0};
-let yazmaOlaylarEklendi = false;
-
-function yazmaCizimModuBaslat() {
-  YM.mod = 'cizim';
-  if(YM.animFrame) { cancelAnimationFrame(YM.animFrame); YM.animFrame = null; }
-
-  // Animasyon canvas temizle, çizim canvas temizle
-  document.getElementById('yazmaAnimCanvas').getContext('2d').clearRect(
-    0,0,
-    document.getElementById('yazmaAnimCanvas').width,
-    document.getElementById('yazmaAnimCanvas').height
+  // Nokta verilerini piksel koordinatlarına çevir
+  const buyukN = HARF_NOKTALAR[harf.buyuk] || [];
+  const kucukN = HARF_NOKTALAR[harf.kucuk] || [];
+  YM_cizim.stroklar = [...buyukN, ...kucukN].map(stroke =>
+    stroke.map(p => ({x: p.x/100*w, y: p.y/100*h}))
   );
-  const cc = document.getElementById('yazmaCizimCanvas');
-  cc.getContext('2d').clearRect(0,0,cc.width,cc.height);
-  yazmaSonucGizle();
 
-  if(!yazmaOlaylarEklendi) {
-    yazmaOlayEkle();
-    yazmaOlaylarEklendi = true;
-  }
-}
+  YM_cizim.aktifStroke = 0;
+  YM_cizim.aktifNok = 0;
+  YM_cizim.gecilen = [];
+  YM_cizim.tamamlandi = false;
+  YM_cizim.ciziyorum = false;
 
-function yazmaOlayEkle() {
-  const cc = document.getElementById('yazmaCizimCanvas');
+  // Rehberi yeniden çiz + noktaları göster
+  yazmaRehberCiz();
+  yazmaNoktalariCiz();
 
-  const baslat = (e) => {
-    if(YM.mod !== 'cizim') return;
-    yazmaCiziyorum = true;
-    yazmaSonKonum = yazmaKonum(e, cc);
-  };
-  const ciz = (e) => {
-    if(!yazmaCiziyorum || YM.mod !== 'cizim') return;
+  // Olay dinleyicilerini bağla (bir kez)
+  const canvas = cc;
+  canvas.onmousedown = canvas.ontouchstart = (e) => {
+    if(YM.mod !== 'cizim' || YM_cizim.tamamlandi) return;
     e.preventDefault();
-    const pos = yazmaKonum(e, cc);
+    YM_cizim.ciziyorum = true;
+    YM_cizim.sonKonum = yazmaKonum(e, canvas);
+  };
+  canvas.onmousemove = canvas.ontouchmove = (e) => {
+    if(!YM_cizim.ciziyorum || YM.mod !== 'cizim') return;
+    e.preventDefault();
+    const pos = yazmaKonum(e, canvas);
+
+    // İz çiz
     const ctx = cc.getContext('2d');
     ctx.save();
-    ctx.globalAlpha = 0.92;
-    ctx.lineWidth = 14;
+    ctx.lineWidth = Math.min(w,h)*0.04;
     ctx.strokeStyle = '#ffd93d';
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.shadowColor = '#ffd93d';
-    ctx.shadowBlur = 6;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.shadowColor='#ffd93d'; ctx.shadowBlur=8;
     ctx.beginPath();
-    ctx.moveTo(yazmaSonKonum.x, yazmaSonKonum.y);
+    ctx.moveTo(YM_cizim.sonKonum.x, YM_cizim.sonKonum.y);
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
     ctx.restore();
-    yazmaSonKonum = pos;
-  };
-  const bitir = () => {
-    if(!yazmaCiziyorum) return;
-    yazmaCiziyorum = false;
-    // Biraz bekle sonra karşılaştır
-    setTimeout(yazmaKarsilastir, 500);
-  };
+    YM_cizim.sonKonum = pos;
 
-  cc.addEventListener('mousedown', baslat);
-  cc.addEventListener('mousemove', ciz);
-  cc.addEventListener('mouseup', bitir);
-  cc.addEventListener('mouseleave', bitir);
-  cc.addEventListener('touchstart', baslat, {passive:false});
-  cc.addEventListener('touchmove', ciz, {passive:false});
-  cc.addEventListener('touchend', bitir);
+    // Sıradaki noktaya yakın mı?
+    yazmaNokTakipEt(pos);
+    yazmaNoktalariCiz(); // nokta durumlarını güncelle
+  };
+  canvas.onmouseup = canvas.ontouchend = canvas.onmouseleave = () => {
+    YM_cizim.ciziyorum = false;
+    // Stroke bitince sıradaki stroke'a geç
+    if(!YM_cizim.tamamlandi) {
+      const strok = YM_cizim.stroklar[YM_cizim.aktifStroke];
+      if(strok && YM_cizim.aktifNok >= strok.length - 1) {
+        YM_cizim.aktifStroke++;
+        YM_cizim.aktifNok = 0;
+        if(YM_cizim.aktifStroke >= YM_cizim.stroklar.length) {
+          // Tüm stroklar bitti!
+          yazmaTamamlandi();
+        } else {
+          yazmaNoktalariCiz();
+        }
+      }
+    }
+  };
+}
+
+function yazmaNokTakipEt(pos) {
+  if(YM_cizim.aktifStroke >= YM_cizim.stroklar.length) return;
+  const strok = YM_cizim.stroklar[YM_cizim.aktifStroke];
+  if(!strok) return;
+
+  const hedefNok = YM_cizim.aktifNok;
+  if(hedefNok >= strok.length) return;
+
+  const nokta = strok[hedefNok];
+  const dx = pos.x - nokta.x, dy = pos.y - nokta.y;
+  const uzaklik = Math.sqrt(dx*dx+dy*dy);
+  const tolerans = Math.min(yazmaCanvasW(), yazmaCanvasH()) * 0.14; // %14 tolerans
+
+  if(uzaklik < tolerans) {
+    YM_cizim.gecilen.push({si: YM_cizim.aktifStroke, ni: hedefNok});
+    YM_cizim.aktifNok++;
+    // Küçük titreşim efekti — nokta yeşil yap
+    yazmaNoktalariCiz();
+  }
+}
+
+function yazmaCanvasW() { return document.getElementById('yazmaCizimCanvas').width || 300; }
+function yazmaCanvasH() { return document.getElementById('yazmaCizimCanvas').height || 300; }
+
+function yazmaNoktalariCiz() {
+  const ac = document.getElementById('yazmaAnimCanvas');
+  const ctx = ac.getContext('2d');
+  const w = ac.width, h = ac.height;
+  ctx.clearRect(0,0,w,h);
+  yazmaRehberCiz(); // arka planı yenile
+
+  const stroklar = YM_cizim.stroklar;
+  const tolerans = Math.min(w,h) * 0.07;
+
+  stroklar.forEach((strok, si) => {
+    strok.forEach((nokta, ni) => {
+      const gecildi = YM_cizim.gecilen.some(g => g.si===si && g.ni===ni);
+      const aktif = (si === YM_cizim.aktifStroke && ni === YM_cizim.aktifNok);
+      const ileriki = (si > YM_cizim.aktifStroke) || (si === YM_cizim.aktifStroke && ni > YM_cizim.aktifNok);
+
+      // Noktalar arası bağlantı çizgisi (noktalı)
+      if(ni < strok.length - 1) {
+        const n2 = strok[ni+1];
+        ctx.save();
+        ctx.setLineDash([8,6]);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = gecildi ? 'rgba(74,222,128,0.5)' : 'rgba(255,255,255,0.18)';
+        ctx.beginPath(); ctx.moveTo(nokta.x, nokta.y); ctx.lineTo(n2.x, n2.y); ctx.stroke();
+        ctx.restore();
+      }
+
+      // Nokta çemberi
+      ctx.save();
+      const r = aktif ? tolerans*0.9 : (gecildi ? tolerans*0.55 : tolerans*0.55);
+      ctx.beginPath(); ctx.arc(nokta.x, nokta.y, r, 0, Math.PI*2);
+
+      if(gecildi) {
+        ctx.fillStyle = 'rgba(74,222,128,0.7)';
+        ctx.strokeStyle = '#4ade80';
+      } else if(aktif) {
+        // Aktif nokta — parlayan
+        ctx.fillStyle = 'rgba(255,217,61,0.25)';
+        ctx.strokeStyle = '#ffd93d';
+        ctx.shadowColor = '#ffd93d'; ctx.shadowBlur = 18;
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      }
+      ctx.lineWidth = 2.5; ctx.fill(); ctx.stroke();
+      ctx.restore();
+
+      // Sıra numarası (ilk stroke noktaları için)
+      if(!gecildi && !ileriki && aktif) {
+        ctx.save();
+        ctx.font = `bold ${Math.min(w,h)*0.04}px Fredoka`;
+        ctx.fillStyle = '#ffd93d';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(ni+1, nokta.x, nokta.y);
+        ctx.restore();
+      } else if(!gecildi && !aktif && si === YM_cizim.aktifStroke) {
+        ctx.save();
+        ctx.font = `bold ${Math.min(w,h)*0.035}px Fredoka`;
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(ni+1, nokta.x, nokta.y);
+        ctx.restore();
+      } else if(gecildi) {
+        ctx.save();
+        ctx.font = `bold ${Math.min(w,h)*0.032}px serif`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('✓', nokta.x, nokta.y);
+        ctx.restore();
+      }
+    });
+  });
+
+  // Ok işareti — aktif nokta yoksa bir sonrakine
+  if(!YM_cizim.tamamlandi && YM_cizim.aktifStroke < stroklar.length) {
+    const strok = stroklar[YM_cizim.aktifStroke];
+    if(strok && YM_cizim.aktifNok < strok.length) {
+      const hNok = strok[YM_cizim.aktifNok];
+      // Pulsing daire — büyük
+      const zaman = Date.now() % 1000 / 1000;
+      const pulseR = tolerans * (0.9 + 0.2 * Math.sin(zaman * Math.PI * 2));
+      ctx.save();
+      ctx.beginPath(); ctx.arc(hNok.x, hNok.y, pulseR, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(255,217,61,${0.4 + 0.3*Math.sin(zaman*Math.PI*2)})`;
+      ctx.lineWidth = 3; ctx.stroke();
+      ctx.restore();
+      requestAnimationFrame(() => { if(YM.mod==='cizim') yazmaNoktalariCiz(); });
+    }
+  }
+}
+
+function yazmaTamamlandi() {
+  YM_cizim.tamamlandi = true;
+  YM.mod = 'bekle';
+
+  // Gradient son hali
+  const ac = document.getElementById('yazmaAnimCanvas');
+  const w = ac.width, h = ac.height;
+  const ctx = ac.getContext('2d');
+  const harf = YAZMA_HARFLER[YM.aktifIdx];
+  ctx.clearRect(0,0,w,h);
+  yazmaGradientHarfCiz(ctx, harf.buyuk, harf.kucuk, w, h);
+
+  // Bravo göster
+  const el = document.getElementById('yazmaSonuc');
+  el.style.display = 'flex';
+  el.className = 'yazma-sonuc dogru';
+  el.innerHTML = `✅ Harika! Harfi yazdın! 🌟`;
+
+  // Yıldız kazan
+  const harfId = `${harf.gi}-${harf.hi}`;
+  if(!YM.tamamlanan.includes(harfId)) {
+    YM.tamamlanan.push(harfId);
+    YM.yildiz++;
+    yazmaKaydet();
+    yazmaYildizGuncelle();
+    setTimeout(() => yildizAnimasyonuOynat(), 200);
+  }
 }
 
 function yazmaKonum(e, canvas) {
@@ -4445,117 +4638,6 @@ function yazmaKonum(e, canvas) {
     return {x:(e.touches[0].clientX-rect.left)*scaleX, y:(e.touches[0].clientY-rect.top)*scaleY};
   }
   return {x:(e.clientX-rect.left)*scaleX, y:(e.clientY-rect.top)*scaleY};
-}
-
-// ══ KARŞILAŞTIRMA ══
-function yazmaKarsilastir() {
-  if(YM.mod !== 'cizim') return;
-
-  const h = YAZMA_HARFLER[YM.aktifIdx];
-  const cc = document.getElementById('yazmaCizimCanvas');
-  const w_c = cc.width, h_c = cc.height;
-  const kctx = cc.getContext('2d');
-  const kulData = kctx.getImageData(0,0,w_c,h_c).data;
-
-  // Kullanıcı hiç çizmemiş mi?
-  let kulDolu = 0;
-  for(let i=3; i<kulData.length; i+=4) { if(kulData[i]>60) kulDolu++; }
-  if(kulDolu < 50) {
-    // Çok az piksel — henüz çizmedi
-    return;
-  }
-
-  // En iyi örtüşmeyi bul: büyük harf, küçük harf, veya ikisi birden
-  // Her birini ayrı referans olarak dene, en iyisini al
-  const dene = [
-    // İkisi birden (asıl referans)
-    { buyuk: h.buyuk, kucuk: h.kucuk },
-    // Sadece büyük harf (tüm canvas ortalanmış)
-    { buyuk: h.buyuk, kucuk: '' },
-    // Sadece küçük harf
-    { buyuk: '', kucuk: h.kucuk },
-  ];
-
-  let enIyi = 0;
-  dene.forEach(kombo => {
-    const ref = document.createElement('canvas');
-    ref.width = w_c; ref.height = h_c;
-    const rctx = ref.getContext('2d');
-    rctx.fillStyle = 'white';
-
-    if(kombo.buyuk && kombo.kucuk) {
-      // İkisi birden — sol/sağ
-      const fs1 = Math.min(w_c,h_c) * 0.52;
-      rctx.font = `bold ${fs1}px 'Bubblegum Sans', cursive`;
-      rctx.textAlign = 'center'; rctx.textBaseline = 'middle';
-      rctx.fillText(kombo.buyuk, w_c*0.28, h_c*0.48);
-      const fs2 = Math.min(w_c,h_c) * 0.40;
-      rctx.font = `bold ${fs2}px 'Bubblegum Sans', cursive`;
-      rctx.fillText(kombo.kucuk, w_c*0.72, h_c*0.53);
-    } else if(kombo.buyuk) {
-      // Sadece büyük — ortada
-      const fs1 = Math.min(w_c,h_c) * 0.65;
-      rctx.font = `bold ${fs1}px 'Bubblegum Sans', cursive`;
-      rctx.textAlign = 'center'; rctx.textBaseline = 'middle';
-      rctx.fillText(kombo.buyuk, w_c*0.5, h_c*0.5);
-    } else {
-      // Sadece küçük — ortada
-      const fs2 = Math.min(w_c,h_c) * 0.60;
-      rctx.font = `bold ${fs2}px 'Bubblegum Sans', cursive`;
-      rctx.textAlign = 'center'; rctx.textBaseline = 'middle';
-      rctx.fillText(kombo.kucuk, w_c*0.5, h_c*0.5);
-    }
-
-    const refData = rctx.getImageData(0,0,w_c,h_c).data;
-    let refDolu = 0, ortusme = 0;
-
-    for(let i=0; i<refData.length; i+=4) {
-      if(refData[i+3] > 60) {
-        refDolu++;
-        const pikselIdx = i/4;
-        const px = pikselIdx % w_c;
-        const py = Math.floor(pikselIdx / w_c);
-        // 10px tolerans çevresi
-        let vurdu = false;
-        outer: for(let dy=-10; dy<=10; dy+=2) {
-          for(let dx=-10; dx<=10; dx+=2) {
-            const nx=px+dx, ny=py+dy;
-            if(nx<0||nx>=w_c||ny<0||ny>=h_c) continue;
-            if(kulData[(ny*w_c+nx)*4+3]>60) { vurdu=true; break outer; }
-          }
-        }
-        if(vurdu) ortusme++;
-      }
-    }
-    const oran = refDolu > 0 ? ortusme/refDolu : 0;
-    if(oran > enIyi) enIyi = oran;
-  });
-
-  const yuzde = Math.round(enIyi * 100);
-  yazmaSonucGoster(yuzde);
-}
-
-function yazmaSonucGoster(yuzde) {
-  const el = document.getElementById('yazmaSonuc');
-  el.style.display = 'flex';
-
-  const harfId = `${YAZMA_HARFLER[YM.aktifIdx].gi}-${YAZMA_HARFLER[YM.aktifIdx].hi}`;
-
-  if(yuzde >= 70) {
-    el.className = 'yazma-sonuc dogru';
-    el.innerHTML = `✅ Harika! %${yuzde} örtüşme — Bravo Nur Meva! 🌟`;
-    // Yıldız kazan (ilk başarıda)
-    if(!YM.tamamlanan.includes(harfId)) {
-      YM.tamamlanan.push(harfId);
-      YM.yildiz++;
-      yazmaKaydet();
-      yazmaYildizGuncelle();
-      setTimeout(() => yildizAnimasyonuOynat(), 200);
-    }
-  } else {
-    el.className = 'yazma-sonuc yanlis';
-    el.innerHTML = `❌ Tekrar Dene! %${yuzde} örtüşme — Olmaz mı! 💪`;
-  }
 }
 
 function yazmaHarfDinle() {
