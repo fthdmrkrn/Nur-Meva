@@ -2009,7 +2009,15 @@ cizgiYildizGuncelle();
 <style>
   /* Yılan oyunu stilleri */
   #yilanEkran {
-    background: linear-gradient(160deg, #1a3a52 0%, #2d5a7a 50%, #4a7ba8 100%);
+    background: radial-gradient(ellipse at 30% 20%, #1e1b4b 0%, #0a0a2e 50%, #050518 100%);
+  }
+  .yilan-saha {
+    flex: 1; position: relative; overflow: hidden;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(155, 89, 255, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(255, 77, 141, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a2e 100%);
+    touch-action: none;
   }
   .yilan-ust {
     display: flex; align-items: center; justify-content: space-between;
@@ -2033,13 +2041,6 @@ cizgiYildizGuncelle();
     color: #1a1a2e;
   }
 
-  .yilan-saha {
-    flex: 1; position: relative; overflow: hidden;
-    background: 
-      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.04) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(135,206,250,0.05) 0%, transparent 50%);
-    touch-action: none;
-  }
   #yilanCanvas {
     position: absolute; inset: 0; width: 100%; height: 100%;
     touch-action: none; cursor: pointer;
@@ -2291,6 +2292,7 @@ const YILAN = {
   oyunBittiDevamMumkun: false,
   son_yiyecek_sesi: 0,
   bekleyenYiyecekler: [],  // [{zaman}] - 4-5 saniye sonra yeniden doğacaklar
+  yildizlar: [],  // Uzay arka planı yıldızları (dünya koordinatlı)
 };
 
 // Karakter seçenekleri
@@ -2303,6 +2305,22 @@ const KARAKTERLER = [
   { emoji: '🦊', ad: 'Tilki' },
   { emoji: '🐰', ad: 'Tavşan' },
 ];
+
+// Yıldız havuzu oluştur (dünya geneli)
+function yilanYildizlariOlustur() {
+  YILAN.yildizlar = [];
+  const yildizSayisi = 250; // tüm dünyaya yayılmış
+  for (let i = 0; i < yildizSayisi; i++) {
+    YILAN.yildizlar.push({
+      x: Math.random() * YILAN.dunyaW,
+      y: Math.random() * YILAN.dunyaH,
+      r: Math.random() * 1.5 + 0.5,             // 0.5 - 2 px
+      parlaklik: Math.random() * 0.6 + 0.3,     // 0.3 - 0.9
+      faz: Math.random() * Math.PI * 2,         // titreme fazı
+      hiz: 0.5 + Math.random() * 1.5,           // titreme hızı
+    });
+  }
+}
 
 // Harfler ve sayılar havuzu
 const HARFLER_BUYUK = ['A','B','C','Ç','D','E','F','G','Ğ','H','I','İ','J','K','L','M','N','O','Ö','P','R','S','Ş','T','U','Ü','V','Y','Z'];
@@ -2449,9 +2467,10 @@ function yilanYeniOyun() {
   for (let i = 0; i < 150; i++) yilanYeniYiyecek();
   // Botları oluştur
   YILAN.botlar = [];
-  const botSayisi = 4 + Math.floor(Math.random() * 2); // 4-5 bot (büyük harita için)
+  const botSayisi = 6 + Math.floor(Math.random() * 3); // 6-8 bot
   for (let i = 0; i < botSayisi; i++) yilanYeniBot();
   // Kamerayı yılan üzerine ortala
+  yilanYildizlariOlustur();
   yilanKamerayiGuncelle(true);
   YILAN.oynuyor = true;
   YILAN.ipucuGosterildi = false;
@@ -2491,8 +2510,9 @@ function yilanDurumYukle(d) {
   YILAN.bekleyenYiyecekler = [];
   for (let i = 0; i < 150; i++) yilanYeniYiyecek();
   YILAN.botlar = [];
-  const botSayisi = 4 + Math.floor(Math.random() * 2);
+  const botSayisi = 6 + Math.floor(Math.random() * 3);
   for (let i = 0; i < botSayisi; i++) yilanYeniBot();
+  yilanYildizlariOlustur();
   yilanKamerayiGuncelle(true);
   YILAN.oynuyor = true;
   YILAN.ipucuGosterildi = true;
@@ -3007,6 +3027,7 @@ function yilanKamerayiGuncelle(aniden) {
 // ─────── ÇİZİM ───────
 function yilanCiz() {
   const ctx = YILAN.ctx;
+  const zaman = Date.now() / 1000;
   ctx.clearRect(0, 0, YILAN.W, YILAN.H);
 
   // Kamera transformunu uygula
@@ -3019,9 +3040,44 @@ function yilanCiz() {
   const goruX2 = YILAN.kamera.x + YILAN.W + 50;
   const goruY2 = YILAN.kamera.y + YILAN.H + 50;
 
-  // Dünya zemini - hafif bir doku
-  ctx.fillStyle = 'rgba(20, 50, 80, 0.3)';
+  // Dünya zemini - uzay arka planı
+  ctx.fillStyle = '#0a0a2e';
   ctx.fillRect(0, 0, YILAN.dunyaW, YILAN.dunyaH);
+
+  // Hafif nebula efektleri (büyük renkli daireler)
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const nebulaSayisi = 8;
+  for (let n = 0; n < nebulaSayisi; n++) {
+    const nx = ((n * 317) % YILAN.dunyaW);
+    const ny = ((n * 521) % YILAN.dunyaH);
+    if (nx < goruX1 - 300 || nx > goruX2 + 300 || ny < goruY1 - 300 || ny > goruY2 + 300) continue;
+    const renkler = ['rgba(155, 89, 255, 0.08)', 'rgba(255, 77, 141, 0.06)', 'rgba(0, 217, 217, 0.05)'];
+    const grad = ctx.createRadialGradient(nx, ny, 0, nx, ny, 300);
+    grad.addColorStop(0, renkler[n % 3]);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(nx - 300, ny - 300, 600, 600);
+  }
+  ctx.restore();
+
+  // YILDIZLAR - sadece görünür olanları çiz
+  for (const yldz of YILAN.yildizlar) {
+    if (yldz.x < goruX1 || yldz.x > goruX2 || yldz.y < goruY1 || yldz.y > goruY2) continue;
+    // Titreme (parlaklık dalgalanması)
+    const titreme = 0.6 + 0.4 * Math.sin(zaman * yldz.hiz + yldz.faz);
+    ctx.fillStyle = `rgba(255, 255, 255, ${yldz.parlaklik * titreme})`;
+    ctx.beginPath();
+    ctx.arc(yldz.x, yldz.y, yldz.r, 0, Math.PI * 2);
+    ctx.fill();
+    // Büyük yıldızlara hafif parlama
+    if (yldz.r > 1.3) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${yldz.parlaklik * titreme * 0.2})`;
+      ctx.beginPath();
+      ctx.arc(yldz.x, yldz.y, yldz.r * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 
   // Dünya sınır çizgisi (parlak)
   ctx.strokeStyle = 'rgba(255, 100, 100, 0.6)';
@@ -3030,8 +3086,8 @@ function yilanCiz() {
   ctx.strokeRect(0, 0, YILAN.dunyaW, YILAN.dunyaH);
   ctx.setLineDash([]);
 
-  // Hafif arka plan ızgarası (sadece görünür bölgede)
-  ctx.strokeStyle = 'rgba(135, 206, 250, 0.06)';
+  // Hafif arka plan ızgarası (uzay teması ile çok hafif)
+  ctx.strokeStyle = 'rgba(155, 89, 255, 0.04)';
   ctx.lineWidth = 1;
   const gridX1 = Math.floor(goruX1 / 60) * 60;
   const gridX2 = Math.ceil(goruX2 / 60) * 60;
@@ -3047,7 +3103,6 @@ function yilanCiz() {
   }
 
   // Yiyecekleri çiz (sadece görünür olanları)
-  const zaman = Date.now() / 1000;
   for (const y of YILAN.yiyecekler) {
     if (y.x < goruX1 || y.x > goruX2 || y.y < goruY1 || y.y > goruY2) continue;
     y.donme += 0.01;
