@@ -2219,14 +2219,9 @@ function alistirmaAc(idx) {
 
 function boyutlariAyarla(canvas) {
   const rect=canvas.parentElement.getBoundingClientRect();
-  const dpr=window.devicePixelRatio||1;
-  canvas.width=rect.width*dpr;
-  canvas.height=rect.height*dpr;
-  canvas.style.width=rect.width+'px';
-  canvas.style.height=rect.height+'px';
-  const ctx=canvas.getContext('2d');
-  ctx.scale(dpr,dpr);
-  return {w:rect.width, h:rect.height};
+  canvas.width=Math.floor(rect.width);
+  canvas.height=Math.floor(rect.height);
+  return {w:canvas.width, h:canvas.height};
 }
 
 function rehberCiz(a) {
@@ -2411,11 +2406,7 @@ function _animDongusu(a, ib){
   const cc=document.getElementById('cizimCanvas');
   if(!cc){return;}
   const ctx=cc.getContext('2d');
-  const w=cc.offsetWidth, h=cc.offsetHeight;
-  // Transform sıfırla
-  ctx.save(); ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,cc.width,cc.height);
-  ctx.restore();
 
   // İz
   if(izNoktalar.length>1){
@@ -2496,10 +2487,7 @@ function cizimTemizle() {
   kapsananMesafe=0;
   const cc=document.getElementById('cizimCanvas');
   if(cc && cc.width){
-    const ctx=cc.getContext('2d');
-    ctx.save(); ctx.setTransform(1,0,0,1,0,0);
-    ctx.clearRect(0,0,cc.width,cc.height);
-    ctx.restore();
+    cc.getContext('2d').clearRect(0,0,cc.width,cc.height);
   }
   document.getElementById('ilerlemeTxt').textContent='0%';
   document.getElementById('ileriBtn').style.display='none';
