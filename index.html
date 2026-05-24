@@ -2229,15 +2229,17 @@ cizgiYildizGuncelle();
 const YILAN = {
   canvas: null, ctx: null,
   saha: null,
-  W: 0, H: 0,
-  yilan: [],          // [{x, y}, ...] - kafa [0]
-  yon: { x: 1, y: 0 }, // birim vektör
+  W: 0, H: 0,           // Ekran (görünüm) boyutu
+  dunyaW: 2400, dunyaH: 2400,  // Büyük dünya boyutu
+  kamera: { x: 0, y: 0 },       // Kamera konumu (sol-üst köşe)
+  yilan: [],          // [{x, y}, ...] - dünya koordinatlarında, kafa [0]
+  yon: { x: 1, y: 0 },
   hedefYon: { x: 1, y: 0 },
-  hiz: 2.5,           // px/frame
+  hiz: 1.6,           // px/frame - yavaşlatıldı (eski: 2.5)
   segmentBoyut: 22,
   yilanRengi: '#00d9d9',
-  yiyecekler: [],     // [{x, y, tip:'harf'|'sayi', deger, renk, boyut}]
-  botlar: [],         // [{yilan:[], yon, hedefYon, hiz, renk, kafa, kafaTipi, son_donus}]
+  yiyecekler: [],
+  botlar: [],
   parmakBasili: false,
   parmakKonum: null,
   skor: 0,
@@ -2245,7 +2247,7 @@ const YILAN = {
   oynuyor: false,
   animId: null,
   yenilenAnimasyonlar: [],
-  baslangicDurumu: null, // Devam et için yedeklenen durum
+  baslangicDurumu: null,
   ipucuGosterildi: false,
   oyunBittiDevamMumkun: false,
   son_yiyecek_sesi: 0,
@@ -2324,9 +2326,9 @@ function yilanBoyutAyarla() {
 function yilanYeniOyun() {
   yilanBoyutAyarla();
   YILAN.yilan = [];
-  // Başlangıç: ekranın ortasından sağa doğru 5 segment
-  const baslangicX = YILAN.W * 0.3;
-  const baslangicY = YILAN.H * 0.5;
+  // Başlangıç: dünyanın ortasında, sağa bakar şekilde
+  const baslangicX = YILAN.dunyaW * 0.5;
+  const baslangicY = YILAN.dunyaH * 0.5;
   for (let i = 0; i < 5; i++) {
     YILAN.yilan.push({ x: baslangicX - i * YILAN.segmentBoyut * 0.6, y: baslangicY });
   }
@@ -2335,12 +2337,14 @@ function yilanYeniOyun() {
   YILAN.skor = 0;
   YILAN.yiyecekler = [];
   YILAN.yenilenAnimasyonlar = [];
-  // Yiyecekleri serp
-  for (let i = 0; i < 25; i++) yilanYeniYiyecek();
+  // Yiyecekleri dünyaya serp (daha fazla, çünkü harita büyük)
+  for (let i = 0; i < 80; i++) yilanYeniYiyecek();
   // Botları oluştur
   YILAN.botlar = [];
-  const botSayisi = 3 + Math.floor(Math.random() * 2); // 3-4 bot
+  const botSayisi = 4 + Math.floor(Math.random() * 2); // 4-5 bot (büyük harita için)
   for (let i = 0; i < botSayisi; i++) yilanYeniBot();
+  // Kamerayı yılan üzerine ortala
+  yilanKamerayiGuncelle(true);
   YILAN.oynuyor = true;
   YILAN.ipucuGosterildi = false;
   document.getElementById('yilanIpucu').classList.remove('gizli');
@@ -2362,19 +2366,27 @@ function yilanDurumKaydet(devamEdilebilir) {
 
 function yilanDurumYukle(d) {
   yilanBoyutAyarla();
-  YILAN.yilan = d.yilan || [];
-  YILAN.yon = d.yon || { x: 1, y: 0 };
-  YILAN.hedefYon = { ...YILAN.yon };
-  YILAN.skor = d.skor || 0;
-  YILAN.yiyecekler = d.yiyecekler || [];
-  // Yiyecek eksikse tamamla
-  while (YILAN.yiyecekler.length < 25) yilanYeniYiyecek();
-  // Yeni botlar
+  const skor = d.skorKaydi || d.skor || 0;
+  const uzunluk = d.kuyrukUzunlugu || (d.yilan ? d.yilan.length : 5);
+
+  YILAN.yilan = [];
+  const baslangicX = YILAN.dunyaW * 0.5;
+  const baslangicY = YILAN.dunyaH * 0.5;
+  for (let i = 0; i < uzunluk; i++) {
+    YILAN.yilan.push({ x: baslangicX - i * YILAN.segmentBoyut * 0.6, y: baslangicY });
+  }
+  YILAN.yon = { x: 1, y: 0 };
+  YILAN.hedefYon = { x: 1, y: 0 };
+  YILAN.skor = skor;
+  YILAN.yiyecekler = [];
+  YILAN.yenilenAnimasyonlar = [];
+  for (let i = 0; i < 80; i++) yilanYeniYiyecek();
   YILAN.botlar = [];
-  const botSayisi = 3 + Math.floor(Math.random() * 2);
+  const botSayisi = 4 + Math.floor(Math.random() * 2);
   for (let i = 0; i < botSayisi; i++) yilanYeniBot();
+  yilanKamerayiGuncelle(true);
   YILAN.oynuyor = true;
-  YILAN.ipucuGosterildi = true; // Devam ettiği için ipucu gerek yok
+  YILAN.ipucuGosterildi = true;
   document.getElementById('yilanIpucu').classList.add('gizli');
 }
 
@@ -2382,8 +2394,8 @@ function yilanYeniYiyecek() {
   let x, y, uygun;
   let deneme = 0;
   do {
-    x = 40 + Math.random() * (YILAN.W - 80);
-    y = 40 + Math.random() * (YILAN.H - 80);
+    x = 60 + Math.random() * (YILAN.dunyaW - 120);
+    y = 60 + Math.random() * (YILAN.dunyaH - 120);
     uygun = true;
     // Yılana çok yakın olmasın
     for (const seg of YILAN.yilan) {
@@ -2409,28 +2421,28 @@ function yilanYeniYiyecek() {
 }
 
 function yilanYeniBot() {
-  // Yılandan uzakta doğsun
+  // Yılandan UZAKTA doğsun (en az 500px - büyük harita için)
   let bx, by, uygun;
   let deneme = 0;
   do {
-    bx = 80 + Math.random() * (YILAN.W - 160);
-    by = 80 + Math.random() * (YILAN.H - 160);
+    bx = 120 + Math.random() * (YILAN.dunyaW - 240);
+    by = 120 + Math.random() * (YILAN.dunyaH - 240);
     uygun = true;
-    if (YILAN.yilan.length > 0) {
-      const dx = YILAN.yilan[0].x - bx, dy = YILAN.yilan[0].y - by;
-      if (dx*dx + dy*dy < 200*200) uygun = false;
+    for (const seg of YILAN.yilan) {
+      const dx = seg.x - bx, dy = seg.y - by;
+      if (dx*dx + dy*dy < 500*500) { uygun = false; break; }
     }
     deneme++;
-  } while (!uygun && deneme < 20);
+  } while (!uygun && deneme < 30);
 
   const aci = Math.random() * Math.PI * 2;
   const yon = { x: Math.cos(aci), y: Math.sin(aci) };
-  const uzunluk = 8 + Math.floor(Math.random() * 7); // 8-14 segment
+  const uzunluk = 8 + Math.floor(Math.random() * 7);
   const bot = {
     yilan: [],
     yon,
     hedefYon: { ...yon },
-    hiz: 1.2 + Math.random() * 0.6,
+    hiz: 0.8 + Math.random() * 0.4, // yavaşlatıldı (eski: 1.2-1.8)
     renk: ['#a78bfa', '#f472b6', '#fb923c', '#fbbf24', '#34d399'][Math.floor(Math.random() * 5)],
     kafa: BOT_KAFALAR[Math.floor(Math.random() * BOT_KAFALAR.length)],
     donus_timer: 60 + Math.random() * 120,
@@ -2506,18 +2518,22 @@ function yilanParmakGuncelle(e) {
   }
   YILAN.parmakKonum = { x: cx, y: cy };
 
-  // Yılanın kafasından parmağa doğru bir yön belirle
+  // Parmak ekran koordinatı → dünya koordinatına çevir
+  const dunyaX = cx + YILAN.kamera.x;
+  const dunyaY = cy + YILAN.kamera.y;
+
+  // Yılanın kafasından parmağa doğru yön
   if (YILAN.yilan.length > 0) {
     const kafa = YILAN.yilan[0];
-    const dx = cx - kafa.x;
-    const dy = cy - kafa.y;
+    const dx = dunyaX - kafa.x;
+    const dy = dunyaY - kafa.y;
     const mes = Math.sqrt(dx*dx + dy*dy);
     if (mes > 8) {
       YILAN.hedefYon = { x: dx/mes, y: dy/mes };
     }
   }
 
-  // Yön göstergesi
+  // Yön göstergesi (ekran koordinatlı)
   const gos = document.getElementById('yonGosterge');
   gos.style.left = cx + 'px';
   gos.style.top = cy + 'px';
@@ -2565,31 +2581,35 @@ function yilanGuncelle() {
     y: kafa.y + YILAN.yon.y * YILAN.hiz
   };
 
-  // Duvar çarpması - oyun biter
+  // Duvar - ÖLMESİN, otomatik dön (top gibi sek)
   const margin = YILAN.segmentBoyut * 0.5;
-  if (yeniKafa.x < margin || yeniKafa.x > YILAN.W - margin ||
-      yeniKafa.y < margin || yeniKafa.y > YILAN.H - margin) {
-    yilanOyunBitti('duvar');
-    return;
+  if (yeniKafa.x < margin) {
+    yeniKafa.x = margin;
+    YILAN.hedefYon.x = Math.abs(YILAN.hedefYon.x);
+    YILAN.yon.x = Math.abs(YILAN.yon.x);
+  } else if (yeniKafa.x > YILAN.dunyaW - margin) {
+    yeniKafa.x = YILAN.dunyaW - margin;
+    YILAN.hedefYon.x = -Math.abs(YILAN.hedefYon.x);
+    YILAN.yon.x = -Math.abs(YILAN.yon.x);
+  }
+  if (yeniKafa.y < margin) {
+    yeniKafa.y = margin;
+    YILAN.hedefYon.y = Math.abs(YILAN.hedefYon.y);
+    YILAN.yon.y = Math.abs(YILAN.yon.y);
+  } else if (yeniKafa.y > YILAN.dunyaH - margin) {
+    yeniKafa.y = YILAN.dunyaH - margin;
+    YILAN.hedefYon.y = -Math.abs(YILAN.hedefYon.y);
+    YILAN.yon.y = -Math.abs(YILAN.yon.y);
   }
 
-  // Kendi kuyruğuna çarpma (kafa hariç ilk 4 segment hariç - dönüş esnasında değmesin)
-  for (let i = 6; i < YILAN.yilan.length; i++) {
-    const seg = YILAN.yilan[i];
-    const dx = yeniKafa.x - seg.x;
-    const dy = yeniKafa.y - seg.y;
-    if (dx*dx + dy*dy < (YILAN.segmentBoyut * 0.55) * (YILAN.segmentBoyut * 0.55)) {
-      yilanOyunBitti('kuyruk');
-      return;
-    }
-  }
+  // Kuyruğa çarpışma KALDIRILDI - üzerinden geçebilir
 
-  // Bot yılanlara çarpma
+  // Bot yılanlara çarpma (toleranslı)
   for (const bot of YILAN.botlar) {
     for (const seg of bot.yilan) {
       const dx = yeniKafa.x - seg.x;
       const dy = yeniKafa.y - seg.y;
-      if (dx*dx + dy*dy < (YILAN.segmentBoyut * 0.55) * (YILAN.segmentBoyut * 0.55)) {
+      if (dx*dx + dy*dy < (YILAN.segmentBoyut * 0.45) * (YILAN.segmentBoyut * 0.45)) {
         yilanOyunBitti('bot');
         return;
       }
@@ -2625,6 +2645,9 @@ function yilanGuncelle() {
   // Botları güncelle
   yilanBotlariniGuncelle();
 
+  // Kamerayı yılanı takip ettir
+  yilanKamerayiGuncelle(false);
+
   // Yenilen animasyonlarını güncelle
   for (let i = YILAN.yenilenAnimasyonlar.length - 1; i >= 0; i--) {
     const a = YILAN.yenilenAnimasyonlar[i];
@@ -2647,11 +2670,7 @@ function yilanYedi(yiyecek) {
     x: yiyecek.x, y: yiyecek.y,
     deger: '+1', omr: 0, alpha: 1
   });
-
-  // Her 5 puanda hız azıcık artsın (kolay tutmak için minimal)
-  if (YILAN.skor % 5 === 0 && YILAN.hiz < 4.5) {
-    YILAN.hiz += 0.15;
-  }
+  // Hız sabit - 5 yaş için yavaş kalsın
 }
 
 function yilanSesli(metin, tip) {
@@ -2692,15 +2711,15 @@ function yilanBotlariniGuncelle() {
       y: kafa.y + bot.yon.y * bot.hiz
     };
 
-    // Duvar çarpınca yön çevir
+    // Duvar çarpınca yön çevir (DÜNYA sınırları)
     const margin = 30;
-    if (yeniKafa.x < margin || yeniKafa.x > YILAN.W - margin) {
+    if (yeniKafa.x < margin || yeniKafa.x > YILAN.dunyaW - margin) {
       bot.hedefYon.x = -bot.hedefYon.x;
-      yeniKafa.x = Math.max(margin, Math.min(YILAN.W - margin, yeniKafa.x));
+      yeniKafa.x = Math.max(margin, Math.min(YILAN.dunyaW - margin, yeniKafa.x));
     }
-    if (yeniKafa.y < margin || yeniKafa.y > YILAN.H - margin) {
+    if (yeniKafa.y < margin || yeniKafa.y > YILAN.dunyaH - margin) {
       bot.hedefYon.y = -bot.hedefYon.y;
-      yeniKafa.y = Math.max(margin, Math.min(YILAN.H - margin, yeniKafa.y));
+      yeniKafa.y = Math.max(margin, Math.min(YILAN.dunyaH - margin, yeniKafa.y));
     }
 
     bot.yilan.unshift(yeniKafa);
@@ -2708,23 +2727,71 @@ function yilanBotlariniGuncelle() {
   }
 }
 
+// ─────── KAMERA ───────
+function yilanKamerayiGuncelle(aniden) {
+  if (YILAN.yilan.length === 0) return;
+  const kafa = YILAN.yilan[0];
+  // Hedef: kafa ekranın ortasında olsun
+  const hedefX = kafa.x - YILAN.W / 2;
+  const hedefY = kafa.y - YILAN.H / 2;
+  if (aniden) {
+    YILAN.kamera.x = hedefX;
+    YILAN.kamera.y = hedefY;
+  } else {
+    // Yumuşak takip
+    YILAN.kamera.x += (hedefX - YILAN.kamera.x) * 0.12;
+    YILAN.kamera.y += (hedefY - YILAN.kamera.y) * 0.12;
+  }
+  // Kamerayı dünya sınırları içinde tut
+  YILAN.kamera.x = Math.max(0, Math.min(YILAN.dunyaW - YILAN.W, YILAN.kamera.x));
+  YILAN.kamera.y = Math.max(0, Math.min(YILAN.dunyaH - YILAN.H, YILAN.kamera.y));
+}
+
 // ─────── ÇİZİM ───────
 function yilanCiz() {
   const ctx = YILAN.ctx;
   ctx.clearRect(0, 0, YILAN.W, YILAN.H);
 
-  // Hafif arka plan ızgarası
-  ctx.strokeStyle = 'rgba(135, 206, 250, 0.04)';
+  // Kamera transformunu uygula
+  ctx.save();
+  ctx.translate(-YILAN.kamera.x, -YILAN.kamera.y);
+
+  // Görünür dünya aralığı (kırpma için)
+  const goruX1 = YILAN.kamera.x - 50;
+  const goruY1 = YILAN.kamera.y - 50;
+  const goruX2 = YILAN.kamera.x + YILAN.W + 50;
+  const goruY2 = YILAN.kamera.y + YILAN.H + 50;
+
+  // Dünya zemini - hafif bir doku
+  ctx.fillStyle = 'rgba(20, 50, 80, 0.3)';
+  ctx.fillRect(0, 0, YILAN.dunyaW, YILAN.dunyaH);
+
+  // Dünya sınır çizgisi (parlak)
+  ctx.strokeStyle = 'rgba(255, 100, 100, 0.6)';
+  ctx.lineWidth = 6;
+  ctx.setLineDash([20, 12]);
+  ctx.strokeRect(0, 0, YILAN.dunyaW, YILAN.dunyaH);
+  ctx.setLineDash([]);
+
+  // Hafif arka plan ızgarası (sadece görünür bölgede)
+  ctx.strokeStyle = 'rgba(135, 206, 250, 0.06)';
   ctx.lineWidth = 1;
-  for (let x = 0; x < YILAN.W; x += 40) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, YILAN.H); ctx.stroke();
+  const gridX1 = Math.floor(goruX1 / 60) * 60;
+  const gridX2 = Math.ceil(goruX2 / 60) * 60;
+  const gridY1 = Math.floor(goruY1 / 60) * 60;
+  const gridY2 = Math.ceil(goruY2 / 60) * 60;
+  for (let x = gridX1; x < gridX2; x += 60) {
+    if (x < 0 || x > YILAN.dunyaW) continue;
+    ctx.beginPath(); ctx.moveTo(x, Math.max(0, gridY1)); ctx.lineTo(x, Math.min(YILAN.dunyaH, gridY2)); ctx.stroke();
   }
-  for (let y = 0; y < YILAN.H; y += 40) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(YILAN.W, y); ctx.stroke();
+  for (let y = gridY1; y < gridY2; y += 60) {
+    if (y < 0 || y > YILAN.dunyaH) continue;
+    ctx.beginPath(); ctx.moveTo(Math.max(0, gridX1), y); ctx.lineTo(Math.min(YILAN.dunyaW, gridX2), y); ctx.stroke();
   }
 
-  // Yiyecekleri çiz
+  // Yiyecekleri çiz (sadece görünür olanları)
   for (const y of YILAN.yiyecekler) {
+    if (y.x < goruX1 || y.x > goruX2 || y.y < goruY1 || y.y > goruY2) continue;
     y.donme += 0.01;
     ctx.save();
     ctx.translate(y.x, y.y);
@@ -2737,18 +2804,14 @@ function yilanCiz() {
     ctx.arc(0, 0, y.boyut * 1.2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Yumuşak salınım
     ctx.rotate(Math.sin(y.donme) * 0.1);
 
-    // Yazı
     ctx.font = `bold ${y.boyut}px 'Bubblegum Sans', cursive`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    // Outline
     ctx.lineWidth = 4;
     ctx.strokeStyle = 'rgba(0,0,0,0.5)';
     ctx.strokeText(y.deger, 0, 0);
-    // Fill
     ctx.fillStyle = y.renk;
     ctx.fillText(y.deger, 0, 0);
     ctx.restore();
@@ -2756,6 +2819,11 @@ function yilanCiz() {
 
   // Bot yılanları çiz
   for (const bot of YILAN.botlar) {
+    // En az bir segmenti görünürse çiz
+    const ilk = bot.yilan[0];
+    if (!ilk) continue;
+    if (ilk.x < goruX1 - 200 || ilk.x > goruX2 + 200 ||
+        ilk.y < goruY1 - 200 || ilk.y > goruY2 + 200) continue;
     yilanGovdesiCiz(bot.yilan, bot.renk, bot.kafa);
   }
 
@@ -2775,6 +2843,57 @@ function yilanCiz() {
     ctx.fillText(a.deger, a.x, a.y);
     ctx.restore();
   }
+
+  // Kamera transformunu geri al
+  ctx.restore();
+
+  // Mini harita (sağ alt köşe - kameranın dışında)
+  yilanMiniHaritaCiz();
+}
+
+function yilanMiniHaritaCiz() {
+  const ctx = YILAN.ctx;
+  const mhBoyut = 90;
+  const mhPad = 12;
+  const mhX = YILAN.W - mhBoyut - mhPad;
+  const mhY = YILAN.H - mhBoyut - mhPad;
+  const olcek = mhBoyut / YILAN.dunyaW;
+
+  ctx.save();
+  // Arka plan
+  ctx.fillStyle = 'rgba(0, 20, 40, 0.7)';
+  ctx.strokeStyle = 'rgba(135, 206, 250, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.fillRect(mhX, mhY, mhBoyut, mhBoyut);
+  ctx.strokeRect(mhX, mhY, mhBoyut, mhBoyut);
+
+  // Yılanın konumu
+  if (YILAN.yilan.length > 0) {
+    const kafa = YILAN.yilan[0];
+    ctx.fillStyle = '#7dd3fc';
+    ctx.beginPath();
+    ctx.arc(mhX + kafa.x * olcek, mhY + kafa.y * olcek, 4, 0, Math.PI*2);
+    ctx.fill();
+  }
+  // Botlar
+  ctx.fillStyle = '#f472b6';
+  for (const bot of YILAN.botlar) {
+    if (bot.yilan[0]) {
+      ctx.beginPath();
+      ctx.arc(mhX + bot.yilan[0].x * olcek, mhY + bot.yilan[0].y * olcek, 2.5, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+  // Kamera çerçevesi
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(
+    mhX + YILAN.kamera.x * olcek,
+    mhY + YILAN.kamera.y * olcek,
+    YILAN.W * olcek,
+    YILAN.H * olcek
+  );
+  ctx.restore();
 }
 
 function yilanGovdesiCiz(yilan, renk, botKafa, anaYilanMi = false) {
@@ -2958,10 +3077,18 @@ function yilanOyunBitti(sebep) {
     YILAN.rekor = YILAN.skor;
     try { localStorage.setItem('yilan_rekor', YILAN.rekor.toString()); } catch(e) {}
   }
-  // Bitiş durumunu kaydet (devam edilebilir)
-  YILAN.oyunBittiDevamMumkun = YILAN.skor >= 3; // En az 3 yedi ise devam edebilir
+  // Bitiş durumunu kaydet (devam edilebilir) - sadece skor varsa
+  YILAN.oyunBittiDevamMumkun = YILAN.skor >= 3;
   if (YILAN.oyunBittiDevamMumkun) {
-    yilanDurumKaydet(true);
+    // Skor ve kuyruğu kaydet ama POZİSYONU sıfırla (devam edince güvenli yere koysun)
+    try {
+      const durum = {
+        devamEdilebilir: true,
+        skorKaydi: YILAN.skor,
+        kuyrukUzunlugu: Math.max(5, Math.min(YILAN.yilan.length, 30)),
+      };
+      localStorage.setItem('yilan_son_durum', JSON.stringify(durum));
+    } catch(e) {}
   } else {
     try { localStorage.removeItem('yilan_son_durum'); } catch(e) {}
   }
