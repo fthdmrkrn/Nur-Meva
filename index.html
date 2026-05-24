@@ -2191,6 +2191,44 @@ cizgiYildizGuncelle();
   </div>
 </div>
 
+<!-- KAFA SEÇİM EKRANI -->
+<div class="yilan-bitti" id="kafaSecimEkran" style="background: rgba(10, 30, 50, 0.96);">
+  <div class="bitti-kart" style="max-width: 380px;">
+    <h2 class="bitti-baslik" style="font-size: clamp(22px, 5vw, 28px); margin-bottom: 6px;">🐾 Kafanı Seç!</h2>
+    <p class="bitti-mesaj" style="margin-bottom: 18px;">Hangi hayvancık olmak istersin Nur Meva?</p>
+    <div id="kafaSecimGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px;"></div>
+    <div class="bitti-btnlar">
+      <button class="bitti-btn yeniden" id="kafaSecimBtn" onclick="kafaSecimOnay()">
+        🎮 Başla!
+      </button>
+      <button class="bitti-btn cikis" onclick="yilanCikisOnay()">
+        🏠 Ana Sayfaya Dön
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .kafa-secenek {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,0.06);
+    border: 3px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(34px, 8vw, 48px);
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .kafa-secenek:active { transform: scale(0.92); }
+  .kafa-secenek.secili {
+    background: rgba(125, 211, 252, 0.2);
+    border-color: #7dd3fc;
+    box-shadow: 0 0 20px rgba(125, 211, 252, 0.5);
+    transform: scale(1.08);
+  }
+</style>
+
 <!-- OYUN BİTTİ EKRANI -->
 <div class="yilan-bitti" id="yilanBittiEkran">
   <div class="bitti-kart">
@@ -2238,6 +2276,7 @@ const YILAN = {
   hiz: 1.6,           // px/frame - yavaşlatıldı (eski: 2.5)
   segmentBoyut: 22,
   yilanRengi: '#00d9d9',
+  kafaEmoji: '🐱',    // Seçili karakter kafası
   yiyecekler: [],
   botlar: [],
   parmakBasili: false,
@@ -2251,7 +2290,19 @@ const YILAN = {
   ipucuGosterildi: false,
   oyunBittiDevamMumkun: false,
   son_yiyecek_sesi: 0,
+  bekleyenYiyecekler: [],  // [{zaman}] - 4-5 saniye sonra yeniden doğacaklar
 };
+
+// Karakter seçenekleri
+const KARAKTERLER = [
+  { emoji: '🐱', ad: 'Yavru Kedi' },
+  { emoji: '🐶', ad: 'Köpek' },
+  { emoji: '🦁', ad: 'Aslan' },
+  { emoji: '🐯', ad: 'Kaplan' },
+  { emoji: '🐛', ad: 'Tırtıl' },
+  { emoji: '🦊', ad: 'Tilki' },
+  { emoji: '🐰', ad: 'Tavşan' },
+];
 
 // Harfler ve sayılar havuzu
 const HARFLER_BUYUK = ['A','B','C','Ç','D','E','F','G','Ğ','H','I','İ','J','K','L','M','N','O','Ö','P','R','S','Ş','T','U','Ü','V','Y','Z'];
@@ -2270,13 +2321,6 @@ try {
 } catch(e) {}
 
 function yilanOyunuAc() {
-  // Önceki kayıt varsa "devam et" mümkün
-  let kaldigi = null;
-  try {
-    const k = localStorage.getItem('yilan_son_durum');
-    if (k) kaldigi = JSON.parse(k);
-  } catch(e) {}
-
   document.querySelectorAll('.sayfa').forEach(s => s.classList.remove('aktif'));
   document.getElementById('yilanEkran').classList.add('aktif');
 
@@ -2284,9 +2328,72 @@ function yilanOyunuAc() {
   YILAN.ctx = YILAN.canvas.getContext('2d');
   YILAN.saha = document.getElementById('yilanSaha');
 
-  // Eğer önceki devam edilebilir oyun varsa onunla başla, yoksa yeniden
-  if (kaldigi && kaldigi.devamEdilebilir) {
-    yilanDurumYukle(kaldigi);
+  // Önce KAFA SEÇİM ekranını göster
+  kafaSecimAc();
+}
+
+let _kafaSecimSecili = 0; // Seçim indexi
+
+function kafaSecimAc() {
+  // Bekleyen oyun durumunu kontrol et (devam et seçeneği)
+  let devamMumkun = false;
+  try {
+    const k = localStorage.getItem('yilan_son_durum');
+    if (k) devamMumkun = JSON.parse(k).devamEdilebilir;
+  } catch(e) {}
+
+  // Son seçilen kafayı yükle
+  try {
+    const sonSecim = localStorage.getItem('yilan_kafa_index');
+    if (sonSecim !== null) _kafaSecimSecili = parseInt(sonSecim) || 0;
+  } catch(e) {}
+
+  // Grid'i oluştur
+  const grid = document.getElementById('kafaSecimGrid');
+  grid.innerHTML = '';
+  KARAKTERLER.forEach((k, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'kafa-secenek' + (i === _kafaSecimSecili ? ' secili' : '');
+    btn.textContent = k.emoji;
+    btn.title = k.ad;
+    btn.onclick = () => {
+      _kafaSecimSecili = i;
+      document.querySelectorAll('.kafa-secenek').forEach(b => b.classList.remove('secili'));
+      btn.classList.add('secili');
+      try { localStorage.setItem('yilan_kafa_index', i.toString()); } catch(e) {}
+      // Pop sesi seçim için
+      yilanPopSesi(false);
+    };
+    grid.appendChild(btn);
+  });
+
+  // Devam et / yeni oyun butonu
+  const btn = document.getElementById('kafaSecimBtn');
+  if (devamMumkun) {
+    btn.textContent = '▶️ Kaldığım Yerden Devam';
+    btn._mode = 'devam';
+  } else {
+    btn.textContent = '🎮 Başla!';
+    btn._mode = 'yeni';
+  }
+
+  document.getElementById('kafaSecimEkran').classList.add('goster');
+  yilanLoopDurdur();
+}
+
+function kafaSecimOnay() {
+  // Seçilen kafayı uygula
+  YILAN.kafaEmoji = KARAKTERLER[_kafaSecimSecili].emoji;
+  document.getElementById('kafaSecimEkran').classList.remove('goster');
+
+  const mode = document.getElementById('kafaSecimBtn')._mode;
+  if (mode === 'devam') {
+    // Eski durumu yükle
+    try {
+      const k = localStorage.getItem('yilan_son_durum');
+      if (k) yilanDurumYukle(JSON.parse(k));
+      else yilanYeniOyun();
+    } catch(e) { yilanYeniOyun(); }
   } else {
     yilanYeniOyun();
   }
@@ -2337,8 +2444,9 @@ function yilanYeniOyun() {
   YILAN.skor = 0;
   YILAN.yiyecekler = [];
   YILAN.yenilenAnimasyonlar = [];
+  YILAN.bekleyenYiyecekler = [];
   // Yiyecekleri dünyaya serp (daha fazla, çünkü harita büyük)
-  for (let i = 0; i < 80; i++) yilanYeniYiyecek();
+  for (let i = 0; i < 150; i++) yilanYeniYiyecek();
   // Botları oluştur
   YILAN.botlar = [];
   const botSayisi = 4 + Math.floor(Math.random() * 2); // 4-5 bot (büyük harita için)
@@ -2380,7 +2488,8 @@ function yilanDurumYukle(d) {
   YILAN.skor = skor;
   YILAN.yiyecekler = [];
   YILAN.yenilenAnimasyonlar = [];
-  for (let i = 0; i < 80; i++) yilanYeniYiyecek();
+  YILAN.bekleyenYiyecekler = [];
+  for (let i = 0; i < 150; i++) yilanYeniYiyecek();
   YILAN.botlar = [];
   const botSayisi = 4 + Math.floor(Math.random() * 2);
   for (let i = 0; i < botSayisi; i++) yilanYeniBot();
@@ -2415,9 +2524,19 @@ function yilanYeniYiyecek() {
   } else {
     deger = (1 + Math.floor(Math.random() * 20)).toString();
   }
-  const boyut = 24 + Math.floor(Math.random() * 14); // 24-38 px
-  const renk = YIYECEK_RENKLERI[Math.floor(Math.random() * YIYECEK_RENKLERI.length)];
-  YILAN.yiyecekler.push({ x, y, tip, deger, renk, boyut, donme: Math.random() * Math.PI * 2 });
+  // %10 ihtimalle SÜPER harfi (büyük, parlak, +5 puan, kuyruk +3 ek segment)
+  const superMu = Math.random() < 0.10;
+  const boyut = superMu
+    ? 55 + Math.floor(Math.random() * 12)   // süper: 55-67 px (çok büyük)
+    : 24 + Math.floor(Math.random() * 14);  // normal: 24-38 px
+  const renk = superMu
+    ? ['#ffd93d', '#ff4d8d', '#9b59ff'][Math.floor(Math.random() * 3)]
+    : YIYECEK_RENKLERI[Math.floor(Math.random() * YIYECEK_RENKLERI.length)];
+  YILAN.yiyecekler.push({
+    x, y, tip, deger, renk, boyut,
+    donme: Math.random() * Math.PI * 2,
+    super: superMu
+  });
 }
 
 function yilanYeniBot() {
@@ -2438,14 +2557,20 @@ function yilanYeniBot() {
   const aci = Math.random() * Math.PI * 2;
   const yon = { x: Math.cos(aci), y: Math.sin(aci) };
   const uzunluk = 8 + Math.floor(Math.random() * 7);
+  // %40 bot "kovalayıcı" tipinde olsun (görünce kısa süre takip eder)
+  const kovalayici = Math.random() < 0.4;
   const bot = {
     yilan: [],
     yon,
     hedefYon: { ...yon },
-    hiz: 0.8 + Math.random() * 0.4, // yavaşlatıldı (eski: 1.2-1.8)
+    hiz: 0.8 + Math.random() * 0.4,
     renk: ['#a78bfa', '#f472b6', '#fb923c', '#fbbf24', '#34d399'][Math.floor(Math.random() * 5)],
     kafa: BOT_KAFALAR[Math.floor(Math.random() * BOT_KAFALAR.length)],
     donus_timer: 60 + Math.random() * 120,
+    kovalayici: kovalayici,
+    kovalama_durumu: 'gezi', // 'gezi' | 'kovala' | 'soguma'
+    kovala_timer: 0,
+    soguma_timer: 0,
   };
   for (let i = 0; i < uzunluk; i++) {
     bot.yilan.push({ x: bx - i * YILAN.segmentBoyut * 0.6 * yon.x, y: by - i * YILAN.segmentBoyut * 0.6 * yon.y });
@@ -2460,6 +2585,24 @@ function yilanOlaylariBagla() {
   const baslat = (e) => {
     e.preventDefault();
     YILAN.parmakBasili = true;
+    // İlk dokunuşta sesi kilitle aç (mobil tarayıcılar için zorunlu)
+    if (!YILAN._sesAcildi) {
+      YILAN._sesAcildi = true;
+      try {
+        if (!yilanAudioCtx) {
+          yilanAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (yilanAudioCtx.state === 'suspended') yilanAudioCtx.resume();
+      } catch(e) {}
+      // SpeechSynthesis warmup (boş bir konuşma ile uyandır)
+      try {
+        if ('speechSynthesis' in window) {
+          const u = new SpeechSynthesisUtterance(' ');
+          u.lang = 'tr-TR'; u.volume = 0;
+          speechSynthesis.speak(u);
+        }
+      } catch(e) {}
+    }
     if (!YILAN.ipucuGosterildi) {
       document.getElementById('yilanIpucu').classList.add('gizli');
       YILAN.ipucuGosterildi = true;
@@ -2631,15 +2774,26 @@ function yilanGuncelle() {
       yilanYedi(y);
       YILAN.yiyecekler.splice(i, 1);
       yedi = true;
-      // Yeni yiyecek ekle
-      yilanYeniYiyecek();
-      break; // Tek seferde bir yiyecek
+      // 4-5 saniye sonra yeni yiyecek doğsun (farklı harf/sayı olarak)
+      YILAN.bekleyenYiyecekler.push({
+        zaman: Date.now() + 4000 + Math.random() * 1000  // 4-5 sn
+      });
+      break;
     }
   }
 
   // Yemediyse kuyruğu kısalt
   if (!yedi) {
     YILAN.yilan.pop();
+  }
+
+  // Bekleyen yiyecekleri kontrol et - zamanı geleni doğur
+  const simdi = Date.now();
+  for (let i = YILAN.bekleyenYiyecekler.length - 1; i >= 0; i--) {
+    if (YILAN.bekleyenYiyecekler[i].zaman <= simdi) {
+      yilanYeniYiyecek();  // Tamamen rastgele yeni harf/sayı
+      YILAN.bekleyenYiyecekler.splice(i, 1);
+    }
   }
 
   // Botları güncelle
@@ -2659,56 +2813,159 @@ function yilanGuncelle() {
 }
 
 function yilanYedi(yiyecek) {
-  YILAN.skor++;
+  // Süper yiyecek 5 puan, normal 1 puan
+  const puan = yiyecek.super ? 5 : 1;
+  YILAN.skor += puan;
   yilanGuncelleSkor();
 
-  // Sesli oku (Türkçe)
+  // Pop sesi + konuşma (paralel - hangisi çalışırsa)
+  yilanPopSesi(yiyecek.super);
   yilanSesli(yiyecek.deger, yiyecek.tip);
 
-  // +1 animasyonu
+  // +N animasyonu
   YILAN.yenilenAnimasyonlar.push({
     x: yiyecek.x, y: yiyecek.y,
-    deger: '+1', omr: 0, alpha: 1
+    deger: '+' + puan, omr: 0, alpha: 1,
+    super: yiyecek.super
   });
-  // Hız sabit - 5 yaş için yavaş kalsın
+
+  // KUYRUK BÜYÜTME - normal +2 segment, süper +6 segment
+  // (Standart Snake'te yiyecek başına sadece +1; biz +2/+6 ile hızlı büyüme veriyoruz)
+  const eklenecek = yiyecek.super ? 6 : 2;
+  // Yılan kuyruğunun sonuna eklemek için son segmenti çoğalt
+  if (YILAN.yilan.length > 0) {
+    const son = YILAN.yilan[YILAN.yilan.length - 1];
+    for (let i = 0; i < eklenecek; i++) {
+      YILAN.yilan.push({ x: son.x, y: son.y });
+    }
+  }
+}
+
+// Web Audio API ile pop sesi - garantili çalışır
+let yilanAudioCtx = null;
+function yilanPopSesi(superMu) {
+  try {
+    if (!yilanAudioCtx) {
+      yilanAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = yilanAudioCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const simdi = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (superMu) {
+      // Süper - yükselen iki notalı parlak ses
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523, simdi);     // C5
+      osc.frequency.linearRampToValueAtTime(784, simdi + 0.08);  // G5
+      osc.frequency.linearRampToValueAtTime(1047, simdi + 0.15); // C6
+      gain.gain.setValueAtTime(0.25, simdi);
+      gain.gain.exponentialRampToValueAtTime(0.001, simdi + 0.25);
+      osc.start(simdi);
+      osc.stop(simdi + 0.25);
+    } else {
+      // Normal - kısa neşeli pop
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(660, simdi);
+      osc.frequency.exponentialRampToValueAtTime(880, simdi + 0.05);
+      gain.gain.setValueAtTime(0.18, simdi);
+      gain.gain.exponentialRampToValueAtTime(0.001, simdi + 0.1);
+      osc.start(simdi);
+      osc.stop(simdi + 0.1);
+    }
+  } catch(e) {}
 }
 
 function yilanSesli(metin, tip) {
-  // Birden fazla sesin üst üste binmesini engelle
+  // Konuşma desteği yoksa sessizce dön (pop sesi zaten çaldı)
+  if (!('speechSynthesis' in window)) return;
+
+  // Üst üste binmeyi engelle
   const simdi = Date.now();
-  if (simdi - YILAN.son_yiyecek_sesi < 200) return;
+  if (simdi - YILAN.son_yiyecek_sesi < 250) return;
   YILAN.son_yiyecek_sesi = simdi;
 
-  if (!('speechSynthesis' in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(metin);
-  u.lang = 'tr-TR';
-  u.rate = tip === 'sayi' ? 0.85 : 0.7;
-  u.pitch = 1.2;
-  u.volume = 1;
-  speechSynthesis.speak(u);
+  try {
+    // Pop sesinin altından sessizce konuş - hafif gecikme
+    setTimeout(() => {
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(metin);
+        u.lang = 'tr-TR';
+        u.rate = tip === 'sayi' ? 0.95 : 0.85;
+        u.pitch = 1.3;
+        u.volume = 1;
+        speechSynthesis.speak(u);
+      } catch(e) {}
+    }, 50);
+  } catch(e) {}
 }
 
 function yilanBotlariniGuncelle() {
+  const oyuncuKafa = YILAN.yilan[0];
   for (const bot of YILAN.botlar) {
-    // Periyodik yön değiştir
-    bot.donus_timer--;
-    if (bot.donus_timer <= 0) {
-      const aci = Math.random() * Math.PI * 2;
-      bot.hedefYon = { x: Math.cos(aci), y: Math.sin(aci) };
-      bot.donus_timer = 80 + Math.random() * 140;
+    const botKafa = bot.yilan[0];
+
+    // KOVALAYICI MANTIK
+    if (bot.kovalayici && oyuncuKafa) {
+      const dx = oyuncuKafa.x - botKafa.x;
+      const dy = oyuncuKafa.y - botKafa.y;
+      const mesafe = Math.sqrt(dx*dx + dy*dy);
+
+      if (bot.kovalama_durumu === 'gezi') {
+        // Görüş mesafesi 450px - bu mesafede yılan varsa kovalamaya geç
+        if (mesafe < 450 && bot.soguma_timer <= 0) {
+          bot.kovalama_durumu = 'kovala';
+          bot.kovala_timer = 180 + Math.floor(Math.random() * 120); // 3-5 saniye kovalar
+        }
+      } else if (bot.kovalama_durumu === 'kovala') {
+        // Yılana doğru yön belirle
+        if (mesafe > 0) {
+          bot.hedefYon = { x: dx/mesafe, y: dy/mesafe };
+        }
+        bot.kovala_timer--;
+        // Süre bitti VEYA yılan çok uzaklaştı → vazgeç
+        if (bot.kovala_timer <= 0 || mesafe > 700) {
+          bot.kovalama_durumu = 'soguma';
+          bot.soguma_timer = 240 + Math.floor(Math.random() * 180); // 4-7 sn dinlenir
+          // Rastgele bir yöne git
+          const a = Math.random() * Math.PI * 2;
+          bot.hedefYon = { x: Math.cos(a), y: Math.sin(a) };
+        }
+      } else if (bot.kovalama_durumu === 'soguma') {
+        bot.soguma_timer--;
+        if (bot.soguma_timer <= 0) {
+          bot.kovalama_durumu = 'gezi';
+        }
+      }
     }
 
-    // Yumuşak dönüş
-    bot.yon.x += (bot.hedefYon.x - bot.yon.x) * 0.05;
-    bot.yon.y += (bot.hedefYon.y - bot.yon.y) * 0.05;
+    // Normal gezinme yön değiştirme (sadece kovalamıyorsa)
+    if (bot.kovalama_durumu !== 'kovala') {
+      bot.donus_timer--;
+      if (bot.donus_timer <= 0) {
+        const aci = Math.random() * Math.PI * 2;
+        bot.hedefYon = { x: Math.cos(aci), y: Math.sin(aci) };
+        bot.donus_timer = 80 + Math.random() * 140;
+      }
+    }
+
+    // Yumuşak dönüş (kovalarken biraz daha hızlı dönsün)
+    const donusOrani = bot.kovalama_durumu === 'kovala' ? 0.08 : 0.05;
+    bot.yon.x += (bot.hedefYon.x - bot.yon.x) * donusOrani;
+    bot.yon.y += (bot.hedefYon.y - bot.yon.y) * donusOrani;
     const mag = Math.sqrt(bot.yon.x*bot.yon.x + bot.yon.y*bot.yon.y);
     if (mag > 0) { bot.yon.x /= mag; bot.yon.y /= mag; }
 
-    const kafa = bot.yilan[0];
+    // Kovalarken biraz daha hızlı
+    const hizCarpani = bot.kovalama_durumu === 'kovala' ? 1.35 : 1;
     const yeniKafa = {
-      x: kafa.x + bot.yon.x * bot.hiz,
-      y: kafa.y + bot.yon.y * bot.hiz
+      x: botKafa.x + bot.yon.x * bot.hiz * hizCarpani,
+      y: botKafa.y + bot.yon.y * bot.hiz * hizCarpani
     };
 
     // Duvar çarpınca yön çevir (DÜNYA sınırları)
@@ -2790,30 +3047,65 @@ function yilanCiz() {
   }
 
   // Yiyecekleri çiz (sadece görünür olanları)
+  const zaman = Date.now() / 1000;
   for (const y of YILAN.yiyecekler) {
     if (y.x < goruX1 || y.x > goruX2 || y.y < goruY1 || y.y > goruY2) continue;
     y.donme += 0.01;
     ctx.save();
     ctx.translate(y.x, y.y);
-    // Parlama halkası
-    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, y.boyut);
-    grad.addColorStop(0, y.renk + '40');
-    grad.addColorStop(1, y.renk + '00');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(0, 0, y.boyut * 1.2, 0, Math.PI * 2);
-    ctx.fill();
+
+    if (y.super) {
+      // SÜPER: nabız atan büyük halo
+      const nabiz = 1 + Math.sin(zaman * 4) * 0.15;
+      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, y.boyut * 1.8 * nabiz);
+      grad.addColorStop(0, y.renk + 'aa');
+      grad.addColorStop(0.5, y.renk + '55');
+      grad.addColorStop(1, y.renk + '00');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, y.boyut * 1.8 * nabiz, 0, Math.PI * 2);
+      ctx.fill();
+      // Dönen yıldız ışınları
+      ctx.save();
+      ctx.rotate(zaman * 1.5);
+      ctx.fillStyle = y.renk + '40';
+      for (let k = 0; k < 6; k++) {
+        ctx.rotate(Math.PI / 3);
+        ctx.beginPath();
+        ctx.moveTo(0, -y.boyut * 1.5);
+        ctx.lineTo(y.boyut * 0.15, 0);
+        ctx.lineTo(0, y.boyut * 1.5);
+        ctx.lineTo(-y.boyut * 0.15, 0);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    } else {
+      // Normal halo
+      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, y.boyut);
+      grad.addColorStop(0, y.renk + '40');
+      grad.addColorStop(1, y.renk + '00');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, y.boyut * 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     ctx.rotate(Math.sin(y.donme) * 0.1);
 
     ctx.font = `bold ${y.boyut}px 'Bubblegum Sans', cursive`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = y.super ? 6 : 4;
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
     ctx.strokeText(y.deger, 0, 0);
     ctx.fillStyle = y.renk;
     ctx.fillText(y.deger, 0, 0);
+    if (y.super) {
+      // İçi beyaz parlaklık
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillText(y.deger, 0, 0);
+    }
     ctx.restore();
   }
 
@@ -2825,6 +3117,21 @@ function yilanCiz() {
     if (ilk.x < goruX1 - 200 || ilk.x > goruX2 + 200 ||
         ilk.y < goruY1 - 200 || ilk.y > goruY2 + 200) continue;
     yilanGovdesiCiz(bot.yilan, bot.renk, bot.kafa);
+
+    // Kovalıyorsa kafanın üstüne ünlem işareti
+    if (bot.kovalama_durumu === 'kovala') {
+      ctx.save();
+      const yPx = ilk.y - 40;
+      const nabiz = 1 + Math.sin(zaman * 8) * 0.2;
+      ctx.font = `bold ${28 * nabiz}px "Bubblegum Sans", cursive`;
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+      ctx.strokeText('❗', ilk.x, yPx);
+      ctx.fillStyle = '#ff4d4d';
+      ctx.fillText('❗', ilk.x, yPx);
+      ctx.restore();
+    }
   }
 
   // Ana yılan
@@ -2834,12 +3141,13 @@ function yilanCiz() {
   for (const a of YILAN.yenilenAnimasyonlar) {
     ctx.save();
     ctx.globalAlpha = a.alpha;
-    ctx.font = 'bold 24px "Bubblegum Sans", cursive';
+    const fontBoyut = a.super ? 40 : 24;
+    ctx.font = `bold ${fontBoyut}px "Bubblegum Sans", cursive`;
     ctx.textAlign = 'center';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = a.super ? 6 : 4;
     ctx.strokeStyle = 'rgba(0,0,0,0.6)';
     ctx.strokeText(a.deger, a.x, a.y);
-    ctx.fillStyle = '#ffd93d';
+    ctx.fillStyle = a.super ? '#ff4d8d' : '#ffd93d';
     ctx.fillText(a.deger, a.x, a.y);
     ctx.restore();
   }
@@ -2875,12 +3183,13 @@ function yilanMiniHaritaCiz() {
     ctx.arc(mhX + kafa.x * olcek, mhY + kafa.y * olcek, 4, 0, Math.PI*2);
     ctx.fill();
   }
-  // Botlar
-  ctx.fillStyle = '#f472b6';
+  // Botlar (kovalayanlar kırmızı, gezenler pembe)
   for (const bot of YILAN.botlar) {
     if (bot.yilan[0]) {
+      ctx.fillStyle = bot.kovalama_durumu === 'kovala' ? '#ff4d4d' : '#f472b6';
       ctx.beginPath();
-      ctx.arc(mhX + bot.yilan[0].x * olcek, mhY + bot.yilan[0].y * olcek, 2.5, 0, Math.PI*2);
+      ctx.arc(mhX + bot.yilan[0].x * olcek, mhY + bot.yilan[0].y * olcek,
+              bot.kovalama_durumu === 'kovala' ? 3.5 : 2.5, 0, Math.PI*2);
       ctx.fill();
     }
   }
@@ -2955,103 +3264,29 @@ function yilanKediKafasiCiz(x, y, r) {
   const ctx = YILAN.ctx;
   ctx.save();
 
-  // Kafa yön açısı (yılanın yönüne göre)
-  const aci = Math.atan2(YILAN.yon.y, YILAN.yon.x);
-  ctx.translate(x, y);
-  ctx.rotate(aci + Math.PI/2); // emoji yukarı bakacak şekilde
-
-  // Kafa rengi - mavi yavru kedi
-  const kafa = ctx.createRadialGradient(0, -r*0.2, 0, 0, 0, r);
-  kafa.addColorStop(0, '#7dd3fc');
-  kafa.addColorStop(1, '#0284c7');
-  ctx.fillStyle = kafa;
-
-  // Kafa daire
+  // Hafif parlama halkası (ana karakter belirgin olsun)
+  const halo = ctx.createRadialGradient(x, y, r * 0.8, x, y, r * 1.8);
+  halo.addColorStop(0, 'rgba(125, 211, 252, 0.4)');
+  halo.addColorStop(1, 'rgba(125, 211, 252, 0)');
+  ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.arc(x, y, r * 1.8, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-  ctx.lineWidth = 2;
+
+  // Beyaz arka plan dairesi (emoji belirgin gözüksün)
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.beginPath();
+  ctx.arc(x, y, r * 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Sol kulak (üçgen)
-  ctx.beginPath();
-  ctx.moveTo(-r*0.7, -r*0.6);
-  ctx.lineTo(-r*0.35, -r*1.1);
-  ctx.lineTo(-r*0.15, -r*0.7);
-  ctx.closePath();
-  ctx.fillStyle = '#0284c7';
-  ctx.fill();
-  ctx.stroke();
-  // İç kulak (pembe)
-  ctx.beginPath();
-  ctx.moveTo(-r*0.5, -r*0.7);
-  ctx.lineTo(-r*0.35, -r*0.95);
-  ctx.lineTo(-r*0.25, -r*0.75);
-  ctx.closePath();
-  ctx.fillStyle = '#fbcfe8';
-  ctx.fill();
-
-  // Sağ kulak
-  ctx.beginPath();
-  ctx.moveTo(r*0.7, -r*0.6);
-  ctx.lineTo(r*0.35, -r*1.1);
-  ctx.lineTo(r*0.15, -r*0.7);
-  ctx.closePath();
-  ctx.fillStyle = '#0284c7';
-  ctx.fill();
-  ctx.stroke();
-  // İç kulak
-  ctx.beginPath();
-  ctx.moveTo(r*0.5, -r*0.7);
-  ctx.lineTo(r*0.35, -r*0.95);
-  ctx.lineTo(r*0.25, -r*0.75);
-  ctx.closePath();
-  ctx.fillStyle = '#fbcfe8';
-  ctx.fill();
-
-  // Gözler
-  ctx.fillStyle = 'white';
-  ctx.beginPath(); ctx.arc(-r*0.3, -r*0.05, r*0.22, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(r*0.3, -r*0.05, r*0.22, 0, Math.PI*2); ctx.fill();
-  // Göz bebekleri (yönlü)
-  ctx.fillStyle = '#1a1a2e';
-  ctx.beginPath(); ctx.arc(-r*0.28, 0, r*0.12, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(r*0.32, 0, r*0.12, 0, Math.PI*2); ctx.fill();
-  // Parlak nokta
-  ctx.fillStyle = 'white';
-  ctx.beginPath(); ctx.arc(-r*0.24, -r*0.04, r*0.05, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(r*0.36, -r*0.04, r*0.05, 0, Math.PI*2); ctx.fill();
-
-  // Burun (küçük üçgen)
-  ctx.fillStyle = '#ec4899';
-  ctx.beginPath();
-  ctx.moveTo(0, r*0.15);
-  ctx.lineTo(-r*0.1, r*0.05);
-  ctx.lineTo(r*0.1, r*0.05);
-  ctx.closePath();
-  ctx.fill();
-
-  // Ağız (küçük çizgi)
-  ctx.strokeStyle = '#1a1a2e';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(0, r*0.18);
-  ctx.lineTo(0, r*0.28);
-  ctx.moveTo(0, r*0.28);
-  ctx.quadraticCurveTo(-r*0.1, r*0.38, -r*0.18, r*0.32);
-  ctx.moveTo(0, r*0.28);
-  ctx.quadraticCurveTo(r*0.1, r*0.38, r*0.18, r*0.32);
-  ctx.stroke();
-
-  // Bıyıklar
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(-r*0.15, r*0.22); ctx.lineTo(-r*0.55, r*0.18);
-  ctx.moveTo(-r*0.15, r*0.28); ctx.lineTo(-r*0.55, r*0.30);
-  ctx.moveTo(r*0.15, r*0.22); ctx.lineTo(r*0.55, r*0.18);
-  ctx.moveTo(r*0.15, r*0.28); ctx.lineTo(r*0.55, r*0.30);
-  ctx.stroke();
+  // Emoji kafa (seçilen karakter)
+  ctx.font = `${r * 2.4}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(YILAN.kafaEmoji, x, y);
 
   ctx.restore();
 }
@@ -3122,23 +3357,16 @@ function yilanOyunBitti(sebep) {
 
 function yilanDevamEt() {
   document.getElementById('yilanBittiEkran').classList.remove('goster');
-  // Kaydedilen son durumu yükle
-  try {
-    const k = localStorage.getItem('yilan_son_durum');
-    if (k) {
-      const d = JSON.parse(k);
-      yilanDurumYukle(d);
-    }
-  } catch(e) {
-    yilanYeniOyun();
-  }
+  // Kafa seçim ekranını aç (devam et modunda olacak)
+  kafaSecimAc();
 }
 
 function yilanYenidenBasla() {
   document.getElementById('yilanBittiEkran').classList.remove('goster');
   // Eski durumu sil
   try { localStorage.removeItem('yilan_son_durum'); } catch(e) {}
-  yilanYeniOyun();
+  // Kafa seçim ekranını aç (yeni oyun modunda)
+  kafaSecimAc();
 }
 
 function yilanGuncelleSkor() {
