@@ -838,7 +838,464 @@
 }
 .yildiz-efekt.aktif { display:block; }
 .ucan { position:absolute; font-size:50px; pointer-events:none; }
-</style>
+
+/* ══ HİKAYELER ══ */
+#hikayelerEkran { background: linear-gradient(135deg, #1a0a2e 0%, #2d1b69 60%, #0a1a2e 100%); }
+#hikayeOkuEkran { background: linear-gradient(135deg, #0a0a1e 0%, #1a1040 60%, #0a1a30 100%); }
+#hikayeSoruEkran { background: linear-gradient(135deg, #0a1a0a 0%, #1a3a1a 60%, #0a2a10 100%); }
+
+.hikaye-kategori-baslik {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(13px,3vw,17px);
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 18px 20px 8px;
+}
+
+.hikaye-liste {
+  flex:1; overflow-y:auto;
+  padding: 0 16px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.hikaye-kart {
+  background: rgba(255,255,255,.07);
+  border: 2px solid rgba(255,255,255,.12);
+  border-radius: 20px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: transform .15s, background .2s;
+  backdrop-filter: blur(8px);
+}
+.hikaye-kart:active { transform: scale(.97); background: rgba(255,255,255,.14); }
+.hikaye-kart.tamamlandi { border-color: var(--sari); background: rgba(255,217,61,.08); }
+.hikaye-kart .h-ikon { font-size: clamp(32px,7vw,44px); flex-shrink:0; }
+.hikaye-bilgi { flex:1; }
+.hikaye-bilgi h3 { font-size: clamp(15px,3.2vw,20px); font-weight:700; margin-bottom:3px; }
+.hikaye-bilgi p { font-size: clamp(11px,2.3vw,14px); color: rgba(255,255,255,.6); }
+.hikaye-rozet { font-size:22px; flex-shrink:0; }
+
+/* Okuma ekranı */
+.hiku-ust {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; flex-shrink:0;
+  background: rgba(0,0,0,.35); backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(255,255,255,.08); gap:10px;
+}
+.hiku-baslik {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(13px,3vw,18px); color: var(--sari);
+  text-align:center; flex:1;
+}
+.hiku-ilerleme {
+  display: flex; gap:4px; padding: 10px 16px; flex-shrink:0;
+  justify-content:center; flex-wrap:wrap;
+}
+.hiku-nokta {
+  width:10px; height:10px; border-radius:50%;
+  background: rgba(255,255,255,.2);
+  transition: background .3s, transform .3s;
+}
+.hiku-nokta.aktif { background: var(--sari); transform:scale(1.3); }
+.hiku-nokta.gecildi { background: var(--yesil); }
+
+.hiku-icerik {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding: 20px 24px; gap:20px; overflow-y:auto;
+}
+.hiku-emoji-buyuk { font-size: clamp(60px,15vw,100px); animation: yuzeEkran 3s ease-in-out infinite; }
+@keyframes yuzeEkran { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+.hiku-metin {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(17px,4vw,26px);
+  font-weight: 500;
+  line-height: 1.65;
+  text-align: center;
+  color: white;
+  max-width: 620px;
+  background: rgba(255,255,255,.07);
+  border-radius: 24px;
+  padding: 20px 24px;
+  border: 2px solid rgba(255,255,255,.12);
+}
+
+.hiku-alt {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 12px 16px; gap:10px; flex-shrink:0;
+  background: rgba(0,0,0,.35); backdrop-filter:blur(10px);
+  border-top: 2px solid rgba(255,255,255,.08);
+}
+.hiku-btn {
+  background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2);
+  color: white; border-radius: 50px; padding: 11px 20px;
+  font-family:inherit; font-size: clamp(14px,3vw,17px); font-weight:700;
+  cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:6px;
+}
+.hiku-btn:active { transform:scale(.93); }
+.hiku-btn.sesli { background: linear-gradient(135deg,rgba(0,217,217,.3),rgba(0,147,233,.2)); border-color:rgba(0,217,217,.5); }
+.hiku-btn.ileri { background: linear-gradient(135deg,var(--mor),var(--pembe)); border-color:transparent; box-shadow:0 4px 15px rgba(155,89,255,.4); }
+.hiku-btn:disabled { opacity:.35; pointer-events:none; }
+
+/* Soru ekranı */
+.soru-icerik {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:20px; gap:18px; overflow-y:auto;
+}
+.soru-kutlama-emoji { font-size:clamp(50px,12vw,80px); animation: yuzeEkran 2s ease-in-out infinite; }
+.soru-baslik {
+  font-family:'Bubblegum Sans',cursive;
+  font-size:clamp(20px,5vw,32px);
+  background: linear-gradient(135deg,var(--sari),var(--pembe));
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-align:center;
+}
+.soru-metin {
+  font-size:clamp(16px,3.5vw,22px); font-weight:600;
+  text-align:center; color:white;
+  background: rgba(255,255,255,.08);
+  border-radius:20px; padding:16px 22px;
+  border: 2px solid rgba(255,255,255,.15);
+  max-width:500px; width:100%;
+}
+.soru-secenekler {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:12px; width:100%; max-width:500px;
+}
+.soru-btn {
+  background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2);
+  border-radius:18px; padding:14px 10px;
+  font-family:inherit; font-size:clamp(14px,3vw,18px); font-weight:600;
+  color:white; cursor:pointer; transition:all .2s;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+}
+.soru-btn:active { transform:scale(.95); }
+.soru-btn.dogru { background:rgba(74,222,128,.25); border-color:var(--yesil); animation:dogruSalla .4s ease; }
+.soru-btn.yanlis { background:rgba(255,77,141,.2); border-color:var(--pembe); animation:yanlisSalla .3s ease; }
+@keyframes dogruSalla { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+@keyframes yanlisSalla { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.soru-geri-btn {
+  background: linear-gradient(135deg,var(--mor),var(--pembe));
+  border:none; color:white; padding:14px 32px; border-radius:50px;
+  font-family:inherit; font-size:clamp(15px,3.5vw,19px); font-weight:700;
+  cursor:pointer; box-shadow:0 6px 20px rgba(155,89,255,.4);
+  transition:transform .15s; display:none;
+}
+.soru-geri-btn:active { transform:scale(.94); }
+.soru-sonuc-mesaj {
+  font-size:clamp(15px,3.5vw,20px); font-weight:700;
+  text-align:center; min-height:28px;
+}
+
+/* ══ YAZMA ALIŞTIRMASI MODÜLÜ ══ */
+#yazmaEkran {
+  background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 50%, #2d1b69 100%);
+}
+.yazma-ust {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; flex-shrink: 0;
+  background: rgba(0,0,0,.4); backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(255,255,255,.08); gap: 10px;
+}
+.yazma-ust-baslik {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(14px,3.5vw,20px); color: var(--sari);
+  text-align: center; flex: 1;
+}
+.yazma-icerik {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 12px 16px 16px;
+  gap: 12px; overflow-y: auto;
+}
+/* Harf göstergesi (büyük/küçük + grup bilgisi) */
+.yazma-harf-bilgi {
+  text-align: center;
+}
+.yazma-harf-buyuk {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(36px,8vw,52px);
+  background: linear-gradient(135deg, var(--pembe), var(--sari), var(--turkuaz));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+.yazma-grup-adi {
+  font-size: 12px; color: rgba(255,255,255,.5); margin-top: 2px;
+}
+/* Canvas kutu */
+.yazma-canvas-kutu {
+  position: relative;
+  width: min(340px, 88vw);
+  aspect-ratio: 1;
+  background: rgba(255,255,255,.06);
+  border: 2px solid rgba(255,255,255,.15);
+  border-radius: 24px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+#yazmaRehberCanvas, #yazmaCizimCanvas, #yazmaAnimCanvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  touch-action: none;
+}
+#yazmaRehberCanvas { z-index: 1; pointer-events: none; }
+#yazmaAnimCanvas   { z-index: 2; pointer-events: none; }
+#yazmaCizimCanvas  { z-index: 3; cursor: crosshair; }
+
+/* Sonuç bandı */
+.yazma-sonuc {
+  display: none;
+  align-items: center; justify-content: center; gap: 10px;
+  background: rgba(255,255,255,.08);
+  border-radius: 50px; padding: 10px 22px;
+  font-size: clamp(16px,3.5vw,20px); font-weight: 700;
+  border: 2px solid rgba(255,255,255,.15);
+  animation: popIn .35s cubic-bezier(.34,1.56,.64,1);
+}
+.yazma-sonuc.dogru  { border-color: var(--yesil); color: var(--yesil); background: rgba(74,222,128,.12); }
+.yazma-sonuc.yanlis { border-color: var(--pembe);  color: var(--pembe);  background: rgba(255,77,141,.12); }
+@keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+
+/* Buton grubu — referans ekrandaki gibi 3 buton */
+.yazma-butonlar {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%;
+}
+.yz-btn {
+  flex: 1; min-width: 90px; max-width: 160px;
+  padding: 13px 10px; border-radius: 18px; border: none;
+  font-family: inherit; font-size: clamp(13px,3vw,16px); font-weight: 700;
+  cursor: pointer; transition: transform .15s, opacity .15s;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  color: white;
+}
+.yz-btn:active { transform: scale(.93); }
+.yz-btn .yz-ikon { font-size: clamp(22px,5vw,28px); }
+.yz-btn-anim  { background: linear-gradient(135deg, #6b7280, #4b5563); }
+.yz-btn-cizim { background: linear-gradient(135deg, var(--pembe), #c0392b); }
+.yz-btn-dinle { background: linear-gradient(135deg, var(--turkuaz), #0093e9); }
+
+/* Navigasyon — önceki/sonraki */
+.yazma-nav {
+  display: flex; gap: 10px; width: 100%; justify-content: center;
+}
+.yz-nav-btn {
+  flex: 1; max-width: 160px; padding: 12px 8px;
+  border-radius: 18px; border: 2px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.08);
+  color: white; font-family: inherit; font-size: clamp(13px,3vw,16px); font-weight: 600;
+  cursor: pointer; transition: transform .15s;
+}
+.yz-nav-btn:active { transform: scale(.93); }
+.yz-nav-btn.sonraki {
+  background: linear-gradient(135deg, var(--mor), var(--pembe));
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(155,89,255,.4);
+}
+
+/* Harf seçim listesi (yazma modülü ana sayfası) */
+.yazma-liste-ekran { }
+.yazma-liste-icerik {
+  flex: 1; overflow-y: auto; padding: 10px 16px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.yazma-grup-blok {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 18px; padding: 12px 14px;
+}
+.yazma-grup-baslik {
+  font-size: clamp(13px,3vw,17px); font-weight: 700;
+  color: var(--sari); margin-bottom: 10px; padding-left: 4px;
+}
+.yazma-harf-grid {
+  display: grid; grid-template-columns: repeat(6,1fr); gap: 8px;
+}
+@media(max-width:500px){ .yazma-harf-grid{ grid-template-columns: repeat(4,1fr); } }
+.yazma-harf-btn {
+  aspect-ratio: 1; border-radius: 14px; border: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+  border: 1.5px solid rgba(255,255,255,.15);
+  color: white; font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(14px,3vw,20px);
+  cursor: pointer; transition: transform .15s;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative;
+}
+.yazma-harf-btn:active { transform: scale(.9); }
+.yazma-harf-btn.tamamlandi {
+  background: linear-gradient(135deg, rgba(74,222,128,.25), rgba(22,163,74,.15));
+  border-color: var(--yesil);
+}
+.yazma-harf-btn.tamamlandi::after {
+  content: '⭐'; position: absolute; top: -5px; right: -5px; font-size: 13px;
+}
+.kart-yazma { background: linear-gradient(135deg, #7c3aed, #db2777); }
+
+/* ══ SAYILAR MODÜLÜ ══ */
+#sayilarEkran {
+  background: linear-gradient(135deg, #0a0a2e 0%, #0d2137 50%, #0a2e1a 100%);
+}
+.sayi-ust {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; flex-shrink: 0;
+  background: rgba(0,0,0,.4); backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(0,217,217,.2); gap: 10px;
+}
+.sayi-ust-baslik {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(14px,3.5vw,20px); color: var(--turkuaz);
+  text-align: center; flex: 1;
+}
+.sayi-icerik {
+  flex: 1; overflow-y: auto;
+  padding: 12px 14px 20px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+/* Bölüm başlığı */
+.sayi-bolum-baslik {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(15px,3vw,20px);
+  color: var(--sari);
+  padding: 4px 8px;
+  border-left: 4px solid var(--sari);
+  background: rgba(255,217,61,.08);
+  border-radius: 0 12px 12px 0;
+}
+/* Sayı grid */
+.sayi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+@media(max-width:400px){ .sayi-grid{ grid-template-columns: repeat(4,1fr); } }
+.sayi-btn {
+  aspect-ratio: 1;
+  border-radius: 16px; border: none;
+  background: linear-gradient(135deg, rgba(0,217,217,.18), rgba(0,147,233,.12));
+  border: 2px solid rgba(0,217,217,.25);
+  color: white;
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(16px,4vw,24px);
+  cursor: pointer; transition: transform .15s, background .2s;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1px; position: relative;
+  line-height: 1.1;
+}
+.sayi-btn:active { transform: scale(.88); }
+.sayi-btn.tamamlandi {
+  background: linear-gradient(135deg, rgba(74,222,128,.25), rgba(22,163,74,.15));
+  border-color: var(--yesil);
+}
+.sayi-btn.tamamlandi::after {
+  content:'⭐'; position:absolute; top:-5px; right:-5px; font-size:12px;
+}
+.sayi-btn .sayi-kucuk {
+  font-size: clamp(8px,1.8vw,12px);
+  opacity: .65; font-family: 'Fredoka', sans-serif;
+  font-weight: 500;
+}
+/* Onluklar grid (daha büyük kartlar) */
+.sayi-grid-onluk {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.sayi-btn-onluk {
+  aspect-ratio: 1.1;
+  border-radius: 18px; border: none;
+  background: linear-gradient(135deg, rgba(155,89,255,.2), rgba(76,29,149,.15));
+  border: 2px solid rgba(155,89,255,.3);
+  color: white; font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(20px,5vw,32px);
+  cursor: pointer; transition: transform .15s;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; position: relative;
+}
+.sayi-btn-onluk:active { transform: scale(.88); }
+.sayi-btn-onluk.tamamlandi {
+  background: linear-gradient(135deg, rgba(74,222,128,.25), rgba(22,163,74,.15));
+  border-color: var(--yesil);
+}
+.sayi-btn-onluk.tamamlandi::after {
+  content:'⭐'; position:absolute; top:-5px; right:-5px; font-size:13px;
+}
+.sayi-btn-onluk .sayi-kucuk {
+  font-size: clamp(10px,2vw,13px);
+  opacity: .6; font-family: 'Fredoka', sans-serif; font-weight:500;
+}
+
+/* Sayı detay kartı (popup yerine tam ekran) */
+#sayiDetayEkran {
+  background: linear-gradient(135deg, #060618 0%, #0a1a2e 60%, #0a2e1a 100%);
+}
+.sayi-detay-icerik {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding: 20px; gap: 18px; overflow-y:auto;
+}
+.sayi-buyuk-goster {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(100px,28vw,180px);
+  background: linear-gradient(135deg, var(--turkuaz), var(--sari), var(--mor));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1; cursor: pointer;
+  animation: sayiNefes 2s ease-in-out infinite;
+}
+@keyframes sayiNefes {
+  0%,100%{transform:scale(1)} 50%{transform:scale(1.06)}
+}
+.sayi-yazi-goster {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: clamp(26px,6vw,42px);
+  color: var(--sari);
+  text-shadow: 0 0 20px rgba(255,217,61,.4);
+}
+.sayi-puan-kutu {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  max-width: 320px;
+}
+.sayi-puan {
+  width: clamp(28px,6vw,38px); height: clamp(28px,6vw,38px);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--turkuaz), var(--mor));
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(14px,3vw,20px);
+  box-shadow: 0 2px 8px rgba(0,217,217,.3);
+  animation: puanGel .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes puanGel { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.sayi-ses-btn {
+  background: linear-gradient(135deg, var(--turkuaz), #0093e9);
+  border: none; color: white; padding: 14px 28px;
+  border-radius: 50px; font-family: inherit;
+  font-size: clamp(16px,3.5vw,22px); font-weight:600;
+  cursor: pointer; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 6px 20px rgba(0,217,217,.4); transition: transform .2s;
+}
+.sayi-ses-btn:active { transform: scale(.94); }
+.sayi-detay-nav {
+  display: flex; gap: 10px; width: 100%; max-width: 340px;
+}
+.sayi-nav-btn {
+  flex:1; padding: 12px 8px; border-radius: 18px;
+  border: 2px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.08);
+  color: white; font-family: inherit;
+  font-size: clamp(13px,3vw,16px); font-weight:600;
+  cursor: pointer; transition: transform .15s;
+}
+.sayi-nav-btn:active { transform: scale(.93); }
+.sayi-nav-btn.sonraki {
+  background: linear-gradient(135deg, var(--turkuaz), #0093e9);
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(0,217,217,.4);
+}</style>
 </head>
 <body>
 
@@ -885,11 +1342,15 @@
       <span class="ikon">✏️</span>
       <span>Çizgi Çalışmaları</span>
     </button>
-    <button class="modul-kart kart-matematik" onclick="yakindaAc('Sayılar ve Matematik')">
+    <button class="modul-kart kart-yazma" onclick="yazmaListeAc()">
+      <span class="ikon">✍️</span>
+      <span>Yazmayı Öğreniyorum</span>
+    </button>
+    <button class="modul-kart kart-matematik" onclick="sayilarAc()">
       <span class="ikon">🔢</span>
       <span>Sayılar</span>
     </button>
-    <button class="modul-kart kart-hikaye" onclick="yakindaAc('Hikayeler')">
+    <button class="modul-kart kart-hikaye" onclick="hikayelerAc()">
       <span class="ikon">📚</span>
       <span>Hikayelerim</span>
     </button>
@@ -942,6 +1403,97 @@
   </div>
 </div>
 
+<!-- YAZMA ALIŞTIRMASI - HARF LİSTESİ -->
+<div class="sayfa yazma-liste-ekran" id="yazmaListeEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('anaEkran')">← Geri</button>
+    <span class="yazma-ust-baslik">✍️ Yazmayı Öğreniyorum</span>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yazmaYildizSayisi">0</span></div>
+  </div>
+  <div class="yazma-liste-icerik" id="yazmaListeIcerik"></div>
+</div>
+
+<!-- YAZMA ALIŞTIRMASI - ÇİZİM EKRANI -->
+<div class="sayfa" id="yazmaEkran">
+  <div class="yazma-ust">
+    <button class="geri-btn" onclick="ekranAc('yazmaListeEkran'); yazmaListeGuncelle()">← Geri</button>
+    <div class="yazma-ust-baslik" id="yazmaUstBaslik">A a</div>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yazmaYildizSayisi2">0</span></div>
+  </div>
+
+  <div class="yazma-icerik">
+    <!-- Harf bilgisi -->
+    <div class="yazma-harf-bilgi">
+      <div class="yazma-harf-buyuk" id="yazmaHarfBuyuk">A a</div>
+      <div class="yazma-grup-adi" id="yazmaGrupAdi">1. Grup Sesler</div>
+    </div>
+
+    <!-- Canvas kutusu -->
+    <div class="yazma-canvas-kutu" id="yazmaCanvasKutu">
+      <canvas id="yazmaRehberCanvas"></canvas>
+      <canvas id="yazmaAnimCanvas"></canvas>
+      <canvas id="yazmaCizimCanvas"></canvas>
+    </div>
+
+    <!-- Sonuç bandı -->
+    <div class="yazma-sonuc" id="yazmaSonuc"></div>
+
+    <!-- 3 Buton: Animasyonu İzle / Çizim Modu / Dinle -->
+    <div class="yazma-butonlar">
+      <button class="yz-btn yz-btn-anim" id="yazmaBtnAnim" onclick="yazmaAnimasyonOynat()">
+        <span class="yz-ikon">▶️</span>
+        <span>Animasyonu İzle</span>
+      </button>
+      <button class="yz-btn yz-btn-cizim" id="yazmaBtnCizim" onclick="yazmaCizimModuBaslat()">
+        <span class="yz-ikon">✏️</span>
+        <span>Çizim Modu</span>
+      </button>
+      <button class="yz-btn yz-btn-dinle" onclick="yazmaHarfDinle()">
+        <span class="yz-ikon">🔊</span>
+        <span>Dinle</span>
+      </button>
+    </div>
+
+    <!-- Önceki / Sonraki navigasyon -->
+    <div class="yazma-nav">
+      <button class="yz-nav-btn" onclick="yazmaOnceki()">← Önceki</button>
+      <button class="yz-nav-btn sonraki" onclick="yazmaSonraki()">Sonraki →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAYILAR - LİSTE EKRANI -->
+<div class="sayfa" id="sayilarEkran">
+  <div class="sayi-ust">
+    <button class="geri-btn" onclick="ekranAc('anaEkran')">← Geri</button>
+    <span class="sayi-ust-baslik">🔢 Sayıları Öğreniyorum</span>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="sayiYildiz">0</span></div>
+  </div>
+  <div class="sayi-icerik" id="sayiListeIcerik"></div>
+</div>
+
+<!-- SAYILAR - DETAY EKRANI -->
+<div class="sayfa" id="sayiDetayEkran">
+  <div class="sayi-ust">
+    <button class="geri-btn" onclick="ekranAc('sayilarEkran'); sayiListeGuncelle()">← Geri</button>
+    <span class="sayi-ust-baslik" id="sayiDetayBaslik">1</span>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="sayiYildiz2">0</span></div>
+  </div>
+  <div class="sayi-detay-icerik">
+    <div class="sayi-buyuk-goster" id="sayiBuyuk" onclick="sayiSesOku()">1</div>
+    <div class="sayi-yazi-goster" id="sayiYaziGoster">Bir</div>
+    <div class="sayi-puan-kutu" id="sayiPuanKutu"></div>
+    <button class="sayi-ses-btn" onclick="sayiSesOku()">
+      <span style="font-size:24px">🔊</span>
+      <span>Dinle</span>
+    </button>
+    <div class="sayi-detay-nav">
+      <button class="sayi-nav-btn" onclick="sayiOnceki()">← Önceki</button>
+      <button class="sayi-nav-btn sonraki" onclick="sayiSonraki()">Sonraki →</button>
+    </div>
+  </div>
+</div>
+
 <!-- YAKINDA EKRANI -->
 <div class="sayfa" id="yakindaEkran">
   <div class="ust-bar">
@@ -956,175 +1508,155 @@
 </div>
 
 <script>
-  // ====== VERİ: 5 GRUP SES + ÖRNEK KELİMELER ======
+  // ====== VERİ: 29 TÜRK ALFABESİ HARFİ (sıralı, 2 Türkçe + 1 İngilizce örnek) ======
   const HARF_GRUPLARI = [
     {
-      ad: "1. Grup Sesler",
+      ad: "Türk Alfabesi — 29 Harf",
       harfler: [
         { harf: "A", kucuk: "a", kelimeler: [
-          { e: "🍎", k: "elma", v: "a" },
-          { e: "🐝", k: "arı", v: "a" },
-          { e: "🍉", k: "karpuz", v: "a" }
-        ]},
-        { harf: "N", kucuk: "n", kelimeler: [
-          { e: "🍋", k: "limon", v: "n" },
-          { e: "👃", k: "burun", v: "n" },
-          { e: "🌙", k: "ay", v: "n" }
-        ]},
-        { harf: "E", kucuk: "e", kelimeler: [
-          { e: "🏠", k: "ev", v: "e" },
-          { e: "🍐", k: "armut", v: "e" },
-          { e: "🐘", k: "fil", v: "e" }
-        ]},
-        { harf: "T", kucuk: "t", kelimeler: [
-          { e: "🐢", k: "tosbağa", v: "t" },
-          { e: "🚗", k: "araba", v: "t" },
-          { e: "🍅", k: "domates", v: "t" }
-        ]},
-        { harf: "İ", kucuk: "i", kelimeler: [
-          { e: "🪡", k: "iğne", v: "i" },
-          { e: "🌺", k: "çiçek", v: "i" },
-          { e: "🐦", k: "ibibik", v: "i" }
-        ]},
-        { harf: "L", kucuk: "l", kelimeler: [
-          { e: "🍋", k: "limon", v: "l" },
-          { e: "🌷", k: "lale", v: "l" },
-          { e: "💡", k: "lamba", v: "l" }
-        ]}
-      ]
-    },
-    {
-      ad: "2. Grup Sesler",
-      harfler: [
-        { harf: "O", kucuk: "o", kelimeler: [
-          { e: "🚌", k: "otobüs", v: "o" },
-          { e: "🦌", k: "ok", v: "o" },
-          { e: "🪟", k: "oda", v: "o" }
-        ]},
-        { harf: "K", kucuk: "k", kelimeler: [
-          { e: "🐱", k: "kedi", v: "k" },
-          { e: "📕", k: "kitap", v: "k" },
-          { e: "🦋", k: "kelebek", v: "k" }
-        ]},
-        { harf: "U", kucuk: "u", kelimeler: [
-          { e: "✈️", k: "uçak", v: "u" },
-          { e: "🪁", k: "uçurtma", v: "u" },
-          { e: "💧", k: "su", v: "u" }
-        ]},
-        { harf: "R", kucuk: "r", kelimeler: [
-          { e: "🚀", k: "roket", v: "r" },
-          { e: "🌈", k: "renk", v: "r" },
-          { e: "🧸", k: "ayı", v: "r" }
-        ]},
-        { harf: "I", kucuk: "ı", kelimeler: [
-          { e: "🌟", k: "ışık", v: "ı" },
-          { e: "🥒", k: "ıspanak", v: "ı" },
-          { e: "🍃", k: "ılık", v: "ı" }
-        ]},
-        { harf: "M", kucuk: "m", kelimeler: [
-          { e: "👩", k: "anne", v: "m" },
-          { e: "🍌", k: "muz", v: "m" },
-          { e: "🐭", k: "fare", v: "m" }
-        ]}
-      ]
-    },
-    {
-      ad: "3. Grup Sesler",
-      harfler: [
-        { harf: "Ü", kucuk: "ü", kelimeler: [
-          { e: "🌸", k: "çiçek", v: "ü" },
-          { e: "🍇", k: "üzüm", v: "ü" },
-          { e: "🍯", k: "ütü", v: "ü" }
-        ]},
-        { harf: "S", kucuk: "s", kelimeler: [
-          { e: "💧", k: "su", v: "s" },
-          { e: "🌻", k: "sarı", v: "s" },
-          { e: "⏰", k: "saat", v: "s" }
-        ]},
-        { harf: "Ö", kucuk: "ö", kelimeler: [
-          { e: "🥧", k: "börek", v: "ö" },
-          { e: "🐦", k: "ördek", v: "ö" },
-          { e: "👨‍🏫", k: "öğretmen", v: "ö" }
-        ]},
-        { harf: "Y", kucuk: "y", kelimeler: [
-          { e: "🥚", k: "yumurta", v: "y" },
-          { e: "⭐", k: "yıldız", v: "y" },
-          { e: "🌧️", k: "yağmur", v: "y" }
-        ]},
-        { harf: "D", kucuk: "d", kelimeler: [
-          { e: "🦷", k: "diş", v: "d" },
-          { e: "🌳", k: "dal", v: "d" },
-          { e: "🐬", k: "yunus", v: "d" }
-        ]},
-        { harf: "Z", kucuk: "z", kelimeler: [
-          { e: "🦒", k: "zürafa", v: "z" },
-          { e: "🫒", k: "zeytin", v: "z" },
-          { e: "🛎️", k: "zil", v: "z" }
-        ]}
-      ]
-    },
-    {
-      ad: "4. Grup Sesler",
-      harfler: [
-        { harf: "Ç", kucuk: "ç", kelimeler: [
-          { e: "🌺", k: "çiçek", v: "ç" },
-          { e: "🍓", k: "çilek", v: "ç" },
-          { e: "🧦", k: "çorap", v: "ç" }
+          { e: "🐝", k: "arı", v: "a", ing: false },
+          { e: "🍎", k: "elma", v: "a", ing: false },
+          { e: "🦅", k: "eagle", v: "a", ing: true }
         ]},
         { harf: "B", kucuk: "b", kelimeler: [
-          { e: "🐟", k: "balık", v: "b" },
-          { e: "🍌", k: "muz", v: "b" },
-          { e: "🌳", k: "ağaç", v: "b" }
-        ]},
-        { harf: "G", kucuk: "g", kelimeler: [
-          { e: "👁️", k: "göz", v: "g" },
-          { e: "🌹", k: "gül", v: "g" },
-          { e: "🌃", k: "gece", v: "g" }
+          { e: "🐟", k: "balık", v: "b", ing: false },
+          { e: "🧸", k: "bebek", v: "b", ing: false },
+          { e: "🍌", k: "banana", v: "b", ing: true }
         ]},
         { harf: "C", kucuk: "c", kelimeler: [
-          { e: "🪟", k: "cam", v: "c" },
-          { e: "🥃", k: "ceviz", v: "c" },
-          { e: "👻", k: "cin", v: "c" }
+          { e: "🪟", k: "cam", v: "c", ing: false },
+          { e: "🥜", k: "ceviz", v: "c", ing: false },
+          { e: "🐱", k: "cat", v: "c", ing: true }
         ]},
-        { harf: "Ş", kucuk: "ş", kelimeler: [
-          { e: "👒", k: "şapka", v: "ş" },
-          { e: "🍬", k: "şeker", v: "ş" },
-          { e: "☂️", k: "şemsiye", v: "ş" }
-        ]}
-      ]
-    },
-    {
-      ad: "5. Grup Sesler",
-      harfler: [
-        { harf: "P", kucuk: "p", kelimeler: [
-          { e: "🐠", k: "pul", v: "p" },
-          { e: "🥧", k: "pasta", v: "p" },
-          { e: "🪟", k: "pencere", v: "p" }
+        { harf: "Ç", kucuk: "ç", kelimeler: [
+          { e: "🌺", k: "çiçek", v: "ç", ing: false },
+          { e: "🍓", k: "çilek", v: "ç", ing: false },
+          { e: "🍫", k: "chocolate", v: "ç", ing: true }
         ]},
-        { harf: "H", kucuk: "h", kelimeler: [
-          { e: "🥕", k: "havuç", v: "h" },
-          { e: "🐦", k: "horoz", v: "h" },
-          { e: "🌊", k: "deniz", v: "h" }
+        { harf: "D", kucuk: "d", kelimeler: [
+          { e: "🦷", k: "diş", v: "d", ing: false },
+          { e: "🌳", k: "dal", v: "d", ing: false },
+          { e: "🐬", k: "dolphin", v: "d", ing: true }
         ]},
-        { harf: "V", kucuk: "v", kelimeler: [
-          { e: "🌸", k: "vazo", v: "v" },
-          { e: "🚐", k: "vapur", v: "v" },
-          { e: "🦌", k: "ceylan", v: "v" }
-        ]},
-        { harf: "Ğ", kucuk: "ğ", kelimeler: [
-          { e: "🌳", k: "ağaç", v: "ğ" },
-          { e: "🐑", k: "koyun", v: "ğ" },
-          { e: "🌾", k: "buğday", v: "ğ" }
+        { harf: "E", kucuk: "e", kelimeler: [
+          { e: "🏠", k: "ev", v: "e", ing: false },
+          { e: "🍐", k: "armut", v: "e", ing: false },
+          { e: "🐘", k: "elephant", v: "e", ing: true }
         ]},
         { harf: "F", kucuk: "f", kelimeler: [
-          { e: "🐘", k: "fil", v: "f" },
-          { e: "🌹", k: "fesleğen", v: "f" },
-          { e: "👗", k: "fistan", v: "f" }
+          { e: "🐘", k: "fil", v: "f", ing: false },
+          { e: "🌰", k: "fındık", v: "f", ing: false },
+          { e: "🦋", k: "fly", v: "f", ing: true }
+        ]},
+        { harf: "G", kucuk: "g", kelimeler: [
+          { e: "👁️", k: "göz", v: "g", ing: false },
+          { e: "🌹", k: "gül", v: "g", ing: false },
+          { e: "🍇", k: "grape", v: "g", ing: true }
+        ]},
+        { harf: "Ğ", kucuk: "ğ", kelimeler: [
+          { e: "🌳", k: "ağaç", v: "ğ", ing: false },
+          { e: "🌾", k: "buğday", v: "ğ", ing: false },
+          { e: "🐑", k: "koyun", v: "ğ", ing: false }
+        ]},
+        { harf: "H", kucuk: "h", kelimeler: [
+          { e: "🥕", k: "havuç", v: "h", ing: false },
+          { e: "🐓", k: "horoz", v: "h", ing: false },
+          { e: "🦔", k: "hedgehog", v: "h", ing: true }
+        ]},
+        { harf: "I", kucuk: "ı", kelimeler: [
+          { e: "🌟", k: "ışık", v: "ı", ing: false },
+          { e: "🥬", k: "ıspanak", v: "ı", ing: false },
+          { e: "🏝️", k: "island", v: "ı", ing: true }
+        ]},
+        { harf: "İ", kucuk: "i", kelimeler: [
+          { e: "🪡", k: "iğne", v: "i", ing: false },
+          { e: "🦮", k: "it", v: "i", ing: false },
+          { e: "🍦", k: "ice cream", v: "i", ing: true }
         ]},
         { harf: "J", kucuk: "j", kelimeler: [
-          { e: "🧥", k: "jile", v: "j" },
-          { e: "🃏", k: "jokey", v: "j" },
-          { e: "📷", k: "jelatin", v: "j" }
+          { e: "🔪", k: "jilet", v: "j", ing: false },
+          { e: "🌿", k: "jambon", v: "j", ing: false },
+          { e: "🕹️", k: "joystick", v: "j", ing: true }
+        ]},
+        { harf: "K", kucuk: "k", kelimeler: [
+          { e: "🐱", k: "kedi", v: "k", ing: false },
+          { e: "📕", k: "kitap", v: "k", ing: false },
+          { e: "🦘", k: "kangaroo", v: "k", ing: true }
+        ]},
+        { harf: "L", kucuk: "l", kelimeler: [
+          { e: "🍋", k: "limon", v: "l", ing: false },
+          { e: "🌷", k: "lale", v: "l", ing: false },
+          { e: "🦁", k: "lion", v: "l", ing: true }
+        ]},
+        { harf: "M", kucuk: "m", kelimeler: [
+          { e: "🍌", k: "muz", v: "m", ing: false },
+          { e: "💡", k: "mum", v: "m", ing: false },
+          { e: "🐭", k: "mouse", v: "m", ing: true }
+        ]},
+        { harf: "N", kucuk: "n", kelimeler: [
+          { e: "👃", k: "burun", v: "n", ing: false },
+          { e: "🧿", k: "nazar", v: "n", ing: false },
+          { e: "🌙", k: "night", v: "n", ing: true }
+        ]},
+        { harf: "O", kucuk: "o", kelimeler: [
+          { e: "🚌", k: "otobüs", v: "o", ing: false },
+          { e: "🎯", k: "ok", v: "o", ing: false },
+          { e: "🐙", k: "octopus", v: "o", ing: true }
+        ]},
+        { harf: "Ö", kucuk: "ö", kelimeler: [
+          { e: "🦆", k: "ördek", v: "ö", ing: false },
+          { e: "👨‍🏫", k: "öğretmen", v: "ö", ing: false },
+          { e: "🦉", k: "owl", v: "ö", ing: true }
+        ]},
+        { harf: "P", kucuk: "p", kelimeler: [
+          { e: "🥧", k: "pasta", v: "p", ing: false },
+          { e: "🪟", k: "pencere", v: "p", ing: false },
+          { e: "🐼", k: "panda", v: "p", ing: true }
+        ]},
+        { harf: "R", kucuk: "r", kelimeler: [
+          { e: "🚀", k: "roket", v: "r", ing: false },
+          { e: "🌈", k: "renk", v: "r", ing: false },
+          { e: "🌹", k: "rose", v: "r", ing: true }
+        ]},
+        { harf: "S", kucuk: "s", kelimeler: [
+          { e: "💧", k: "su", v: "s", ing: false },
+          { e: "⏰", k: "saat", v: "s", ing: false },
+          { e: "☀️", k: "sun", v: "s", ing: true }
+        ]},
+        { harf: "Ş", kucuk: "ş", kelimeler: [
+          { e: "👒", k: "şapka", v: "ş", ing: false },
+          { e: "🍬", k: "şeker", v: "ş", ing: false },
+          { e: "☂️", k: "şemsiye", v: "ş", ing: false }
+        ]},
+        { harf: "T", kucuk: "t", kelimeler: [
+          { e: "🐢", k: "tosbağa", v: "t", ing: false },
+          { e: "🚗", k: "taşıt", v: "t", ing: false },
+          { e: "🐯", k: "tiger", v: "t", ing: true }
+        ]},
+        { harf: "U", kucuk: "u", kelimeler: [
+          { e: "✈️", k: "uçak", v: "u", ing: false },
+          { e: "🪁", k: "uçurtma", v: "u", ing: false },
+          { e: "☂️", k: "umbrella", v: "u", ing: true }
+        ]},
+        { harf: "Ü", kucuk: "ü", kelimeler: [
+          { e: "🍇", k: "üzüm", v: "ü", ing: false },
+          { e: "🎽", k: "ütü", v: "ü", ing: false },
+          { e: "🦄", k: "unicorn", v: "ü", ing: true }
+        ]},
+        { harf: "V", kucuk: "v", kelimeler: [
+          { e: "🌸", k: "vazo", v: "v", ing: false },
+          { e: "🚢", k: "vapur", v: "v", ing: false },
+          { e: "🎻", k: "violin", v: "v", ing: true }
+        ]},
+        { harf: "Y", kucuk: "y", kelimeler: [
+          { e: "🥚", k: "yumurta", v: "y", ing: false },
+          { e: "⭐", k: "yıldız", v: "y", ing: false },
+          { e: "🧶", k: "yarn", v: "y", ing: true }
+        ]},
+        { harf: "Z", kucuk: "z", kelimeler: [
+          { e: "🦒", k: "zürafa", v: "z", ing: false },
+          { e: "🫒", k: "zeytin", v: "z", ing: false },
+          { e: "🦓", k: "zebra", v: "z", ing: true }
         ]}
       ]
     }
@@ -1201,22 +1733,27 @@
   function gruplariCiz() {
     const k = document.getElementById('gruplarKonteyner');
     k.innerHTML = '';
+    const tekGrup = HARF_GRUPLARI.length === 1;
     HARF_GRUPLARI.forEach((grup, gi) => {
       const g = document.createElement('div');
       g.className = 'grup';
-      const h = document.createElement('div');
-      h.className = 'grup-baslik';
-      h.textContent = grup.ad;
-      g.appendChild(h);
+      if (!tekGrup) {
+        const h = document.createElement('div');
+        h.className = 'grup-baslik';
+        h.textContent = grup.ad;
+        g.appendChild(h);
+      }
       const harfKon = document.createElement('div');
       harfKon.className = 'harfler';
+      // Tek grup → 5 sütunlu grid (29 harf için daha iyi görünüm)
+      if (tekGrup) harfKon.style.gridTemplateColumns = 'repeat(5, 1fr)';
       grup.harfler.forEach((harf, hi) => {
         const b = document.createElement('button');
         b.className = 'harf-kart';
         if (durum.tamamlananHarfler.includes(`${gi}-${hi}`)) {
           b.classList.add('tamamlandi');
         }
-        b.textContent = `${harf.harf}-${harf.kucuk}`;
+        b.innerHTML = `<span style="font-size:1em">${harf.harf}</span><span style="font-size:0.55em;opacity:0.7;display:block">${harf.kucuk}</span>`;
         b.onclick = () => harfAc(gi, hi);
         harfKon.appendChild(b);
       });
@@ -1236,17 +1773,18 @@
     harf.kelimeler.forEach(kel => {
       const kart = document.createElement('div');
       kart.className = 'kelime-kart';
+      const badge = kel.ing ? '<span style="font-size:14px;display:block;margin-bottom:2px;">🇬🇧</span>' : '';
       kart.innerHTML = `
         <span class="kelime-emoji">${kel.e}</span>
+        ${badge}
         <span class="kelime-yazi">${kel.k}</span>
       `;
-      kart.onclick = () => kelimeOku(kel.k);
+      kart.onclick = () => kelimeOku(kel.k, kel.ing);
       k.appendChild(kart);
     });
     
     ekranAc('harfEkran');
     
-    // Harfi tamamlandı olarak işaretle ve yıldız ver
     const harfId = `${gi}-${hi}`;
     if (!durum.tamamlananHarfler.includes(harfId)) {
       durum.tamamlananHarfler.push(harfId);
@@ -1280,8 +1818,14 @@
     konus(harf.kucuk, 0.6);
   }
   
-  function kelimeOku(kelime) {
-    konus(kelime, 0.75);
+  function kelimeOku(kelime, ing = false) {
+    if (!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(kelime);
+    u.lang = ing ? 'en-US' : 'tr-TR';
+    u.rate = 0.75;
+    u.pitch = 1.1;
+    speechSynthesis.speak(u);
   }
   
   // ====== YILDIZ KAZANMA ======
@@ -1484,6 +2028,52 @@
   </div>
 </div>
 
+<!-- ══ HİKAYELER - LİSTE EKRANI ══ -->
+<div class="sayfa" id="hikayelerEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('anaEkran')">← Geri</button>
+    <div style="font-family:'Bubblegum Sans',cursive;font-size:clamp(16px,4vw,22px);color:var(--sari);">📚 Hikayelerim</div>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="hikYildizSayisi">0</span></div>
+  </div>
+  <div class="hikaye-liste" id="hikayeListe"></div>
+</div>
+
+<!-- ══ HİKAYE OKUMA EKRANI ══ -->
+<div class="sayfa" id="hikayeOkuEkran">
+  <div class="hiku-ust">
+    <button class="geri-btn" onclick="ekranAc('hikayelerEkran')">← Geri</button>
+    <div class="hiku-baslik" id="hikuBaslik">Hikaye</div>
+    <div style="width:60px"></div>
+  </div>
+  <div class="hiku-ilerleme" id="hikuIlerleme"></div>
+  <div class="hiku-icerik">
+    <div class="hiku-emoji-buyuk" id="hikuEmoji">📖</div>
+    <div class="hiku-metin" id="hikuMetin">...</div>
+  </div>
+  <div class="hiku-alt">
+    <button class="hiku-btn" id="hikuGeriBtn" onclick="hikuOnceki()">◀ Geri</button>
+    <button class="hiku-btn sesli" onclick="hikuSesliOku()">🔊 Dinle</button>
+    <button class="hiku-btn ileri" id="hikuIleriBtn" onclick="hikuSonraki()">İleri ▶</button>
+  </div>
+</div>
+
+<!-- ══ HİKAYE SORU EKRANI ══ -->
+<div class="sayfa" id="hikayeSoruEkran">
+  <div class="hiku-ust">
+    <button class="geri-btn" onclick="ekranAc('hikayelerEkran')">← Geri</button>
+    <div class="hiku-baslik">🌟 Soru Zamanı!</div>
+    <div style="width:60px"></div>
+  </div>
+  <div class="soru-icerik">
+    <div class="soru-kutlama-emoji" id="soruEmoji">🤔</div>
+    <div class="soru-baslik">Hikayeyi anladın mı?</div>
+    <div class="soru-metin" id="soruMetin">Soru yükleniyor...</div>
+    <div class="soru-secenekler" id="soruSecenekler"></div>
+    <div class="soru-sonuc-mesaj" id="soruSonucMesaj"></div>
+    <button class="soru-geri-btn" id="soruGeriBtn" onclick="ekranAc('hikayelerEkran')">🏠 Hikayelere Dön</button>
+  </div>
+</div>
+
   <script>
   /* ── Çizgi Çalışmaları JS ── */
   
@@ -1629,8 +2219,13 @@ function alistirmaAc(idx) {
 
 function boyutlariAyarla(canvas) {
   const rect=canvas.parentElement.getBoundingClientRect();
-  canvas.width=rect.width;
-  canvas.height=rect.height;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+  canvas.style.width=rect.width+'px';
+  canvas.style.height=rect.height+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
   return {w:rect.width, h:rect.height};
 }
 
@@ -1655,130 +2250,158 @@ function rehberCiz(a) {
     toplamMesafe+=Math.sqrt(dx*dx+dy*dy);
   }
 
+  const ikonBoyut=Math.min(w,h)*0.11;
+
   // Noktalı rehber çizgi
   ctx.save();
   ctx.setLineDash([14,10]);
-  ctx.lineWidth=8;
-  ctx.strokeStyle='rgba(255,255,255,0.25)';
-  ctx.lineCap='round';
-  ctx.lineJoin='round';
+  ctx.lineWidth=7;
+  ctx.strokeStyle='rgba(255,255,255,0.22)';
+  ctx.lineCap='round'; ctx.lineJoin='round';
   ctx.beginPath();
   ctx.moveTo(noktalar[0].x,noktalar[0].y);
   noktalar.forEach(p=>ctx.lineTo(p.x,p.y));
   ctx.stroke();
   ctx.restore();
 
-  // Başlangıç ikonu
-  ctx.font=`${Math.min(w,h)*0.1}px serif`;
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-  ctx.fillText(a.ikon, noktalar[0].x, noktalar[0].y);
-
-  // Bitiş ikonu (soluk)
-  ctx.globalAlpha=0.5;
+  // Bitiş ikonu (soluk, arka planda)
+  ctx.save();
+  ctx.globalAlpha=0.45;
+  ctx.font=`${ikonBoyut}px serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(a.hedef, noktalar[noktalar.length-1].x, noktalar[noktalar.length-1].y);
-  ctx.globalAlpha=1;
+  ctx.restore();
 
-  // Oklar
+  // Oklar (yön gösterge)
   for(let i=0;i<noktalar.length-1;i+=Math.ceil(noktalar.length/4)){
     const p1=noktalar[i], p2=noktalar[i+1]||noktalar[noktalar.length-1];
     const aci=Math.atan2(p2.y-p1.y,p2.x-p1.x);
     const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
     ctx.save();
     ctx.translate(mx,my); ctx.rotate(aci);
-    ctx.fillStyle='rgba(255,255,255,0.35)';
+    ctx.fillStyle='rgba(255,255,255,0.30)';
     ctx.beginPath();
-    ctx.moveTo(12,0); ctx.lineTo(-6,-7); ctx.lineTo(-6,7);
+    ctx.moveTo(14,0); ctx.lineTo(-7,-8); ctx.lineTo(-7,8);
     ctx.closePath(); ctx.fill();
     ctx.restore();
   }
 
+  // Başlangıç ikonunu çizim canvas'ına çiz (sürüklenecek)
+  const cctx=cc.getContext('2d');
+  cctx.clearRect(0,0,w,h);
+  _ikonCiz(cctx, a.ikon, noktalar[0].x, noktalar[0].y, ikonBoyut);
+
   // Çizim canvas olayları
   kapsananMesafe=0;
-  cizimCanvasOlaylar();
+  cizimCanvasOlaylar(a, ikonBoyut);
 }
 
 let ciziyorum=false;
 let sonKonum={x:0,y:0};
 let cizimCtx=null;
 
-function cizimCanvasOlaylar() {
+// İkon çizme yardımcısı
+function _ikonCiz(ctx, emoji, x, y, boyut){
+  ctx.save();
+  ctx.font=`${boyut}px serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  // Hafif parlama efekti
+  ctx.shadowColor='rgba(255,255,255,0.6)';
+  ctx.shadowBlur=boyut*0.4;
+  ctx.fillText(emoji, x, y);
+  ctx.restore();
+}
+
+function cizimCanvasOlaylar(alistirma, ikonBoyut) {
   const cc=document.getElementById('cizimCanvas');
   cizimCtx=cc.getContext('2d');
+  const a = alistirma || ALISTIRMALAR[aktifIdx];
+  const ib = ikonBoyut || Math.min(cc.offsetWidth, cc.offsetHeight)*0.11;
+
+  // Yol üzerinde ilerleyen mesafeye göre pozisyon hesapla
+  function yolPozisyon(mesafe) {
+    let kalan = mesafe;
+    for(let i=1;i<noktalar.length;i++){
+      const dx=noktalar[i].x-noktalar[i-1].x;
+      const dy=noktalar[i].y-noktalar[i-1].y;
+      const seg=Math.sqrt(dx*dx+dy*dy);
+      if(kalan<=seg){
+        const t=kalan/seg;
+        return {x:noktalar[i-1].x+dx*t, y:noktalar[i-1].y+dy*t};
+      }
+      kalan-=seg;
+    }
+    return noktalar[noktalar.length-1];
+  }
 
   const baslat=(e)=>{
     e.preventDefault();
     ciziyorum=true;
     const pos=konum(e,cc);
     sonKonum=pos;
-    cizimCtx.beginPath();
-    cizimCtx.moveTo(pos.x,pos.y);
-    // İlk dokunuşta küçük bir nokta çiz (tek tıklama görünür olsun)
-    cizimCtx.save();
-    cizimCtx.globalAlpha=0.85;
-    cizimCtx.fillStyle=cizimRenk;
-    cizimCtx.shadowColor=cizimRenk;
-    cizimCtx.shadowBlur=cizimKalinlik*0.5;
-    cizimCtx.beginPath();
-    cizimCtx.arc(pos.x,pos.y,cizimKalinlik*0.5,0,Math.PI*2);
-    cizimCtx.fill();
-    cizimCtx.restore();
   };
+
   const ciz=(e)=>{
     if(!ciziyorum) return;
     e.preventDefault();
     const pos=konum(e,cc);
 
-    // Tebeşir/kalem efekti
+    // İz çiz
     cizimCtx.save();
-    cizimCtx.globalAlpha=0.85;
+    cizimCtx.globalAlpha=0.7;
     cizimCtx.lineWidth=cizimKalinlik;
-    cizimCtx.strokeStyle=cizimRenk;
-    cizimCtx.lineCap='round';
-    cizimCtx.lineJoin='round';
-    cizimCtx.shadowColor=cizimRenk;
-    cizimCtx.shadowBlur=cizimKalinlik*0.5;
+    cizimCtx.strokeStyle=a.renk;
+    cizimCtx.lineCap='round'; cizimCtx.lineJoin='round';
+    cizimCtx.shadowColor=a.renk; cizimCtx.shadowBlur=cizimKalinlik*0.6;
     cizimCtx.beginPath();
     cizimCtx.moveTo(sonKonum.x,sonKonum.y);
     cizimCtx.lineTo(pos.x,pos.y);
     cizimCtx.stroke();
     cizimCtx.restore();
 
-    // Mesafe hesapla
+    // Mesafe güncelle
     const dx=pos.x-sonKonum.x, dy=pos.y-sonKonum.y;
     kapsananMesafe+=Math.sqrt(dx*dx+dy*dy);
     sonKonum=pos;
 
-    // İlerleme güncelle
+    // İkonu yol üzerinde ilerlet
+    const ilerlemeMes=Math.min(kapsananMesafe, toplamMesafe);
+    const ikonPos=yolPozisyon(ilerlemeMes);
+
+    // Çizim canvas'ını temizleme — sadece ikon bölgesini temizle (iz kalıcı kalsın)
+    // İkonu mevcut pozisyonda yeniden çiz: önceki ikonun üstüne
+    // Strateji: ikon katmanı için ayrı bir overlay çiz
+    // Mevcut iz üzerine ikonu çiz (ikon iz üstünde görünür)
+    _ikonCiz(cizimCtx, a.ikon, ikonPos.x, ikonPos.y, ib);
+
+    // İlerleme yüzdesi
     const yuzde=Math.min(100,Math.round(kapsananMesafe/toplamMesafe*100));
     document.getElementById('ilerlemeTxt').textContent=yuzde+'%';
 
-    if(yuzde>=80 && !cizilen) {
+    if(yuzde>=80 && !cizilen){
       cizilen=true;
+      // İkonu bitiş noktasına snap et
+      const son=noktalar[noktalar.length-1];
+      _ikonCiz(cizimCtx, a.ikon, son.x, son.y, ib);
       setTimeout(()=>cizimTamamlandi(),400);
     }
   };
+
   const bitir=()=>{ ciziyorum=false; };
 
-  // Önceki dinleyicileri temizle (varsa)
-  if(cc._md) cc.removeEventListener('mousedown',cc._md);
-  if(cc._mm) cc.removeEventListener('mousemove',cc._mm);
-  if(cc._mu) cc.removeEventListener('mouseup',cc._mu);
-  if(cc._ml) cc.removeEventListener('mouseleave',cc._ml);
-  if(cc._ts) cc.removeEventListener('touchstart',cc._ts);
-  if(cc._tm) cc.removeEventListener('touchmove',cc._tm);
-  if(cc._te) cc.removeEventListener('touchend',cc._te);
-  if(cc._tc) cc.removeEventListener('touchcancel',cc._tc);
+  // Önceki dinleyicileri temizle
+  ['mousedown','mousemove','mouseup','mouseleave','touchstart','touchmove','touchend','touchcancel'].forEach(ev=>{
+    const key='_'+ev.replace('mouse','m').replace('touch','t').replace('start','s').replace('move','m2').replace('end','e').replace('leave','l').replace('cancel','c').replace('down','d').replace('up','u');
+    if(cc[key]) cc.removeEventListener(ev, cc[key]);
+  });
 
   cc._md=baslat; cc._mm=ciz; cc._mu=bitir; cc._ml=bitir;
-  cc._ts=baslat; cc._tm=ciz; cc._te=bitir; cc._tc=bitir;
+  cc._ts=baslat; cc._tm2=ciz; cc._te=bitir; cc._tc=bitir;
 
-  // Mouse (passive değil — preventDefault için gerekli)
   cc.addEventListener('mousedown',baslat);
   cc.addEventListener('mousemove',ciz);
   cc.addEventListener('mouseup',bitir);
   cc.addEventListener('mouseleave',bitir);
-  // Touch — passive:false çok kritik, yoksa parmak çizmiyor!
   cc.addEventListener('touchstart',baslat,{passive:false});
   cc.addEventListener('touchmove',ciz,{passive:false});
   cc.addEventListener('touchend',bitir,{passive:false});
@@ -1789,10 +2412,18 @@ function cizimCanvasOlaylar() {
 
 function konum(e,canvas) {
   const rect=canvas.getBoundingClientRect();
+  const scaleX = canvas.width  / rect.width;
+  const scaleY = canvas.height / rect.height;
   if(e.touches) {
-    return {x:e.touches[0].clientX-rect.left, y:e.touches[0].clientY-rect.top};
+    return {
+      x:(e.touches[0].clientX-rect.left)*scaleX,
+      y:(e.touches[0].clientY-rect.top)*scaleY
+    };
   }
-  return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+  return {
+    x:(e.clientX-rect.left)*scaleX,
+    y:(e.clientY-rect.top)*scaleY
+  };
 }
 
 function kalinlikSec(btn,k) {
@@ -1803,7 +2434,18 @@ function kalinlikSec(btn,k) {
 
 function cizimTemizle() {
   const cc=document.getElementById('cizimCanvas');
-  if(cc.width) cc.getContext('2d').clearRect(0,0,cc.width,cc.height);
+  if(cc.width){
+    const ctx=cc.getContext('2d');
+    ctx.save(); ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,cc.width,cc.height);
+    ctx.restore();
+    // İkonu başlangıç noktasına geri koy
+    if(noktalar && noktalar.length>0){
+      const a=ALISTIRMALAR[aktifIdx];
+      const ib=Math.min(cc.offsetWidth,cc.offsetHeight)*0.11;
+      _ikonCiz(ctx, a.ikon, noktalar[0].x, noktalar[0].y, ib);
+    }
+  }
   kapsananMesafe=0; cizilen=false;
   document.getElementById('ilerlemeTxt').textContent='0%';
   document.getElementById('ileriBtn').style.display='none';
@@ -3428,6 +4070,1227 @@ function yilanGuncelleSkor() {
   document.getElementById('yilanSkor').textContent = YILAN.skor;
   document.getElementById('yilanRekor').textContent = YILAN.rekor;
 }
+</script>
+
+<script>
+/* ══════════════════════════════════════════
+   YAZMA ALIŞTIRMASI MODÜLÜ
+   Canvas tabanlı — piksel örtüşme karşılaştırması
+   ══════════════════════════════════════════ */
+
+// ── Tüm harfleri düz liste olarak çıkar ──
+const YAZMA_HARFLER = [];
+(function() {
+  HARF_GRUPLARI.forEach((grup, gi) => {
+    grup.harfler.forEach((h, hi) => {
+      YAZMA_HARFLER.push({
+        buyuk: h.harf,
+        kucuk: h.kucuk,
+        grupAdi: grup.ad,
+        gi, hi
+      });
+    });
+  });
+})();
+
+// ── Durum ──
+let YM = {
+  aktifIdx: 0,
+  mod: 'bekle',        // 'bekle' | 'anim' | 'cizim'
+  animFrame: null,
+  tamamlanan: [],      // tamamlanan harf id'leri: "gi-hi"
+  yildiz: 0
+};
+try {
+  const k = localStorage.getItem('yazma_durum');
+  if (k) { const p = JSON.parse(k); YM.tamamlanan = p.tamamlanan||[]; YM.yildiz = p.yildiz||0; }
+} catch(e){}
+
+function yazmaKaydet() {
+  try { localStorage.setItem('yazma_durum', JSON.stringify({tamamlanan:YM.tamamlanan,yildiz:YM.yildiz})); } catch(e){}
+}
+
+function yazmaYildizGuncelle() {
+  document.querySelectorAll('#yazmaYildizSayisi,#yazmaYildizSayisi2').forEach(el => el.textContent = YM.yildiz);
+}
+
+// ── Liste ekranı ──
+function yazmaListeAc() {
+  yazmaYildizGuncelle();
+  yazmaListeGuncelle();
+  ekranAc('yazmaListeEkran');
+}
+
+function yazmaListeGuncelle() {
+  const k = document.getElementById('yazmaListeIcerik');
+  k.innerHTML = '';
+  HARF_GRUPLARI.forEach((grup, gi) => {
+    const blok = document.createElement('div');
+    blok.className = 'yazma-grup-blok';
+    blok.innerHTML = `<div class="yazma-grup-baslik">${grup.ad}</div>`;
+    const grid = document.createElement('div');
+    grid.className = 'yazma-harf-grid';
+    grup.harfler.forEach((h, hi) => {
+      const id = `${gi}-${hi}`;
+      const tam = YM.tamamlanan.includes(id);
+      const btn = document.createElement('button');
+      btn.className = 'yazma-harf-btn' + (tam ? ' tamamlandi' : '');
+      btn.innerHTML = `<span>${h.harf}</span><span style="font-size:0.6em;opacity:.7">${h.kucuk}</span>`;
+      btn.onclick = () => yazmaHarfAc(YAZMA_HARFLER.findIndex(x => x.gi===gi && x.hi===hi));
+      grid.appendChild(btn);
+    });
+    blok.appendChild(grid);
+    k.appendChild(blok);
+  });
+}
+
+// ── Harf aç ──
+function yazmaHarfAc(idx) {
+  YM.aktifIdx = idx;
+  YM.mod = 'bekle';
+  const h = YAZMA_HARFLER[idx];
+  document.getElementById('yazmaUstBaslik').textContent = `${h.buyuk} ${h.kucuk}`;
+  document.getElementById('yazmaHarfBuyuk').textContent = `${h.buyuk} ${h.kucuk}`;
+  document.getElementById('yazmaGrupAdi').textContent = h.grupAdi;
+  yazmaSonucGizle();
+  yazmaYildizGuncelle();
+  ekranAc('yazmaEkran');
+  setTimeout(() => {
+    yazmaCanvasBoyutla();
+    yazmaRehberCiz();
+    // Otomatik animasyon başlat
+    yazmaAnimasyonOynat();
+  }, 80);
+}
+
+// ── Canvas boyutla ──
+function yazmaCanvasBoyutla() {
+  ['yazmaRehberCanvas','yazmaAnimCanvas','yazmaCizimCanvas'].forEach(id => {
+    const c = document.getElementById(id);
+    const kutu = document.getElementById('yazmaCanvasKutu');
+    c.width = kutu.offsetWidth;
+    c.height = kutu.offsetHeight;
+  });
+}
+
+// ── Rehber harf çiz (soluk arka plan) ──
+function yazmaRehberCiz() {
+  const c = document.getElementById('yazmaRehberCanvas');
+  const ctx = c.getContext('2d');
+  const w = c.width, h = c.height;
+  ctx.clearRect(0,0,w,h);
+  const h2 = YAZMA_HARFLER[YM.aktifIdx];
+
+  // Nokta çizgili ızgara (defter gibi)
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for(let x=0;x<w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+
+  // Orta çapraz kılavuzlar
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.setLineDash([6,6]);
+  ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Büyük harf soluk
+  ctx.save();
+  ctx.globalAlpha = 0.10;
+  ctx.fillStyle = 'white';
+  const fs1 = Math.min(w, h) * 0.52;
+  ctx.font = `bold ${fs1}px 'Bubblegum Sans', cursive`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(h2.buyuk, w * 0.30, h * 0.50);
+  ctx.restore();
+
+  // Küçük harf soluk
+  ctx.save();
+  ctx.globalAlpha = 0.10;
+  ctx.fillStyle = 'white';
+  const fs2 = Math.min(w, h) * 0.42;
+  ctx.font = `bold ${fs2}px 'Bubblegum Sans', cursive`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(h2.kucuk, w * 0.72, h * 0.55);
+  ctx.restore();
+}
+
+// ══ ANİMASYON: SVG stroke-dashoffset benzeri efekt ══
+// Canvas üzerinde harfi path olarak çiziyoruz, sonra "kalem" animasyonu yapıyoruz.
+
+function yazmaAnimasyonOynat() {
+  // Animasyon canvas'ını temizle, çizim canvas'ını da temizle
+  const ac = document.getElementById('yazmaAnimCanvas');
+  const cc = document.getElementById('yazmaCizimCanvas');
+  ac.getContext('2d').clearRect(0,0,ac.width,ac.height);
+  cc.getContext('2d').clearRect(0,0,cc.width,cc.height);
+  yazmaSonucGizle();
+
+  YM.mod = 'anim';
+  document.getElementById('yazmaBtnCizim').disabled = true;
+
+  const h = YAZMA_HARFLER[YM.aktifIdx];
+  const w = ac.width, ht = ac.height;
+  const ctx = ac.getContext('2d');
+
+  // Büyük harfi sol yarıda, küçüğü sağ yarıda çizeceğiz
+  // Her biri için offscreen canvas'a çiz, sonra piksel verisi alarak animasyon yap
+  yazmaHarfiAnimEt(ctx, h.buyuk, w * 0.22, ht * 0.48, Math.min(w,ht)*0.48, w, ht, () => {
+    // Büyük harf bitti → küçük harfi animasyonla çiz
+    setTimeout(() => {
+      yazmaHarfiAnimEt(ctx, h.kucuk, w * 0.72, ht * 0.53, Math.min(w,ht)*0.40, w, ht, () => {
+        // İkisi de bitti
+        YM.mod = 'bekle';
+        document.getElementById('yazmaBtnCizim').disabled = false;
+      });
+    }, 300);
+  });
+}
+
+function yazmaHarfiAnimEt(ctx, harf, cx, cy, fs, w, h, bitti) {
+  // 1) Harfi offscreen canvas'a çiz → piksel haritası al
+  const off = document.createElement('canvas');
+  off.width = w; off.height = h;
+  const octx = off.getContext('2d');
+  octx.font = `bold ${fs}px 'Bubblegum Sans', cursive`;
+  octx.textAlign = 'center';
+  octx.textBaseline = 'middle';
+  octx.fillStyle = 'white';
+  octx.fillText(harf, cx, cy);
+
+  const imgData = octx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+
+  // 2) Dolu pikselleri satır-satır topla, sonra her satırda soldan sağa sırala
+  //    → kalem doğal yazma yönünde (yukarıdan aşağı, satır içinde sol→sağ) hareket eder
+  const satirlar = {};
+  for(let y=0; y<h; y++) {
+    for(let x=0; x<w; x++) {
+      const idx = (y*w+x)*4;
+      if(data[idx+3] > 60) {
+        if(!satirlar[y]) satirlar[y] = [];
+        satirlar[y].push(x);
+      }
+    }
+  }
+  // Sıralı piksel listesi oluştur
+  const sirali = [];
+  Object.keys(satirlar).sort((a,b)=>+a-+b).forEach(y => {
+    const xs = satirlar[+y];
+    xs.sort((a,b)=>a-b);
+    xs.forEach(x => sirali.push({x, y:+y}));
+  });
+
+  if(sirali.length === 0) { if(bitti) bitti(); return; }
+
+  // 3) Animasyon parametreleri
+  const SURE = 1400; // ms — animasyon toplam süresi
+  const ADIM_SAYISI = 80; // kare sayısı
+  const ADIM_BASINA = Math.max(1, Math.floor(sirali.length / ADIM_SAYISI));
+  let adim = 0;
+  let oncekiKalemX = sirali[0].x;
+  let oncekiKalemY = sirali[0].y;
+
+  // Renk interpolasyonu yardımcısı
+  function renkHesapla(oran) {
+    // pembe → mor → turkuaz geçişi
+    if(oran < 0.5) {
+      const t = oran * 2;
+      const r = Math.round(255 + (155-255)*t);
+      const g = Math.round(77  + (89 -77 )*t * 0.3);
+      const b = Math.round(141 + (255-141)*t);
+      return `rgb(${r},${g},${b})`;
+    } else {
+      const t = (oran-0.5)*2;
+      const r = Math.round(155 + (0  -155)*t);
+      const g = Math.round(26  + (217-26 )*t);
+      const b = Math.round(255 + (217-255)*t);
+      return `rgb(${r},${g},${b})`;
+    }
+  }
+
+  function animKare() {
+    if(YM.mod !== 'anim') { if(bitti) bitti(); return; }
+
+    const bas = adim * ADIM_BASINA;
+    const bit = Math.min(bas + ADIM_BASINA, sirali.length);
+
+    // Önceki kalem imlecini sil (harfin üstüne geçmesin diye clip yok, sadece temizle)
+    ctx.clearRect(oncekiKalemX - 2, oncekiKalemY - 36, 38, 38);
+
+    // Bu adımdaki pikselleri çiz
+    for(let i = bas; i < bit; i++) {
+      const p = sirali[i];
+      const oran = i / sirali.length;
+      ctx.fillStyle = renkHesapla(oran);
+      // Biraz daha kalın çiz → daha dolgun görünür
+      ctx.fillRect(p.x - 1, p.y - 1, 3, 3);
+    }
+
+    // Güncel kalem konumu
+    const sonP = sirali[Math.min(bit-1, sirali.length-1)];
+    oncekiKalemX = sonP.x;
+    oncekiKalemY = sonP.y;
+
+    // Kalem imlecini çiz
+    ctx.save();
+    ctx.font = '26px serif';
+    ctx.fillText('✏️', oncekiKalemX - 4, oncekiKalemY - 10);
+    ctx.restore();
+
+    adim++;
+    if(bas < sirali.length) {
+      YM.animFrame = requestAnimationFrame(animKare);
+    } else {
+      // Kalem imlecini son kez temizle
+      ctx.clearRect(oncekiKalemX - 2, oncekiKalemY - 36, 38, 38);
+
+      // Temiz gradient fill ile harfi son kez çiz
+      ctx.save();
+      const grad = ctx.createLinearGradient(cx - fs*0.5, cy - fs*0.5, cx + fs*0.5, cy + fs*0.5);
+      grad.addColorStop(0,   '#ff4d8d');
+      grad.addColorStop(0.5, '#9b59ff');
+      grad.addColorStop(1,   '#00d9d9');
+      ctx.font = `bold ${fs}px 'Bubblegum Sans', cursive`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = grad;
+      ctx.shadowColor = '#9b59ff';
+      ctx.shadowBlur = 18;
+      ctx.fillText(harf, cx, cy);
+      ctx.restore();
+
+      if(bitti) setTimeout(bitti, 200);
+    }
+  }
+  YM.animFrame = requestAnimationFrame(animKare);
+}
+
+// ══ ÇİZİM MODU ══
+let yazmaCiziyorum = false;
+let yazmaSonKonum = {x:0, y:0};
+let yazmaOlaylarEklendi = false;
+
+function yazmaCizimModuBaslat() {
+  YM.mod = 'cizim';
+  if(YM.animFrame) { cancelAnimationFrame(YM.animFrame); YM.animFrame = null; }
+
+  // Animasyon canvas temizle, çizim canvas temizle
+  document.getElementById('yazmaAnimCanvas').getContext('2d').clearRect(
+    0,0,
+    document.getElementById('yazmaAnimCanvas').width,
+    document.getElementById('yazmaAnimCanvas').height
+  );
+  const cc = document.getElementById('yazmaCizimCanvas');
+  cc.getContext('2d').clearRect(0,0,cc.width,cc.height);
+  yazmaSonucGizle();
+
+  if(!yazmaOlaylarEklendi) {
+    yazmaOlayEkle();
+    yazmaOlaylarEklendi = true;
+  }
+}
+
+function yazmaOlayEkle() {
+  const cc = document.getElementById('yazmaCizimCanvas');
+
+  const baslat = (e) => {
+    if(YM.mod !== 'cizim') return;
+    yazmaCiziyorum = true;
+    yazmaSonKonum = yazmaKonum(e, cc);
+  };
+  const ciz = (e) => {
+    if(!yazmaCiziyorum || YM.mod !== 'cizim') return;
+    e.preventDefault();
+    const pos = yazmaKonum(e, cc);
+    const ctx = cc.getContext('2d');
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    ctx.lineWidth = 14;
+    ctx.strokeStyle = '#ffd93d';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = '#ffd93d';
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.moveTo(yazmaSonKonum.x, yazmaSonKonum.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.restore();
+    yazmaSonKonum = pos;
+  };
+  const bitir = () => {
+    if(!yazmaCiziyorum) return;
+    yazmaCiziyorum = false;
+    // Biraz bekle sonra karşılaştır
+    setTimeout(yazmaKarsilastir, 500);
+  };
+
+  cc.addEventListener('mousedown', baslat);
+  cc.addEventListener('mousemove', ciz);
+  cc.addEventListener('mouseup', bitir);
+  cc.addEventListener('mouseleave', bitir);
+  cc.addEventListener('touchstart', baslat, {passive:false});
+  cc.addEventListener('touchmove', ciz, {passive:false});
+  cc.addEventListener('touchend', bitir);
+}
+
+function yazmaKonum(e, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  if(e.touches) {
+    return {x:(e.touches[0].clientX-rect.left)*scaleX, y:(e.touches[0].clientY-rect.top)*scaleY};
+  }
+  return {x:(e.clientX-rect.left)*scaleX, y:(e.clientY-rect.top)*scaleY};
+}
+
+// ══ KARŞILAŞTIRMA ══
+function yazmaKarsilastir() {
+  if(YM.mod !== 'cizim') return;
+
+  const h = YAZMA_HARFLER[YM.aktifIdx];
+  const cc = document.getElementById('yazmaCizimCanvas');
+  const w_c = cc.width, h_c = cc.height;
+  const kctx = cc.getContext('2d');
+  const kulData = kctx.getImageData(0,0,w_c,h_c).data;
+
+  // Kullanıcı hiç çizmemiş mi?
+  let kulDolu = 0;
+  for(let i=3; i<kulData.length; i+=4) { if(kulData[i]>60) kulDolu++; }
+  if(kulDolu < 50) {
+    // Çok az piksel — henüz çizmedi
+    return;
+  }
+
+  // En iyi örtüşmeyi bul: büyük harf, küçük harf, veya ikisi birden
+  // Her birini ayrı referans olarak dene, en iyisini al
+  const dene = [
+    // İkisi birden (asıl referans)
+    { buyuk: h.buyuk, kucuk: h.kucuk },
+    // Sadece büyük harf (tüm canvas ortalanmış)
+    { buyuk: h.buyuk, kucuk: '' },
+    // Sadece küçük harf
+    { buyuk: '', kucuk: h.kucuk },
+  ];
+
+  let enIyi = 0;
+  dene.forEach(kombo => {
+    const ref = document.createElement('canvas');
+    ref.width = w_c; ref.height = h_c;
+    const rctx = ref.getContext('2d');
+    rctx.fillStyle = 'white';
+
+    if(kombo.buyuk && kombo.kucuk) {
+      // İkisi birden — sol/sağ
+      const fs1 = Math.min(w_c,h_c) * 0.52;
+      rctx.font = `bold ${fs1}px 'Bubblegum Sans', cursive`;
+      rctx.textAlign = 'center'; rctx.textBaseline = 'middle';
+      rctx.fillText(kombo.buyuk, w_c*0.28, h_c*0.48);
+      const fs2 = Math.min(w_c,h_c) * 0.40;
+      rctx.font = `bold ${fs2}px 'Bubblegum Sans', cursive`;
+      rctx.fillText(kombo.kucuk, w_c*0.72, h_c*0.53);
+    } else if(kombo.buyuk) {
+      // Sadece büyük — ortada
+      const fs1 = Math.min(w_c,h_c) * 0.65;
+      rctx.font = `bold ${fs1}px 'Bubblegum Sans', cursive`;
+      rctx.textAlign = 'center'; rctx.textBaseline = 'middle';
+      rctx.fillText(kombo.buyuk, w_c*0.5, h_c*0.5);
+    } else {
+      // Sadece küçük — ortada
+      const fs2 = Math.min(w_c,h_c) * 0.60;
+      rctx.font = `bold ${fs2}px 'Bubblegum Sans', cursive`;
+      rctx.textAlign = 'center'; rctx.textBaseline = 'middle';
+      rctx.fillText(kombo.kucuk, w_c*0.5, h_c*0.5);
+    }
+
+    const refData = rctx.getImageData(0,0,w_c,h_c).data;
+    let refDolu = 0, ortusme = 0;
+
+    for(let i=0; i<refData.length; i+=4) {
+      if(refData[i+3] > 60) {
+        refDolu++;
+        const pikselIdx = i/4;
+        const px = pikselIdx % w_c;
+        const py = Math.floor(pikselIdx / w_c);
+        // 10px tolerans çevresi
+        let vurdu = false;
+        outer: for(let dy=-10; dy<=10; dy+=2) {
+          for(let dx=-10; dx<=10; dx+=2) {
+            const nx=px+dx, ny=py+dy;
+            if(nx<0||nx>=w_c||ny<0||ny>=h_c) continue;
+            if(kulData[(ny*w_c+nx)*4+3]>60) { vurdu=true; break outer; }
+          }
+        }
+        if(vurdu) ortusme++;
+      }
+    }
+    const oran = refDolu > 0 ? ortusme/refDolu : 0;
+    if(oran > enIyi) enIyi = oran;
+  });
+
+  const yuzde = Math.round(enIyi * 100);
+  yazmaSonucGoster(yuzde);
+}
+
+function yazmaSonucGoster(yuzde) {
+  const el = document.getElementById('yazmaSonuc');
+  el.style.display = 'flex';
+
+  const harfId = `${YAZMA_HARFLER[YM.aktifIdx].gi}-${YAZMA_HARFLER[YM.aktifIdx].hi}`;
+
+  if(yuzde >= 70) {
+    el.className = 'yazma-sonuc dogru';
+    el.innerHTML = `✅ Harika! %${yuzde} örtüşme — Bravo Nur Meva! 🌟`;
+    // Yıldız kazan (ilk başarıda)
+    if(!YM.tamamlanan.includes(harfId)) {
+      YM.tamamlanan.push(harfId);
+      YM.yildiz++;
+      yazmaKaydet();
+      yazmaYildizGuncelle();
+      setTimeout(() => yildizAnimasyonuOynat(), 200);
+    }
+  } else {
+    el.className = 'yazma-sonuc yanlis';
+    el.innerHTML = `❌ Tekrar Dene! %${yuzde} örtüşme — Olmaz mı! 💪`;
+  }
+}
+
+function yazmaHarfDinle() {
+  const h = YAZMA_HARFLER[YM.aktifIdx];
+  if('speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(h.kucuk);
+    u.lang = 'tr-TR'; u.rate = 0.65; u.pitch = 1.1;
+    speechSynthesis.speak(u);
+  }
+}
+
+function yazmaSonucGizle() {
+  const el = document.getElementById('yazmaSonuc');
+  el.style.display = 'none';
+  el.className = 'yazma-sonuc';
+}
+
+function yazmaOnceki() {
+  if(YM.aktifIdx > 0) yazmaHarfAc(YM.aktifIdx - 1);
+}
+
+function yazmaSonraki() {
+  if(YM.aktifIdx < YAZMA_HARFLER.length - 1) yazmaHarfAc(YM.aktifIdx + 1);
+}
+
+// Yıldız animasyonu (mevcut sistemle uyumlu)
+function yildizAnimasyonuOynat() {
+  const k = document.getElementById('yildizAnim');
+  if(!k) return;
+  k.innerHTML = '';
+  k.classList.add('aktif');
+  const sm = document.createElement('div');
+  sm.className = 'samanyolu';
+  k.appendChild(sm);
+  for(let i=0;i<10;i++){
+    const y = document.createElement('div');
+    y.className = 'ucan-yildiz';
+    y.textContent = '⭐';
+    y.style.left='50%'; y.style.top='50%';
+    y.style.fontSize=(38+Math.random()*20)+'px';
+    const aci=(i/10)*Math.PI*2;
+    const m=160+Math.random()*100;
+    const dx=Math.cos(aci)*m, dy=Math.sin(aci)*m;
+    y.animate([
+      {transform:'translate(-50%,-50%) scale(0) rotate(0deg)',opacity:1},
+      {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1) rotate(720deg)`,opacity:1,offset:.7},
+      {transform:`translate(calc(-50% + ${dx*1.5}px),calc(-50% + ${dy*1.5}px)) scale(.3) rotate(1080deg)`,opacity:0}
+    ],{duration:1400,easing:'cubic-bezier(.4,0,.2,1)'});
+    k.appendChild(y);
+  }
+  setTimeout(()=>k.classList.remove('aktif'),1500);
+  // Motivasyon
+  const m2 = document.getElementById('motivasyon');
+  if(m2) {
+    m2.textContent = ['Süpersin! ✍️','Harika yazdın! ⭐','Bravo Nur Meva! 💕','Çok güzel! 🌟'][Math.floor(Math.random()*4)];
+    m2.classList.remove('gor'); void m2.offsetWidth; m2.classList.add('gor');
+  }
+}
+
+// ── İlk yükleme ──
+yazmaYildizGuncelle();
+</script>
+
+<script>
+/* ══════════════════════════════════════════
+   SAYILAR MODÜLÜ — 1-30 tek tek, 31-100 onluklar
+   ══════════════════════════════════════════ */
+
+// Türkçe sayı adları
+const SAYI_ADLARI = {
+  1:'Bir',2:'İki',3:'Üç',4:'Dört',5:'Beş',
+  6:'Altı',7:'Yedi',8:'Sekiz',9:'Dokuz',10:'On',
+  11:'On Bir',12:'On İki',13:'On Üç',14:'On Dört',15:'On Beş',
+  16:'On Altı',17:'On Yedi',18:'On Sekiz',19:'On Dokuz',20:'Yirmi',
+  21:'Yirmi Bir',22:'Yirmi İki',23:'Yirmi Üç',24:'Yirmi Dört',25:'Yirmi Beş',
+  26:'Yirmi Altı',27:'Yirmi Yedi',28:'Yirmi Sekiz',29:'Yirmi Dokuz',30:'Otuz',
+  40:'Kırk',50:'Elli',60:'Altmış',70:'Yetmiş',80:'Seksen',90:'Doksan',100:'Yüz'
+};
+
+// Puan göstergesi için emoji (sayıya göre)
+function sayiEmoji(n){
+  if(n<=5) return '⭐';
+  if(n<=10) return '🔵';
+  if(n<=20) return '💎';
+  if(n<=30) return '🌟';
+  return '🏆';
+}
+
+// 1-30 + onluklar listesi
+const SAYILAR_LISTE = [
+  ...Array.from({length:30},(_,i)=>i+1),  // 1-30
+  40,50,60,70,80,90,100                    // onluklar
+];
+
+// Durum
+let SM = { aktifIdx:0, tamamlanan:[], yildiz:0 };
+try{
+  const k=localStorage.getItem('sayi_durum');
+  if(k){const p=JSON.parse(k);SM.tamamlanan=p.tamamlanan||[];SM.yildiz=p.yildiz||0;}
+}catch(e){}
+
+function sayiKaydet(){
+  try{localStorage.setItem('sayi_durum',JSON.stringify({tamamlanan:SM.tamamlanan,yildiz:SM.yildiz}));}catch(e){}
+}
+function sayiYildizGuncelle(){
+  document.querySelectorAll('#sayiYildiz,#sayiYildiz2').forEach(el=>el.textContent=SM.yildiz);
+}
+
+// Liste aç
+function sayilarAc(){
+  sayiYildizGuncelle();
+  sayiListeGuncelle();
+  ekranAc('sayilarEkran');
+}
+
+function sayiListeGuncelle(){
+  const k=document.getElementById('sayiListeIcerik');
+  k.innerHTML='';
+
+  // 1-30 bölümü
+  const b1=document.createElement('div');
+  b1.innerHTML='<div class="sayi-bolum-baslik">1 — 30</div>';
+  const g1=document.createElement('div');
+  g1.className='sayi-grid';
+  for(let n=1;n<=30;n++){
+    const tam=SM.tamamlanan.includes(n);
+    const btn=document.createElement('button');
+    btn.className='sayi-btn'+(tam?' tamamlandi':'');
+    btn.innerHTML=`<span>${n}</span><span class="sayi-kucuk">${SAYI_ADLARI[n]||''}</span>`;
+    btn.onclick=()=>sayiDetayAc(SAYILAR_LISTE.indexOf(n));
+    g1.appendChild(btn);
+  }
+  b1.appendChild(g1);
+  k.appendChild(b1);
+
+  // 30-100 onluklar bölümü
+  const b2=document.createElement('div');
+  b2.innerHTML='<div class="sayi-bolum-baslik">30 — 100 (Onluklar)</div>';
+  const g2=document.createElement('div');
+  g2.className='sayi-grid-onluk';
+  [30,40,50,60,70,80,90,100].forEach(n=>{
+    const tam=SM.tamamlanan.includes(n);
+    const btn=document.createElement('button');
+    btn.className='sayi-btn-onluk'+(tam?' tamamlandi':'');
+    btn.innerHTML=`<span>${n}</span><span class="sayi-kucuk">${SAYI_ADLARI[n]}</span>`;
+    btn.onclick=()=>sayiDetayAc(SAYILAR_LISTE.indexOf(n));
+    g2.appendChild(btn);
+  });
+  b2.appendChild(g2);
+  k.appendChild(b2);
+}
+
+// Detay aç
+function sayiDetayAc(idx){
+  SM.aktifIdx=idx;
+  sayiDetayGoster();
+  sayiYildizGuncelle();
+  ekranAc('sayiDetayEkran');
+  setTimeout(()=>sayiSesOku(),400);
+}
+
+function sayiDetayGoster(){
+  const n=SAYILAR_LISTE[SM.aktifIdx];
+  const ad=SAYI_ADLARI[n]||String(n);
+
+  document.getElementById('sayiBuyuk').textContent=n;
+  document.getElementById('sayiYaziGoster').textContent=ad;
+  document.getElementById('sayiDetayBaslik').textContent=n+' — '+ad;
+
+  // Puan noktaları (max 30 göster, sonrası kısalt)
+  const kutu=document.getElementById('sayiPuanKutu');
+  kutu.innerHTML='';
+  const goster=Math.min(n,30);
+  for(let i=0;i<goster;i++){
+    const p=document.createElement('div');
+    p.className='sayi-puan';
+    p.style.animationDelay=(i*0.04)+'s';
+    p.textContent=sayiEmoji(n);
+    kutu.appendChild(p);
+  }
+  if(n>30){
+    const p=document.createElement('div');
+    p.className='sayi-puan';
+    p.style.animationDelay='0.5s';
+    p.style.width='auto'; p.style.borderRadius='20px'; p.style.padding='0 10px';
+    p.style.fontSize='13px';
+    p.textContent='×'+n;
+    kutu.appendChild(p);
+  }
+
+  // Tamamlandı olarak işaretle + yıldız
+  if(!SM.tamamlanan.includes(n)){
+    SM.tamamlanan.push(n);
+    SM.yildiz++;
+    sayiKaydet();
+    sayiYildizGuncelle();
+    setTimeout(()=>{
+      if(typeof yildizAnimasyonuOynat==='function') yildizAnimasyonuOynat();
+    },600);
+  }
+}
+
+function sayiSesOku(){
+  const n=SAYILAR_LISTE[SM.aktifIdx];
+  const ad=SAYI_ADLARI[n]||String(n);
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(ad);
+  u.lang='tr-TR'; u.rate=0.7; u.pitch=1.15;
+  speechSynthesis.speak(u);
+}
+
+function sayiOnceki(){
+  if(SM.aktifIdx>0){SM.aktifIdx--;sayiDetayGoster();setTimeout(()=>sayiSesOku(),300);}
+}
+function sayiSonraki(){
+  if(SM.aktifIdx<SAYILAR_LISTE.length-1){SM.aktifIdx++;sayiDetayGoster();setTimeout(()=>sayiSesOku(),300);}
+}
+
+sayiYildizGuncelle();
+</script>
+
+<script>
+/* ══ HİKAYELER SİSTEMİ ══ */
+
+const HIKAYELER = [
+  // ─── NASREDDİN HOCA ───
+  {
+    id:'nh1', kategori:'Nasreddin Hoca', ikon:'🧔',
+    baslik:'Kazanın Yavrusu',
+    aciklama:'Hoca komşusuna kazan veriyor...',
+    renk:'#f59e0b',
+    parcalar:[
+      { metin:'Bir gün Nasreddin Hoca, komşusundan büyük bir kazan ödünç aldı.', emoji:'🏺' },
+      { metin:'Birkaç gün sonra Hoca, kazanı geri getirdi. Ama yanında küçük bir tencere de vardı.', emoji:'🍲' },
+      { metin:'Komşu şaşırdı: "Bu küçük tencere ne?" diye sordu.', emoji:'😲' },
+      { metin:'Hoca güldü ve dedi ki: "Kazanın yanında bir bebek tencere dünyaya geldi! O da senindir."', emoji:'👶' },
+      { metin:'Komşu çok sevindi. Hem kazanını hem de küçük tencereyi aldı.', emoji:'😄' },
+      { metin:'Aradan birkaç ay geçti. Hoca yine kazanı ödünç istedi. Komşu hemen verdi.', emoji:'🤝' },
+      { metin:'Bu sefer Hoca çok uzun süre kazanı geri getirmedi.', emoji:'⏳' },
+      { metin:'Komşu sabırsızlanıp Hoca\'nın kapısını çaldı: "Kazanım nerede?" diye sordu.', emoji:'🚪' },
+      { metin:'Hoca üzgün bir yüzle kapıyı açtı ve dedi: "Çok üzgünüm komşu, kazanın öldüğünü haber vermeliyim."', emoji:'😔' },
+      { metin:'Komşu kızgınlıkla bağırdı: "Kazan mı ölür? Hiç saçma olur mu?"', emoji:'😤' },
+      { metin:'Hoca sakin bir şekilde güldü: "Doğurabilen kazan, ölmez mi? İkisi de olur komşu!"', emoji:'😄' },
+      { metin:'Komşu Hoca\'ya bir şey diyemedi. Çünkü daha önce o yalana inanmıştı!', emoji:'🤐' }
+    ],
+    soru:{
+      metin:'Neden Hoca kazanı geri getirmedi?',
+      secenekler:[
+        { yazi:'Kazanı kırdı', dogru:false, emoji:'❌' },
+        { yazi:'Kazan öldü dedi', dogru:true, emoji:'✅' },
+        { yazi:'Kazanı sattı', dogru:false, emoji:'❌' },
+        { yazi:'Unuttu', dogru:false, emoji:'❌' }
+      ]
+    }
+  },
+  {
+    id:'nh2', kategori:'Nasreddin Hoca', ikon:'🧔',
+    baslik:'Hoca\'nın Ağırlığı',
+    aciklama:'Hoca tartıya giriyor ama sonuç hiç beklenmedik!',
+    renk:'#f59e0b',
+    parcalar:[
+      { metin:'Bir gün kasabaya bir terazi ustası geldi. Herkes tartılmak için sıraya girdi.', emoji:'⚖️' },
+      { metin:'Herkes kilosunu öğrenmek istiyordu. O devirde böyle bir alet pek nadir görülürdü.', emoji:'😮' },
+      { metin:'Nasreddin Hoca da merak etti. "Acaba kaç okka tutarım?" diye düşündü.', emoji:'🤔' },
+      { metin:'Hoca teraziye çıktı. Terazi ustası "Elli okka!" diye bağırdı.', emoji:'📢' },
+      { metin:'Hoca kaşlarını çattı. "Bu hiç doğru değil! Ben bundan fazla tutmalıyım."', emoji:'😠' },
+      { metin:'Uста güldü: "Efendi, makine yalan söylemez." Hoca tartışmayı bıraktı.', emoji:'😄' },
+      { metin:'Eve gidip eşine sordu: "Ben kaç okka tutarım sence?" Eşi "Elimi mi?" dedi gülerek.', emoji:'🏠' },
+      { metin:'Hoca ertesi gün kürküyle, kavuğuyla, çizmesiyle tekrar teraziye çıktı.', emoji:'🧥' },
+      { metin:'Bu sefer terazi "Yetmiş okka!" gösterdi. Hoca memnun oldu.', emoji:'😊' },
+      { metin:'"İşte bu daha doğru!" dedi. Herkes güldü çünkü üstündeki elbiseler ağır geliyordu.', emoji:'😂' },
+      { metin:'Hoca ciddi bir yüzle dedi: "İnsan ağırlığını elbisesiyle ölçmeli. Çıplak ağırlık ne işe yarar?"', emoji:'🧔' }
+    ],
+    soru:{
+      metin:'Hoca ikinci kez teraziye çıkarken ne giydi?',
+      secenekler:[
+        { yazi:'Yüzme elbisesi', dogru:false, emoji:'🏊' },
+        { yazi:'Hiçbir şey giymedi', dogru:false, emoji:'😶' },
+        { yazi:'Kürk, kavuk ve çizme', dogru:true, emoji:'🧥' },
+        { yazi:'Komşusunun elbisesi', dogru:false, emoji:'👗' }
+      ]
+    }
+  },
+  {
+    id:'nh3', kategori:'Nasreddin Hoca', ikon:'🧔',
+    baslik:'Hoca ve Ay',
+    aciklama:'Hoca kuyuya bakıyor ve çok ilginç bir şey görüyor!',
+    renk:'#f59e0b',
+    parcalar:[
+      { metin:'Bir gece Nasreddin Hoca bahçesinde kuyusuna bakıyordu.', emoji:'🌙' },
+      { metin:'Kuyunun içinde parlak bir şey gördü. Yakından baktı: ay\'ın yansımasıydı!', emoji:'🌊' },
+      { metin:'Hoca paniğe kapıldı: "Ay kuyuya düşmüş! Onu kurtarmalıyım!" diye düşündü.', emoji:'😱' },
+      { metin:'Hemen ip getirdi. İpin ucuna bir çengel bağladı ve kuyuya saldı.', emoji:'🪝' },
+      { metin:'Çengel kuyunun dibindeki taşlara takıldı. Hoca eğer çekmeye başladı.', emoji:'💪' },
+      { metin:'Çok zorlanıyordu. "Ay çok ağır!" diye söylendi.', emoji:'😓' },
+      { metin:'Bir anda çengel taştan kurtuldu. Hoca geriye doğru fırladı ve sırt üstü yere düştü.', emoji:'😵' },
+      { metin:'Ağrıyla kıvranırken gözlerini açtı ve gökyüzüne baktı.', emoji:'👁️' },
+      { metin:'Gökyüzünde ay parlıyordu, tam yerindeydi!', emoji:'🌕' },
+      { metin:'Hoca ağrısını unuttu ve sevinçle bağırdı: "Çok şükür! Ayı kurtardım, şimdi yerine girdi!"', emoji:'🎉' },
+      { metin:'Komşular pencereden baktı ve güldü. Ama Hoca hiç aldırmadı, sevinçle eve girdi.', emoji:'😄' }
+    ],
+    soru:{
+      metin:'Hoca kuyuda ne gördü?',
+      secenekler:[
+        { yazi:'Bir balık', dogru:false, emoji:'🐟' },
+        { yazi:'Bir hazine', dogru:false, emoji:'💎' },
+        { yazi:'Ayın yansıması', dogru:true, emoji:'🌙' },
+        { yazi:'Bir kedi', dogru:false, emoji:'🐱' }
+      ]
+    }
+  },
+
+  // ─── DEDE KORKUT ───
+  {
+    id:'dk1', kategori:'Dede Korkut', ikon:'🏔️',
+    baslik:'Boğaç Han\'ın Cesareti',
+    aciklama:'Küçük bir çocuk büyük bir boğayı nasıl yendi?',
+    renk:'#8b5cf6',
+    parcalar:[
+      { metin:'Çok çok eski zamanlarda Dirse Han adında güçlü bir bey yaşıyordu.', emoji:'🏕️' },
+      { metin:'Dirse Han\'ın uzun yıllar çocuğu olmamıştı. Bu onu çok üzüyordu.', emoji:'😢' },
+      { metin:'Bir gün bilge yaşlılar ona dedi: "Fakiri doyur, yoksulu giydir, dileklerini dile!"', emoji:'🧓' },
+      { metin:'Dirse Han sofra kurdu, cömertçe dağıttı. Allaha dua etti.', emoji:'🍽️' },
+      { metin:'Zamanla Allah ona bir oğul verdi. Çocuk akıllı, güçlü ve cesurdu.', emoji:'👦' },
+      { metin:'O günlerde boyun içinde öfkeli bir boğa vardı. Kimse ona yaklaşamazdı.', emoji:'🐂' },
+      { metin:'Bir gün çocuklar oyun oynarken boğa oraya geldi. Herkes kaçtı.', emoji:'😨' },
+      { metin:'Ama Dirse Han\'ın oğlu kaçmadı. Boğanın önünde durdu.', emoji:'💪' },
+      { metin:'Boğa hücum etti. Çocuk ustalıkla yana çekildi ve boğanın boynuzuna yapıştı.', emoji:'🤼' },
+      { metin:'Güreştiler. Çocuk tüm gücüyle boğayı yere vurdu.', emoji:'🏆' },
+      { metin:'Dede Korkut geldi ve o güne kadar adı olmayan çocuğa "Boğaç Han" adını verdi.', emoji:'👴' },
+      { metin:'Boğaç Han\'ın cesareti ve adı bütün boyda dillere destan oldu.', emoji:'⭐' }
+    ],
+    soru:{
+      metin:'Çocuğa hangi isim verildi?',
+      secenekler:[
+        { yazi:'Dirse Han', dogru:false, emoji:'❌' },
+        { yazi:'Boğaç Han', dogru:true, emoji:'🏆' },
+        { yazi:'Dede Korkut', dogru:false, emoji:'❌' },
+        { yazi:'Kazan Han', dogru:false, emoji:'❌' }
+      ]
+    }
+  },
+  {
+    id:'dk2', kategori:'Dede Korkut', ikon:'🏔️',
+    baslik:'Bamsi Beyrek\'in Yayı',
+    aciklama:'Uzun yıllar esir kalan bir kahraman eve dönüyor...',
+    renk:'#8b5cf6',
+    parcalar:[
+      { metin:'Bamsi Beyrek, Oğuz\'un en cesur yiğitlerinden biriydi.', emoji:'⚔️' },
+      { metin:'Düşmanlar onu tuzağa düşürdü ve on altı yıl boyunca zindana kapattı.', emoji:'🏰' },
+      { metin:'Yıllar geçti. Banu Çiçek adındaki nişanlısı onu bekledi, bekledi.', emoji:'🌸' },
+      { metin:'Ama bir gün zorla başkasıyla evlendirilmek üzere olduğunu öğrendi Beyrek.', emoji:'😰' },
+      { metin:'Beyrek bir fırsatını bulup zindandan kaçtı. Atlara atlayıp yurduna koştu.', emoji:'🐎' },
+      { metin:'Yurda geldiğinde kimse onu tanımadı. Saçı sakalı uzamış, yüzü değişmişti.', emoji:'🧔' },
+      { metin:'Bir dilenci kılığına girdi ve düğün yerine girdi.', emoji:'🎭' },
+      { metin:'Düğünde bir yay yarışması düzenleniyordu. Kimse Beyrek\'in yayını gererek ok atamıyordu.', emoji:'🏹' },
+      { metin:'Yaşlı bir dilenci olan Beyrek öne çıktı. Herkes güldü ama o yayı kolayca gerdi.', emoji:'💪' },
+      { metin:'Banu Çiçek o anda anladı. Parmağındaki yüzüğü tanıdı.', emoji:'💍' },
+      { metin:'"Beyrek! Sen geldin!" diye bağırdı ve koşarak ona sarıldı.', emoji:'🤗' },
+      { metin:'Beyrek maskesini çıkardı. Oğuz\'un bütün yiğitleri toplanıp onu sevinçle karşıladı.', emoji:'🎉' },
+      { metin:'Dede Korkut sazını aldı ve Beyrek\'in destanını çaldı. O ses dağlara taşlara yayıldı.', emoji:'🎵' }
+    ],
+    soru:{
+      metin:'Beyrek yurda döndüğünde nasıl göründü?',
+      secenekler:[
+        { yazi:'Çok yakışıklıydı', dogru:false, emoji:'😎' },
+        { yazi:'Dilenci kılığına girdi', dogru:true, emoji:'🎭' },
+        { yazi:'Asker elbisesiyle geldi', dogru:false, emoji:'⚔️' },
+        { yazi:'Kimseye görünmedi', dogru:false, emoji:'👻' }
+      ]
+    }
+  },
+  {
+    id:'dk3', kategori:'Dede Korkut', ikon:'🏔️',
+    baslik:'Deli Dumrul\'un Kararı',
+    aciklama:'Bir kahraman ölümle yüz yüze geliyor...',
+    renk:'#8b5cf6',
+    parcalar:[
+      { metin:'Vaktiyle Deli Dumrul adında yiğit bir delikanlı yaşarmış.', emoji:'🗡️' },
+      { metin:'Deli Dumrul çok gözüpektı. "Azrail beni bulursa karşısına çıkarım!" dermiş.', emoji:'😤' },
+      { metin:'Bir gün Azrail gerçekten önüne çıktı. Deli Dumrul korktu ama kaçmadı.', emoji:'😨' },
+      { metin:'"Canımı almak istiyorsan dövüşelim!" dedi. Ama Azrail güldü.', emoji:'😅' },
+      { metin:'"Canını Allah\'ın emriyle alıyorum. Eğer yerine bir can bulursan seni bırakırım." dedi.', emoji:'⚖️' },
+      { metin:'Deli Dumrul önce annesine gitti. "Anneciğim, canını bana ver." dedi.', emoji:'👵' },
+      { metin:'Annesi korkuyla "Oğlum, ben sana can veririm ama ömrüm var, yaşamak isterim." dedi.', emoji:'😢' },
+      { metin:'Sonra babasına gitti. Babası da aynı şekilde özür diledi.', emoji:'👴' },
+      { metin:'Deli Dumrul üzüldü. Ama sevgili eşi "Ben veririm canımı! Sen yaşa, ben gideyim." dedi.', emoji:'💑' },
+      { metin:'Deli Dumrul\'un gözleri doldu: "Hayır! Sen yaşayacaksın, ben gideyim." dedi.', emoji:'😭' },
+      { metin:'Allah bu büyük sevgiyi gördü. İkisinin de canını almadı.', emoji:'✨' },
+      { metin:'Dede Korkut dedi ki: "Sevgi fedakarlıktan doğar. Gerçek sevgi candan geçmektir."', emoji:'❤️' }
+    ],
+    soru:{
+      metin:'Deli Dumrul\'un canı yerine kim can vermeye razı oldu?',
+      secenekler:[
+        { yazi:'Annesi', dogru:false, emoji:'👵' },
+        { yazi:'Babası', dogru:false, emoji:'👴' },
+        { yazi:'Eşi', dogru:true, emoji:'💑' },
+        { yazi:'Arkadaşı', dogru:false, emoji:'🤝' }
+      ]
+    }
+  },
+
+  // ─── MENKİBELER ───
+  {
+    id:'mk1', kategori:'Menkıbe', ikon:'✨',
+    baslik:'Hz. Ali ve Dilenci',
+    aciklama:'Bir yardımsever insan, karanlık bir gecede ne yaptı?',
+    renk:'#06b6d4',
+    parcalar:[
+      { metin:'Hz. Ali, cömertliği ve yardımseverliğiyle tanınan bir insandı.', emoji:'🌟' },
+      { metin:'Bir gece karanlıkta oturmuş ibadet ediyordu. Kapısı çalındı.', emoji:'🌙' },
+      { metin:'Kapıyı açtı. Önünde aç ve üşümüş bir dilenci duruyordu.', emoji:'🚪' },
+      { metin:'"Efendi, birkaç gündür yemedim. Yardım eder misin?" diye yalvardı dilenci.', emoji:'🙏' },
+      { metin:'Hz. Ali evin içine baktı. Evde neredeyse hiçbir şey yoktu.', emoji:'🏠' },
+      { metin:'Ama zırhını buldu. O devirde zırh çok değerli bir şeydi.', emoji:'🛡️' },
+      { metin:'Hz. Ali zırhı aldı ve dilenciyle birlikte çarşıya gitti.', emoji:'🌃' },
+      { metin:'Zırhı sattı. Aldığı parayı dilenciye verdi.', emoji:'💰' },
+      { metin:'"Bu sana yeter mi?" diye sordu şefkatle.', emoji:'❤️' },
+      { metin:'Dilenci "Çok fazla efendi, teşekkür ederim." dedi ve ağladı.', emoji:'😢' },
+      { metin:'Hz. Ali güldü: "Muhtaç olan bir kardeşime yardım ettimse bu benim için bir şereftir."', emoji:'😊' },
+      { metin:'O gece Hz. Ali, zırh olmadan yattı ama yüreği huzur doluydu.', emoji:'💫' }
+    ],
+    soru:{
+      metin:'Hz. Ali dilenciye yardım için ne sattı?',
+      secenekler:[
+        { yazi:'Atını', dogru:false, emoji:'🐎' },
+        { yazi:'Evini', dogru:false, emoji:'🏠' },
+        { yazi:'Zırhını', dogru:true, emoji:'🛡️' },
+        { yazi:'Kılıcını', dogru:false, emoji:'⚔️' }
+      ]
+    }
+  },
+  {
+    id:'mk2', kategori:'Menkıbe', ikon:'✨',
+    baslik:'Yunus Emre\'nin Türküsü',
+    aciklama:'Büyük bir şair neden şarkı söyledi?',
+    renk:'#06b6d4',
+    parcalar:[
+      { metin:'Yunus Emre, sevgiyi ve barışı şiirleriyle anlatan bir bilge derviş idi.', emoji:'🌿' },
+      { metin:'Bir gün köyde iki komşu birbirine çok kızgındı. Aralarında büyük bir kavga çıkmıştı.', emoji:'😠' },
+      { metin:'Kimse onları barıştıramıyordu. Yaşlılar da gençler de denedi, olmadı.', emoji:'🤷' },
+      { metin:'Yunus Emre o köye geldi. Kavgadan haberi oldu.', emoji:'👴' },
+      { metin:'İki komşunun kapısına gitti. Kapı önünde oturup saz çalmaya başladı.', emoji:'🎵' },
+      { metin:'Çaldığı türkü çok güzeldi. Önce çocuklar geldi, dinledi.', emoji:'👧' },
+      { metin:'Sonra kadınlar, sonra erkekler geldi. Kavgacı iki komşu da kapıya çıktı.', emoji:'👨‍👩‍👧‍👦' },
+      { metin:'Yunus şarkıyı bitirince dedi ki: "Sevgi, kalbi açar. Kin ise kalbi kapatır."', emoji:'❤️' },
+      { metin:'"Dağlar taşlar bir gün yıkılır. Ama bir gönüldeki sevgi sonsuzdur."', emoji:'🏔️' },
+      { metin:'İki komşu birbirine baktı. Birinin gözleri doldu. "Affet beni." dedi.', emoji:'😢' },
+      { metin:'Öbürü "Ben de özür dilerim." dedi. Kucaklaştılar.', emoji:'🤗' },
+      { metin:'Yunus Emre güldü ve yoluna devam etti. Arkasında barış bırakmıştı.', emoji:'🌈' }
+    ],
+    soru:{
+      metin:'Yunus Emre kavgalı komşuları nasıl barıştırdı?',
+      secenekler:[
+        { yazi:'Onları azarladı', dogru:false, emoji:'😤' },
+        { yazi:'Saz çalıp türkü söyledi', dogru:true, emoji:'🎵' },
+        { yazi:'Onlara para verdi', dogru:false, emoji:'💰' },
+        { yazi:'Kadıya şikayet etti', dogru:false, emoji:'⚖️' }
+      ]
+    }
+  },
+  {
+    id:'mk3', kategori:'Menkıbe', ikon:'✨',
+    baslik:'Lokman Hekim ve Şifalı Ot',
+    aciklama:'Dünyanın en bilge doktoru ne öğretti?',
+    renk:'#06b6d4',
+    parcalar:[
+      { metin:'Lokman Hekim, dünyanın en bilge doktorlarından biriydi. Her derde deva bilirdi.', emoji:'🌿' },
+      { metin:'Çok uzak bir dağda yaşayan bir çoban, hastalanmış oğlunu Lokman\'a getirdi.', emoji:'🏔️' },
+      { metin:'"Oğlum haftalar önce hastalandı. Hiçbir ilaç tutmuyor." diye anlattı çoban.', emoji:'😔' },
+      { metin:'Lokman Hekim çocuğu muayene etti. Sonra bahçesine çıktı, otları inceledi.', emoji:'🔍' },
+      { metin:'Bir ot söktü, kuruturdu. "Her sabah bunu kaynat, çocuğa içir." dedi.', emoji:'☕' },
+      { metin:'Çoban "Bu kadar mı? Başka bir şey yok mu?" diye şaşırdı.', emoji:'😲' },
+      { metin:'Lokman güldü: "Bir de şunu yap: Her sabah ona bir güzel şey söyle."', emoji:'😊' },
+      { metin:'"Her gün ona sevdiğini hatırlat. Bir de gülümsemesini sağla."', emoji:'😄' },
+      { metin:'Çoban şüpheyle baktı ama denedi. Hem otu içirdi hem de her sabah oğluyla konuştu.', emoji:'💬' },
+      { metin:'İki hafta sonra çocuk iyileşti. Çoban koşarak Lokman\'a gitti.', emoji:'🏃' },
+      { metin:'"Oğlum iyileşti! Ama hangisi onu iyileştirdi? Ot mu, yoksa sevgi mi?"', emoji:'🤔' },
+      { metin:'Lokman Hekim dedi: "Beden otu, yürek sevgiyi ister. İkisi birlikte iyileştirir."', emoji:'❤️‍🩹' }
+    ],
+    soru:{
+      metin:'Lokman Hekim çocuğun iyileşmesi için ne dedi?',
+      secenekler:[
+        { yazi:'Sadece ot ver', dogru:false, emoji:'🌿' },
+        { yazi:'Hem ot hem sevgi ver', dogru:true, emoji:'❤️‍🩹' },
+        { yazi:'Onu dinlendir', dogru:false, emoji:'😴' },
+        { yazi:'Dua et yeter', dogru:false, emoji:'🙏' }
+      ]
+    }
+  },
+  {
+    id:'mk4', kategori:'Menkıbe', ikon:'✨',
+    baslik:'Mevlana ve Öfkeli Adam',
+    aciklama:'Büyük bir bilge, kızgın bir insanı nasıl sakinleştirdi?',
+    renk:'#06b6d4',
+    parcalar:[
+      { metin:'Mevlana Celaleddin Rumi, Konya\'da yaşayan büyük bir bilge ve şairdi.', emoji:'🌀' },
+      { metin:'Bir gün çok öfkeli bir adam dergaha geldi. Yüzü kıpkırmızıydı, elleri titriyordu.', emoji:'😡' },
+      { metin:'"Komşum bana haksızlık etti! Adaleti sen ver!" diye bağırdı.', emoji:'📢' },
+      { metin:'Mevlana sakin bir şekilde "Buyur, otur." dedi. Adam oturdu ama titremeye devam etti.', emoji:'🪑' },
+      { metin:'Mevlana bir bardak su getirdi. "İç." dedi. Adam içti.', emoji:'💧' },
+      { metin:'Sonra Mevlana dedi: "Şimdi anlat. Ama önce söyle: Komşun seni seviyor mu?"', emoji:'🤔' },
+      { metin:'Adam düşündü. "Evet, aslında çok iyi komşudur. Ama bu sefer yanıldı."', emoji:'💭' },
+      { metin:'"Peki sen onu seviyor musun?" diye sordu Mevlana.', emoji:'❓' },
+      { metin:'Adam yavaşladı: "Evet, severim. Ama çok kızdım."', emoji:'😤' },
+      { metin:'"O zaman git ve önce onu sev. Sonra konuş." dedi Mevlana.', emoji:'❤️' },
+      { metin:'Adam gitti. Komşusunun kapısını çaldı. "Seninle konuşabilir miyiz?" dedi sakin bir sesle.', emoji:'🚪' },
+      { metin:'Komşusu kapıyı açtı, ikisi oturdu, konuştu ve barıştı. Öfke gitmiş, sevgi kalmıştı.', emoji:'🤝' }
+    ],
+    soru:{
+      metin:'Mevlana adama önce ne yaptı?',
+      secenekler:[
+        { yazi:'Azarladı', dogru:false, emoji:'😠' },
+        { yazi:'Kapıdan kovdu', dogru:false, emoji:'🚪' },
+        { yazi:'Su getirdi ve dinledi', dogru:true, emoji:'💧' },
+        { yazi:'Hemen komşuyu çağırdı', dogru:false, emoji:'📞' }
+      ]
+    }
+  },
+  {
+    id:'mk5', kategori:'Menkıbe', ikon:'✨',
+    baslik:'Hacı Bektaş Veli\'nin Güvercini',
+    aciklama:'Bir güvercin nasıl büyük bir mucizeye dönüştü?',
+    renk:'#06b6d4',
+    parcalar:[
+      { metin:'Hacı Bektaş Veli, Anadolu\'yu aydınlatan sevgi dolu bir eren idi.', emoji:'🕊️' },
+      { metin:'Bir gün Horasan\'dan Anadolu\'ya yolculuğa çıktı.', emoji:'🗺️' },
+      { metin:'Rivayete göre o yolculukta güvercin donuna girip uçtu.', emoji:'🕊️' },
+      { metin:'Anadolu\'nun dağlarını, ovalarını, köylerini gördü. Her yerde insanlar vardı.', emoji:'🏔️' },
+      { metin:'Suluca Karahöyük denilen yerde bir kadın güvercini gördü.', emoji:'👀' },
+      { metin:'Kadının adı Kadıncık Ana idi. Güvercine ekmek ve su verdi.', emoji:'🍞' },
+      { metin:'Güvercin insan şekline döndü. Kadıncık Ana şaşırdı ama korkmadı.', emoji:'😲' },
+      { metin:'"Buyurun efendim, yemek hazırlayayım." dedi ve içeri davet etti.', emoji:'🏡' },
+      { metin:'Hacı Bektaş Veli "Sen cömert yüreklisin." dedi. "Bu kapı herkese açık olsun."', emoji:'🚪' },
+      { metin:'"Elinizde ne varsa paylaşın. Gönlünüzde ne varsa verin. Herkes kardeştir."', emoji:'🤝' },
+      { metin:'Kadıncık Ana o günden sonra herkese kapısını açtı. Kimseyi geri çevirmedi.', emoji:'❤️' },
+      { metin:'Hacı Bektaş Veli\'nin öğretisi böylece dağlara, ovalara, bütün Anadolu\'ya yayıldı.', emoji:'🌟' }
+    ],
+    soru:{
+      metin:'Kadıncık Ana güvercine ne yaptı?',
+      secenekler:[
+        { yazi:'Korkup kaçtı', dogru:false, emoji:'😨' },
+        { yazi:'Güvercini kovaladı', dogru:false, emoji:'😤' },
+        { yazi:'Ekmek ve su verdi', dogru:true, emoji:'🍞' },
+        { yazi:'Onu kafese kapattı', dogru:false, emoji:'🔒' }
+      ]
+    }
+  }
+];
+
+// ─── STATE ───
+let HM = { tamamlanan: [], yildiz: 0 };
+try { const k=localStorage.getItem('hikaye_durum'); if(k) HM={...HM,...JSON.parse(k)}; } catch(e){}
+
+function hikayeKaydet() { try { localStorage.setItem('hikaye_durum',JSON.stringify(HM)); } catch(e){} }
+function hikayeYildizGuncelle() {
+  const el = document.getElementById('hikYildizSayisi');
+  if(el) el.textContent = HM.yildiz;
+}
+
+// ─── LİSTE ─── 
+function hikayelerAc() {
+  ekranAc('hikayelerEkran');
+  hikayeListesiCiz();
+}
+
+function hikayeListesiCiz() {
+  const k = document.getElementById('hikayeListe');
+  k.innerHTML = '';
+
+  const kategoriler = [
+    { id:'Nasreddin Hoca', baslik:'🧔 Nasreddin Hoca Hikayeleri', renk:'#f59e0b' },
+    { id:'Dede Korkut',    baslik:'🏔️ Dede Korkut Destanları',   renk:'#8b5cf6' },
+    { id:'Menkıbe',        baslik:'✨ Menkıbeler',                 renk:'#06b6d4' }
+  ];
+
+  kategoriler.forEach(kat => {
+    const baslikEl = document.createElement('div');
+    baslikEl.className = 'hikaye-kategori-baslik';
+    baslikEl.style.color = kat.renk;
+    baslikEl.textContent = kat.baslik;
+    k.appendChild(baslikEl);
+
+    HIKAYELER.filter(h => h.kategori === kat.id).forEach(hikaye => {
+      const tam = HM.tamamlanan.includes(hikaye.id);
+      const div = document.createElement('div');
+      div.className = 'hikaye-kart' + (tam ? ' tamamlandi' : '');
+      div.style.borderColor = tam ? kat.renk : '';
+      div.innerHTML = `
+        <div class="h-ikon">${hikaye.ikon}</div>
+        <div class="hikaye-bilgi">
+          <h3>${hikaye.baslik}</h3>
+          <p>${hikaye.aciklama}</p>
+        </div>
+        <div class="hikaye-rozet">${tam ? '⭐' : '▶'}</div>
+      `;
+      div.onclick = () => hikayeBaslat(hikaye.id);
+      k.appendChild(div);
+    });
+  });
+}
+
+// ─── OKUMA ───
+let aktifHikaye = null;
+let aktifParca = 0;
+
+function hikayeBaslat(id) {
+  aktifHikaye = HIKAYELER.find(h => h.id === id);
+  aktifParca = 0;
+  ekranAc('hikayeOkuEkran');
+  hikuGoster();
+}
+
+function hikuGoster() {
+  const h = aktifHikaye;
+  const p = h.parcalar[aktifParca];
+
+  document.getElementById('hikuBaslik').textContent = h.baslik;
+  document.getElementById('hikuEmoji').textContent = p.emoji;
+  document.getElementById('hikuMetin').textContent = p.metin;
+
+  // Nokta göstergesi
+  const il = document.getElementById('hikuIlerleme');
+  il.innerHTML = '';
+  h.parcalar.forEach((_, i) => {
+    const n = document.createElement('div');
+    n.className = 'hiku-nokta' + (i === aktifParca ? ' aktif' : (i < aktifParca ? ' gecildi' : ''));
+    il.appendChild(n);
+  });
+
+  // Butonlar
+  const geriBtn = document.getElementById('hikuGeriBtn');
+  const ileriBtn = document.getElementById('hikuIleriBtn');
+  geriBtn.disabled = aktifParca === 0;
+  const sonSayfa = aktifParca === h.parcalar.length - 1;
+  ileriBtn.textContent = sonSayfa ? 'Soru →' : 'İleri ▶';
+  ileriBtn.style.background = sonSayfa
+    ? 'linear-gradient(135deg,#f59e0b,#ef4444)'
+    : 'linear-gradient(135deg,var(--mor),var(--pembe))';
+
+  // Sesli okuma otomatik
+  setTimeout(() => hikuSesliOku(), 400);
+}
+
+function hikuSonraki() {
+  speechSynthesis && speechSynthesis.cancel();
+  if (aktifParca < aktifHikaye.parcalar.length - 1) {
+    aktifParca++;
+    hikuGoster();
+  } else {
+    soruBaslat();
+  }
+}
+
+function hikuOnceki() {
+  if (aktifParca > 0) {
+    speechSynthesis && speechSynthesis.cancel();
+    aktifParca--;
+    hikuGoster();
+  }
+}
+
+function hikuSesliOku() {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const metin = aktifHikaye.parcalar[aktifParca].metin;
+  const u = new SpeechSynthesisUtterance(metin);
+  u.lang = 'tr-TR'; u.rate = 0.78; u.pitch = 1.05;
+  speechSynthesis.speak(u);
+}
+
+// ─── SORU ───
+let soruCevaplandi = false;
+
+function soruBaslat() {
+  ekranAc('hikayeSoruEkran');
+  soruCevaplandi = false;
+  const h = aktifHikaye;
+  const soru = h.soru;
+
+  document.getElementById('soruEmoji').textContent = h.ikon;
+  document.getElementById('soruMetin').textContent = soru.metin;
+  document.getElementById('soruSonucMesaj').textContent = '';
+  document.getElementById('soruGeriBtn').style.display = 'none';
+
+  const sec = document.getElementById('soruSecenekler');
+  sec.innerHTML = '';
+  // Şık sırasını karıştır
+  const karisik = [...soru.secenekler].sort(() => Math.random() - 0.5);
+  karisik.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'soru-btn';
+    btn.innerHTML = `<span style="font-size:28px">${s.emoji}</span><span>${s.yazi}</span>`;
+    btn.onclick = () => soruCevapla(s.dogru, btn, sec);
+    sec.appendChild(btn);
+  });
+}
+
+function soruCevapla(dogru, btn, sec) {
+  if (soruCevaplandi) return;
+  soruCevaplandi = true;
+
+  if (dogru) {
+    btn.classList.add('dogru');
+    document.getElementById('soruSonucMesaj').textContent = '🎉 Aferin! Doğru cevap!';
+    document.getElementById('soruSonucMesaj').style.color = '#4ade80';
+    document.getElementById('soruEmoji').textContent = '🌟';
+
+    // Yıldız kazan
+    if (!HM.tamamlanan.includes(aktifHikaye.id)) {
+      HM.tamamlanan.push(aktifHikaye.id);
+      HM.yildiz++;
+      hikayeKaydet();
+      hikayeYildizGuncelle();
+      if (typeof yildizAnimasyonuOynat === 'function') setTimeout(yildizAnimasyonuOynat, 300);
+    }
+  } else {
+    btn.classList.add('yanlis');
+    document.getElementById('soruSonucMesaj').textContent = '💪 Tekrar dene! Okursan bulursun.';
+    document.getElementById('soruSonucMesaj').style.color = '#ff4d8d';
+    soruCevaplandi = false; // Tekrar deneyebilsin
+  }
+
+  // Tüm şıkları bir süre sonra göster
+  if (dogru) {
+    setTimeout(() => {
+      sec.querySelectorAll('.soru-btn').forEach(b => b.disabled = true);
+      document.getElementById('soruGeriBtn').style.display = 'block';
+    }, 1200);
+  }
+}
+
+hikayeYildizGuncelle();
 </script>
 
 </body>
