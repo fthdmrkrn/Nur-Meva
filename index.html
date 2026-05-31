@@ -5721,7 +5721,7 @@ function guncelle(dt) {
   // zıplama
   if (kar.ziplama) {
     kar.zipY += kar.zipHiz * dt;
-    kar.zipHiz += 1.25 * dt;
+    kar.zipHiz += 1.05 * dt;
     if (kar.zipY >= 0) { kar.zipY = 0; kar.zipHiz = 0; kar.ziplama = false; }
   }
   if (kar.koruma) { kar.korumaT -= dt; if (kar.korumaT <= 0) kar.koruma = false; }
@@ -5735,7 +5735,14 @@ function guncelle(dt) {
     const o = objeler[i];
     o.z += hiz * 0.0015 * dt;
     if (o.z > 1.08) { objeler.splice(i,1); continue; }
-    if (!o.bitti && o.z > 0.80 && o.z < 0.99 && o.serit === kar.serit) carpisma(o, i);
+    if (o.bitti) continue;
+    const ayni = (o.serit === kar.serit);
+    if (o.engelMi) {
+      // tek seferlik darbe anı (yakına gelince)
+      if (!o.vurdu && o.z >= 0.90) { o.vurdu = true; if (ayni) engelCarp(o, i); }
+    } else {
+      if (ayni && o.z > 0.84 && o.z < 0.99) carpisma(o, i);
+    }
   }
   // dekor
   for (let i = dekor.length-1; i>=0; i--) { dekor[i].z += hiz*0.0014*dt; if (dekor[i].z > 1.12) dekor.splice(i,1); }
@@ -5792,15 +5799,6 @@ function carpisma(o, idx) {
     skorEkle('+'+puan, pos.x, pos.y, '#FFD54F');
     sfxYildiz();
     objeler.splice(idx,1);
-  } else if (o.tip === 'engel' || o.tip === 'araba' || o.tip === 'otobus') {
-    const ustunde = kar.zipY < -28; // zıpladıysa engelleri aş (otobüs/araba aşılmaz)
-    if (o.tip === 'engel' && ustunde) return;
-    if (!kar.koruma) {
-      hasar(); kar.koruma = true; kar.korumaT = 80;
-      patlama(pos.x, pos.y - 20, '#ff5252', 10, false);
-      sfxCarp(); shake = 14; combo = 0; comboGuncelle();
-    }
-    objeler.splice(idx,1);
   } else if (o.tip === 'x2') {
     o.bitti = true; x2Aktif = true; x2T = 360;
     patlama(pos.x, pos.y, '#FF6B00', 12, true); sfxBonus(); comboGuncelle();
@@ -5810,6 +5808,23 @@ function carpisma(o, idx) {
     patlama(pos.x, pos.y, '#64B5F6', 12, true); sfxBonus();
     objeler.splice(idx,1);
   }
+}
+
+// Engel/araç darbesi — zıplayınca aşılabilenler atlanır
+function engelCarp(o, idx) {
+  const pos = perspektifPos(o.serit, o.z);
+  const havada = kar.ziplama && kar.zipY < -16;
+  if (o.atlanabilir && havada) {
+    skorEkle('HOP! 🦘', pos.x, pos.y - perspektifBoyut(o.z)*0.7, '#7CFFB2');
+    patlama(pos.x, pos.y, '#7CFFB2', 5, true);
+    return; // çarpma yok; obje altından geçip kaybolur
+  }
+  if (!kar.koruma) {
+    hasar(); kar.koruma = true; kar.korumaT = 80;
+    patlama(pos.x, pos.y - 20, '#ff5252', 12, false);
+    sfxCarp(); shake = 16; combo = 0; comboGuncelle();
+  }
+  objeler.splice(idx, 1);
 }
 
 function hasar() {
@@ -5870,7 +5885,9 @@ function objeUret() {
   }
 }
 function yeniObje(tip, serit, harf, stil) {
-  return { tip, serit, z: 0, harf: harf||null, bitti:false, stil: stil||0, sallan: rnd(0,6.28) };
+  const engelMi = (tip==='engel' || tip==='araba' || tip==='otobus');
+  const atlanabilir = (tip==='engel' || tip==='araba'); // otobüs aşılmaz, şerit değiştir
+  return { tip, serit, z: 0, harf: harf||null, bitti:false, vurdu:false, engelMi, atlanabilir, stil: stil||0, sallan: rnd(0,6.28) };
 }
 function arabaStil(){ return rndInt(3); }
 
@@ -5903,20 +5920,30 @@ function drawSahne(dt) {
 
   // gökyüzü (gün doğumu tonları)
   const g = ctx.createLinearGradient(0,0,0,VP_Y+80);
-  g.addColorStop(0,'#2b5dca'); g.addColorStop(0.55,'#6aa8f0'); g.addColorStop(1,'#bfe3ff');
+  g.addColorStop(0,'#2b5dca'); g.addColorStop(0.55,'#6aa8f0'); g.addColorStop(1,'#dff0ff');
   ctx.fillStyle = g; ctx.fillRect(0,0,W,VP_Y+80);
   // güneş parıltısı
   const sun = ctx.createRadialGradient(VP_X, VP_Y+10, 4, VP_X, VP_Y+10, H*0.5);
-  sun.addColorStop(0,'rgba(255,245,200,.85)'); sun.addColorStop(0.18,'rgba(255,225,160,.35)'); sun.addColorStop(1,'rgba(255,225,160,0)');
+  sun.addColorStop(0,'rgba(255,245,200,.9)'); sun.addColorStop(0.18,'rgba(255,225,160,.4)'); sun.addColorStop(1,'rgba(255,225,160,0)');
   ctx.fillStyle = sun; ctx.fillRect(0,0,W,VP_Y+120);
+  // YER zemini (yol kenarı çim) — ufuktan aşağı
+  const yer = ctx.createLinearGradient(0,VP_Y,0,H);
+  yer.addColorStop(0,'#a7d98a'); yer.addColorStop(0.45,'#82c264'); yer.addColorStop(1,'#5ba846');
+  ctx.fillStyle = yer; ctx.fillRect(0, VP_Y, W, H-VP_Y);
   // bulutlar
   bulutlar.forEach(b => drawBulut(b));
-  // uzak şehir silüeti (parallax)
+  // şehir (parallax, ışıklı)
   drawSilUet();
+  // ufuk sisi (atmosferik perspektif — objeler uzakta yumuşar)
+  const sis = ctx.createLinearGradient(0,VP_Y-26,0,VP_Y+80);
+  sis.addColorStop(0,'rgba(223,240,255,0)'); sis.addColorStop(0.5,'rgba(223,240,255,0.7)'); sis.addColorStop(1,'rgba(223,240,255,0)');
+  ctx.fillStyle = sis; ctx.fillRect(0, VP_Y-26, W, 106);
 
   // yol zemini
   drawYol();
   drawYolCizgileri();
+  // aktif şerit ışığı
+  drawSeritIsik();
 
   // yan zemin/kaldırım gölgesi
   ctx.fillStyle = 'rgba(0,0,0,0.04)';
@@ -5965,14 +5992,42 @@ function drawBulut(b){
 }
 
 function drawSilUet(){
-  const baseY = VP_Y + 18;
-  const off = (mesafe*0.15) % 120;
-  ctx.fillStyle = 'rgba(120,150,200,0.45)';
-  for (let i=-1;i<Math.ceil(W/60)+1;i++){
-    const x = i*60 - off;
-    const h = 26 + ((i*53)%5)*9;
-    ctx.fillRect(x, baseY - h, 46, h);
+  const baseY = VP_Y + 16;
+  // uzak katman (soluk, yavaş)
+  binaSira(baseY, (mesafe*0.10)%150, 64, 30, 'rgba(150,170,212,0.55)', false);
+  // orta katman (renkli, ışıklı pencereler, hızlı)
+  binaSira(baseY+12, (mesafe*0.26)%124, 58, 50, null, true);
+}
+function binaSira(baseY, off, adim, maxH, renk, isikli){
+  const renkler = ['#6d7fb0','#7e6da8','#5f86a8','#8a6e9e'];
+  for (let i=-1;i<Math.ceil(W/adim)+2;i++){
+    const x = i*adim - off;
+    const h = maxH*0.45 + (((i*37)%5)+5)%5 * (maxH*0.12);
+    const w = adim*0.8;
+    ctx.fillStyle = renk || renkler[((i%4)+4)%4];
+    ctx.fillRect(x, baseY-h, w, h);
+    // çatı
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillRect(x, baseY-h, w, 3);
+    if (isikli){
+      ctx.fillStyle = 'rgba(255,235,150,0.85)';
+      const sira = Math.floor(h/11);
+      for (let r=0;r<sira;r++) for (let c=0;c<2;c++){
+        if (((i+r*2+c)%3)===0) continue;
+        ctx.fillRect(x+w*0.18+c*(w*0.42), baseY-h+6+r*11, w*0.26, 5);
+      }
+    }
   }
+}
+
+function drawSeritIsik(){
+  // MEVA'nın bulunduğu şeride yumuşak ışık
+  const p = perspektifPos(en_yakin_serit(kar.x), 0.96);
+  const r = perspektifBoyut(0.96)*0.8;
+  const gg = ctx.createRadialGradient(kar.x, p.y, 4, kar.x, p.y, r*1.4);
+  gg.addColorStop(0,'rgba(255,255,255,0.18)'); gg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle = gg;
+  ctx.beginPath(); ctx.ellipse(kar.x, p.y, r, r*0.4, 0, 0, 6.28); ctx.fill();
 }
 
 function drawYol(){
@@ -6053,10 +6108,16 @@ function drawObje(o){
     const bob = Math.sin(kareNo*0.12 + o.sallan)*boy*0.05;
     ctx.translate(0, bob);
     const r = boy*0.46;
-    if (hedefMi){ // parlak halka
+    if (hedefMi){ // parlak halka + ok göstergesi
       ctx.globalAlpha = 0.5+0.3*Math.sin(kareNo*0.2);
       ctx.beginPath(); ctx.arc(0,0,r*1.45,0,6.28); ctx.strokeStyle='#FFD54F'; ctx.lineWidth=4; ctx.stroke();
       ctx.globalAlpha = 1;
+      // zıplayan ok (yukarıdan aşağı)
+      const okY = -r*2.0 - Math.abs(Math.sin(kareNo*0.18))*r*0.5;
+      ctx.fillStyle='#FFD54F';
+      ctx.beginPath();
+      ctx.moveTo(0, okY+r*0.5); ctx.lineTo(-r*0.42, okY); ctx.lineTo(r*0.42, okY); ctx.closePath();
+      ctx.fill();
     }
     const grad = ctx.createRadialGradient(-r*0.3,-r*0.35,r*0.1,0,0,r);
     const renk = hedefMi ? '#ff2e7e' : '#7e57c2';
@@ -6137,6 +6198,11 @@ function drawKarakter(){
   const golgeOlcek = clamp(1 + kar.zipY/240, 0.4, 1);
   ctx.save(); ctx.globalAlpha=0.28; ctx.fillStyle='#000';
   ctx.beginPath(); ctx.ellipse(kar.x, kp.y+boy*0.06, boy*0.42*golgeOlcek, boy*0.13*golgeOlcek, 0,0,6.28); ctx.fill(); ctx.restore();
+
+  // koşu tozu
+  if (oyunAktif && !kar.ziplama && kar.olduT<=0 && kareNo%4===0 && parcaciklar.length < 70){
+    parcaciklar.push({ x: kar.x + rnd(-boy*0.2,boy*0.2), y: kp.y+boy*0.04, vx: rnd(-0.6,0.6), vy: rnd(0.4,1.4), omur: rnd(8,16), renk:'rgba(220,220,225,0.9)', boy: rnd(3,6), yildiz:false });
+  }
 
   ctx.save();
   ctx.translate(kar.x, kp.y + kar.zipY - bob);
@@ -6267,7 +6333,7 @@ function seritDegistir(yon){
   const yeni = clamp(kar.hedefSerit+yon,0,2);
   if (yeni!==kar.hedefSerit){ kar.hedefSerit=yeni; kar.hedefX=seritMerkez[yeni]; sfxZip(); }
 }
-function zipla(){ if (!kar.ziplama){ kar.ziplama=true; kar.zipHiz=-19; sfxZip(); } }
+function zipla(){ if (!kar.ziplama){ kar.ziplama=true; kar.zipHiz=-23; sfxZip(); } }
 
 })(); // IIFE sonu
 </script>
