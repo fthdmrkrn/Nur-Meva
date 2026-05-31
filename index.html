@@ -5682,7 +5682,7 @@ window.mevaRunBasla = function() {
   ac();
   document.getElementById('mrOverlay').style.display = 'none';
   oyunAktif = true;
-  hiz = 3.4; mesafe = 0; skor = 0; canlar = 3;
+  hiz = 2.5; mesafe = 0; skor = 0; canlar = 3;
   objeler = []; dekor = []; parcaciklar = []; skorYazi = [];
   combo = 0; comboT = 0; x2Aktif = false; x2T = 0;
   shake = 0; kareNo = 0; spawnSay = 0; spawnTimer = 0;
@@ -5730,11 +5730,11 @@ function guncelle(dt) {
     return;
   }
   mesafe += hiz * dt;
-  hiz = Math.min(8.5, 3.4 + mesafe / 5000);
+  hiz = Math.min(6.0, 2.5 + mesafe / 8000);
 
   // spawn (zamanlı, hıza göre sıklaşır)
   spawnTimer += dt;
-  const aralik = Math.max(24, 46 - mesafe/1100);
+  const aralik = Math.max(36, 64 - mesafe/1400);
   if (spawnTimer >= aralik) { spawnTimer = 0; objeUret(); }
   if (kareNo % 22 === 0) dekorUret();
 
