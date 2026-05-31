@@ -5603,9 +5603,8 @@ function harfSesle(ch){
 // ---------- INIT ----------
 function mrInit() {
   canvas = document.getElementById('mevaRunCanvas');
-  const ekran = document.getElementById('mevaRunEkran');
-  olcuAyarla();
   ctx = canvas.getContext('2d');
+  olcuAyarla();
 
   try { rekor = parseInt(localStorage.getItem('mevarun_rekor') || '0', 10) || 0; } catch(e){ rekor = 0; }
 
@@ -5665,7 +5664,7 @@ window.mevaRunBasla = function() {
   ac();
   document.getElementById('mrOverlay').style.display = 'none';
   oyunAktif = true;
-  hiz = 5; mesafe = 0; skor = 0; canlar = 3;
+  hiz = 3.4; mesafe = 0; skor = 0; canlar = 3;
   objeler = []; dekor = []; parcaciklar = []; skorYazi = [];
   combo = 0; comboT = 0; x2Aktif = false; x2T = 0;
   shake = 0; kareNo = 0; spawnSay = 0; spawnTimer = 0;
@@ -5703,11 +5702,11 @@ function mrKare(ts) {
 // ---------- GÜNCELLE ----------
 function guncelle(dt) {
   mesafe += hiz * dt;
-  hiz = Math.min(13, 5 + mesafe / 2600);
+  hiz = Math.min(8.5, 3.4 + mesafe / 5000);
 
   // spawn (zamanlı, hıza göre sıklaşır)
   spawnTimer += dt;
-  const aralik = Math.max(14, 34 - mesafe/700);
+  const aralik = Math.max(24, 46 - mesafe/1100);
   if (spawnTimer >= aralik) { spawnTimer = 0; objeUret(); }
   if (kareNo % 22 === 0) dekorUret();
 
@@ -5734,12 +5733,12 @@ function guncelle(dt) {
   // objeler
   for (let i = objeler.length-1; i>=0; i--) {
     const o = objeler[i];
-    o.z += hiz * 0.0023 * dt;
+    o.z += hiz * 0.0015 * dt;
     if (o.z > 1.08) { objeler.splice(i,1); continue; }
     if (!o.bitti && o.z > 0.80 && o.z < 0.99 && o.serit === kar.serit) carpisma(o, i);
   }
   // dekor
-  for (let i = dekor.length-1; i>=0; i--) { dekor[i].z += hiz*0.0021*dt; if (dekor[i].z > 1.12) dekor.splice(i,1); }
+  for (let i = dekor.length-1; i>=0; i--) { dekor[i].z += hiz*0.0014*dt; if (dekor[i].z > 1.12) dekor.splice(i,1); }
   // parçacıklar
   for (let i = parcaciklar.length-1; i>=0; i--) {
     const p = parcaciklar[i];
@@ -5753,7 +5752,7 @@ function guncelle(dt) {
   // bulutlar
   bulutlar.forEach(b => { b.x -= b.sp*dt; if (b.x < -90) { b.x = W+60; b.y = rnd(H*0.04,H*0.20); } });
 
-  if (hiz > 9) hizCizgiT += dt; else hizCizgiT = 0;
+  if (hiz > 6.5) hizCizgiT += dt; else hizCizgiT = 0;
 }
 
 function en_yakin_serit(x){
