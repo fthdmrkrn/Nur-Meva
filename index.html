@@ -474,6 +474,16 @@
   .harfavi-kart:active { transform: scale(.92); }
   .harfavi-kart.dogru { background: rgba(74,222,128,.35); border-color: var(--yesil); animation: harfNefes .4s; }
   .harfavi-kart.yanlis { animation: titre .4s; border-color: var(--pembe); }
+  .harfavi-bitti {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    background: rgba(10,8,40,.92);
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  .harfavi-bitti.aktif { display: flex; animation: bittiGel .35s ease; }
+  .harfavi-bitti-ic { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .harfavi-bitti-emoji { font-size: clamp(70px, 22vw, 130px); animation: harfNefes 1s infinite; }
+  .harfavi-bitti-yazi { font-size: clamp(22px, 6vw, 32px); color: #fff; font-weight: 800; }
+  @keyframes bittiGel { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
   @keyframes titre {
     0%,100% { transform: translateX(0); }
     20%,60% { transform: translateX(-9px); }
@@ -1466,6 +1476,13 @@
     <div class="harfavi-ilerleme" id="harfAviIlerleme"></div>
     <div class="harfavi-secenek" id="harfAviSecenek"></div>
   </div>
+  <div class="harfavi-bitti" id="harfAviBitti">
+    <div class="harfavi-bitti-ic">
+      <div class="harfavi-bitti-emoji">🎉</div>
+      <div class="harfavi-bitti-yazi">Aferin! Üç tanesini de buldun!</div>
+      <button class="oyna-btn" id="harfAviSonrakiBtn" onclick="harfAviSonraki()">Sıradaki harf →</button>
+    </div>
+  </div>
 </div>
 
 <!-- YILDIZ KOLEKSİYONU -->
@@ -1591,149 +1608,149 @@
       ad: "Türk Alfabesi — 29 Harf",
       harfler: [
         { harf: "A", kucuk: "a", kelimeler: [
-          { e: "🐝", k: "arı", v: "a", ing: false },
-          { e: "🍎", k: "elma", v: "a", ing: false },
-          { e: "🦅", k: "eagle", v: "a", ing: true }
+          { e: "🐝", k: "arı", v: "a" },
+          { e: "🍐", k: "ayva", v: "a" },
+          { e: "🌙", k: "ay", v: "a" }
         ]},
         { harf: "B", kucuk: "b", kelimeler: [
-          { e: "🐟", k: "balık", v: "b", ing: false },
-          { e: "🧸", k: "bebek", v: "b", ing: false },
-          { e: "🍌", k: "banana", v: "b", ing: true }
+          { e: "🐟", k: "balık", v: "b" },
+          { e: "🎈", k: "balon", v: "b" },
+          { e: "🍯", k: "bal", v: "b" }
         ]},
         { harf: "C", kucuk: "c", kelimeler: [
-          { e: "🪟", k: "cam", v: "c", ing: false },
-          { e: "🥜", k: "ceviz", v: "c", ing: false },
-          { e: "🐱", k: "cat", v: "c", ing: true }
+          { e: "🪟", k: "cam", v: "c" },
+          { e: "🥜", k: "ceviz", v: "c" },
+          { e: "👛", k: "cüzdan", v: "c" }
         ]},
         { harf: "Ç", kucuk: "ç", kelimeler: [
-          { e: "🌺", k: "çiçek", v: "ç", ing: false },
-          { e: "🍓", k: "çilek", v: "ç", ing: false },
-          { e: "🍫", k: "chocolate", v: "ç", ing: true }
+          { e: "🌺", k: "çiçek", v: "ç" },
+          { e: "🍓", k: "çilek", v: "ç" },
+          { e: "👜", k: "çanta", v: "ç" }
         ]},
         { harf: "D", kucuk: "d", kelimeler: [
-          { e: "🦷", k: "diş", v: "d", ing: false },
-          { e: "🌳", k: "dal", v: "d", ing: false },
-          { e: "🐬", k: "dolphin", v: "d", ing: true }
+          { e: "🦷", k: "diş", v: "d" },
+          { e: "🌳", k: "dal", v: "d" },
+          { e: "⛰️", k: "dağ", v: "d" }
         ]},
         { harf: "E", kucuk: "e", kelimeler: [
-          { e: "🏠", k: "ev", v: "e", ing: false },
-          { e: "🍐", k: "armut", v: "e", ing: false },
-          { e: "🐘", k: "elephant", v: "e", ing: true }
+          { e: "🏠", k: "ev", v: "e" },
+          { e: "🍎", k: "elma", v: "e" },
+          { e: "🧤", k: "eldiven", v: "e" }
         ]},
         { harf: "F", kucuk: "f", kelimeler: [
-          { e: "🐘", k: "fil", v: "f", ing: false },
-          { e: "🌰", k: "fındık", v: "f", ing: false },
-          { e: "🦋", k: "fly", v: "f", ing: true }
+          { e: "🐘", k: "fil", v: "f" },
+          { e: "🌰", k: "fındık", v: "f" },
+          { e: "🍵", k: "fincan", v: "f" }
         ]},
         { harf: "G", kucuk: "g", kelimeler: [
-          { e: "👁️", k: "göz", v: "g", ing: false },
-          { e: "🌹", k: "gül", v: "g", ing: false },
-          { e: "🍇", k: "grape", v: "g", ing: true }
+          { e: "👁️", k: "göz", v: "g" },
+          { e: "🌹", k: "gül", v: "g" },
+          { e: "👕", k: "gömlek", v: "g" }
         ]},
         { harf: "Ğ", kucuk: "ğ", kelimeler: [
-          { e: "🌳", k: "ağaç", v: "ğ", ing: false },
-          { e: "🌾", k: "buğday", v: "ğ", ing: false },
-          { e: "🐑", k: "koyun", v: "ğ", ing: false }
+          { e: "🌳", k: "ağaç", v: "ğ" },
+          { e: "🌾", k: "buğday", v: "ğ" },
+          { e: "🐄", k: "boğa", v: "ğ" }
         ]},
         { harf: "H", kucuk: "h", kelimeler: [
-          { e: "🥕", k: "havuç", v: "h", ing: false },
-          { e: "🐓", k: "horoz", v: "h", ing: false },
-          { e: "🦔", k: "hedgehog", v: "h", ing: true }
+          { e: "🥕", k: "havuç", v: "h" },
+          { e: "🐓", k: "horoz", v: "h" },
+          { e: "🧺", k: "halı", v: "h" }
         ]},
         { harf: "I", kucuk: "ı", kelimeler: [
-          { e: "🌟", k: "ışık", v: "ı", ing: false },
-          { e: "🥬", k: "ıspanak", v: "ı", ing: false },
-          { e: "🏝️", k: "island", v: "ı", ing: true }
+          { e: "🌟", k: "ışık", v: "ı" },
+          { e: "🥬", k: "ıspanak", v: "ı" },
+          { e: "🌡️", k: "ılık", v: "ı" }
         ]},
         { harf: "İ", kucuk: "i", kelimeler: [
-          { e: "🪡", k: "iğne", v: "i", ing: false },
-          { e: "🦮", k: "it", v: "i", ing: false },
-          { e: "🍦", k: "ice cream", v: "i", ing: true }
+          { e: "🪡", k: "iğne", v: "i" },
+          { e: "🦴", k: "iskelet", v: "i" },
+          { e: "🪢", k: "ip", v: "i" }
         ]},
         { harf: "J", kucuk: "j", kelimeler: [
-          { e: "🔪", k: "jilet", v: "j", ing: false },
-          { e: "🌿", k: "jambon", v: "j", ing: false },
-          { e: "🕹️", k: "joystick", v: "j", ing: true }
+          { e: "🪒", k: "jilet", v: "j" },
+          { e: "🤸", k: "jimnastik", v: "j" },
+          { e: "🎽", k: "jüpon", v: "j" }
         ]},
         { harf: "K", kucuk: "k", kelimeler: [
-          { e: "🐱", k: "kedi", v: "k", ing: false },
-          { e: "📕", k: "kitap", v: "k", ing: false },
-          { e: "🦘", k: "kangaroo", v: "k", ing: true }
+          { e: "🐱", k: "kedi", v: "k" },
+          { e: "📕", k: "kitap", v: "k" },
+          { e: "🐦", k: "kuş", v: "k" }
         ]},
         { harf: "L", kucuk: "l", kelimeler: [
-          { e: "🍋", k: "limon", v: "l", ing: false },
-          { e: "🌷", k: "lale", v: "l", ing: false },
-          { e: "🦁", k: "lion", v: "l", ing: true }
+          { e: "🍋", k: "limon", v: "l" },
+          { e: "🌷", k: "lale", v: "l" },
+          { e: "🍬", k: "lokum", v: "l" }
         ]},
         { harf: "M", kucuk: "m", kelimeler: [
-          { e: "🍌", k: "muz", v: "m", ing: false },
-          { e: "💡", k: "mum", v: "m", ing: false },
-          { e: "🐭", k: "mouse", v: "m", ing: true }
+          { e: "🍌", k: "muz", v: "m" },
+          { e: "🕯️", k: "mum", v: "m" },
+          { e: "🌽", k: "mısır", v: "m" }
         ]},
         { harf: "N", kucuk: "n", kelimeler: [
-          { e: "👃", k: "burun", v: "n", ing: false },
-          { e: "🧿", k: "nazar", v: "n", ing: false },
-          { e: "🌙", k: "night", v: "n", ing: true }
+          { e: "🧿", k: "nazar", v: "n" },
+          { e: "🌊", k: "nehir", v: "n" },
+          { e: "🎵", k: "nota", v: "n" }
         ]},
         { harf: "O", kucuk: "o", kelimeler: [
-          { e: "🚌", k: "otobüs", v: "o", ing: false },
-          { e: "🎯", k: "ok", v: "o", ing: false },
-          { e: "🐙", k: "octopus", v: "o", ing: true }
+          { e: "🚌", k: "otobüs", v: "o" },
+          { e: "🏹", k: "ok", v: "o" },
+          { e: "🌿", k: "ot", v: "o" }
         ]},
         { harf: "Ö", kucuk: "ö", kelimeler: [
-          { e: "🦆", k: "ördek", v: "ö", ing: false },
-          { e: "👨‍🏫", k: "öğretmen", v: "ö", ing: false },
-          { e: "🦉", k: "owl", v: "ö", ing: true }
+          { e: "🦆", k: "ördek", v: "ö" },
+          { e: "👨‍🏫", k: "öğretmen", v: "ö" },
+          { e: "🐂", k: "öküz", v: "ö" }
         ]},
         { harf: "P", kucuk: "p", kelimeler: [
-          { e: "🥧", k: "pasta", v: "p", ing: false },
-          { e: "🪟", k: "pencere", v: "p", ing: false },
-          { e: "🐼", k: "panda", v: "p", ing: true }
+          { e: "🍰", k: "pasta", v: "p" },
+          { e: "🪟", k: "pencere", v: "p" },
+          { e: "👠", k: "papuç", v: "p" }
         ]},
         { harf: "R", kucuk: "r", kelimeler: [
-          { e: "🚀", k: "roket", v: "r", ing: false },
-          { e: "🌈", k: "renk", v: "r", ing: false },
-          { e: "🌹", k: "rose", v: "r", ing: true }
+          { e: "🚀", k: "roket", v: "r" },
+          { e: "🤖", k: "robot", v: "r" },
+          { e: "📻", k: "radyo", v: "r" }
         ]},
         { harf: "S", kucuk: "s", kelimeler: [
-          { e: "💧", k: "su", v: "s", ing: false },
-          { e: "⏰", k: "saat", v: "s", ing: false },
-          { e: "☀️", k: "sun", v: "s", ing: true }
+          { e: "💧", k: "su", v: "s" },
+          { e: "⏰", k: "saat", v: "s" },
+          { e: "🥛", k: "süt", v: "s" }
         ]},
         { harf: "Ş", kucuk: "ş", kelimeler: [
-          { e: "👒", k: "şapka", v: "ş", ing: false },
-          { e: "🍬", k: "şeker", v: "ş", ing: false },
-          { e: "☂️", k: "şemsiye", v: "ş", ing: false }
+          { e: "👒", k: "şapka", v: "ş" },
+          { e: "🍬", k: "şeker", v: "ş" },
+          { e: "☂️", k: "şemsiye", v: "ş" }
         ]},
         { harf: "T", kucuk: "t", kelimeler: [
-          { e: "🐢", k: "tosbağa", v: "t", ing: false },
-          { e: "🚗", k: "taşıt", v: "t", ing: false },
-          { e: "🐯", k: "tiger", v: "t", ing: true }
+          { e: "🐢", k: "tosbağa", v: "t" },
+          { e: "🥁", k: "tef", v: "t" },
+          { e: "🐰", k: "tavşan", v: "t" }
         ]},
         { harf: "U", kucuk: "u", kelimeler: [
-          { e: "✈️", k: "uçak", v: "u", ing: false },
-          { e: "🪁", k: "uçurtma", v: "u", ing: false },
-          { e: "☂️", k: "umbrella", v: "u", ing: true }
+          { e: "✈️", k: "uçak", v: "u" },
+          { e: "🪁", k: "uçurtma", v: "u" },
+          { e: "🛸", k: "uzay", v: "u" }
         ]},
         { harf: "Ü", kucuk: "ü", kelimeler: [
-          { e: "🍇", k: "üzüm", v: "ü", ing: false },
-          { e: "🎽", k: "ütü", v: "ü", ing: false },
-          { e: "🦄", k: "unicorn", v: "ü", ing: true }
+          { e: "🍇", k: "üzüm", v: "ü" },
+          { e: "🔺", k: "üçgen", v: "ü" },
+          { e: "🎽", k: "üniforma", v: "ü" }
         ]},
         { harf: "V", kucuk: "v", kelimeler: [
-          { e: "🌸", k: "vazo", v: "v", ing: false },
-          { e: "🚢", k: "vapur", v: "v", ing: false },
-          { e: "🎻", k: "violin", v: "v", ing: true }
+          { e: "🌸", k: "vazo", v: "v" },
+          { e: "🚢", k: "vapur", v: "v" },
+          { e: "🐅", k: "vaşak", v: "v" }
         ]},
         { harf: "Y", kucuk: "y", kelimeler: [
-          { e: "🥚", k: "yumurta", v: "y", ing: false },
-          { e: "⭐", k: "yıldız", v: "y", ing: false },
-          { e: "🧶", k: "yarn", v: "y", ing: true }
+          { e: "🥚", k: "yumurta", v: "y" },
+          { e: "⭐", k: "yıldız", v: "y" },
+          { e: "🍃", k: "yaprak", v: "y" }
         ]},
         { harf: "Z", kucuk: "z", kelimeler: [
-          { e: "🦒", k: "zürafa", v: "z", ing: false },
-          { e: "🫒", k: "zeytin", v: "z", ing: false },
-          { e: "🦓", k: "zebra", v: "z", ing: true }
+          { e: "🦒", k: "zürafa", v: "z" },
+          { e: "🫒", k: "zeytin", v: "z" },
+          { e: "🔔", k: "zil", v: "z" }
         ]}
       ]
     }
@@ -1850,13 +1867,11 @@
     harf.kelimeler.forEach(kel => {
       const kart = document.createElement('div');
       kart.className = 'kelime-kart';
-      const badge = kel.ing ? '<span style="font-size:14px;display:block;margin-bottom:2px;">🇬🇧</span>' : '';
       kart.innerHTML = `
         <span class="kelime-emoji">${kel.e}</span>
-        ${badge}
         <span class="kelime-yazi">${kel.k}</span>
       `;
-      kart.onclick = () => kelimeOku(kel.k, kel.ing);
+      kart.onclick = () => kelimeOku(kel.k, false);
       k.appendChild(kart);
     });
     
@@ -1960,7 +1975,10 @@
       const il = document.getElementById('harfAviIlerleme').children;
       if (il[harfAviDurum.dogruSayisi - 1]) il[harfAviDurum.dogruSayisi - 1].classList.add('dolu');
       if (harfAviDurum.dogruSayisi >= 3) {
-        setTimeout(() => { yildizKazan(); setTimeout(() => ekranAc('harfEkran'), 1700); }, 500);
+        setTimeout(() => {
+          yildizKazan();
+          setTimeout(() => document.getElementById('harfAviBitti').classList.add('aktif'), 800);
+        }, 500);
       } else {
         setTimeout(harfAviTurOlustur, 750);
       }
@@ -1969,6 +1987,24 @@
       ses(180, 0.2, 'sawtooth', 0.18);
       konus('Tekrar dene', 0.9);
       setTimeout(() => kart.classList.remove('yanlis'), 450);
+    }
+  }
+
+  function harfAviSonraki() {
+    document.getElementById('harfAviBitti').classList.remove('aktif');
+    const harfler = HARF_GRUPLARI[0].harfler;
+    const yeniHi = durum.sonHarf.hi + 1;
+    if (yeniHi < harfler.length) {
+      durum.sonHarf = { gi: 0, hi: yeniHi };
+      const harf = harfler[yeniHi];
+      harfAviDurum = { dogruSayisi: 0, hedef: harf.harf, kucuk: harf.kucuk, kilit: false };
+      document.getElementById('harfAviHedef').textContent = harf.harf;
+      const harfId = `0-${yeniHi}`;
+      if (!durum.tamamlananHarfler.includes(harfId)) durum.tamamlananHarfler.push(harfId);
+      durumKaydet();
+      harfAviTurOlustur();
+    } else {
+      ekranAc('harfEkran');
     }
   }
 
