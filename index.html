@@ -427,6 +427,58 @@
     color: white;
   }
   .kelime-yazi .vurgu { color: var(--sari); }
+
+  /* HARF AVI OYUNU */
+  .oyna-btn {
+    margin-top: 22px;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, var(--yesil), #16a34a);
+    color: white; border: none; border-radius: 999px;
+    padding: 16px 34px; font-size: clamp(18px,3.6vw,24px);
+    font-family: 'Bubblegum Sans', cursive; cursor: pointer;
+    box-shadow: 0 6px 0 #0f7a3c, 0 8px 18px rgba(0,0,0,.3);
+    transition: transform .12s;
+  }
+  .oyna-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #0f7a3c; }
+
+  .harfavi-govde {
+    flex: 1; width: 100%; max-width: 640px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 26px; padding: 10px;
+  }
+  .harfavi-soru { text-align: center; }
+  .harfavi-hedef {
+    font-size: clamp(70px, 18vw, 130px); font-weight: 700;
+    color: var(--sari); display: block; line-height: 1;
+    text-shadow: 0 4px 20px rgba(255,217,61,.5);
+    animation: harfNefes 2s ease-in-out infinite;
+  }
+  .harfavi-yazi {
+    font-size: clamp(20px, 4.5vw, 30px); color: white;
+    display: block; margin-top: 6px;
+  }
+  .harfavi-ilerleme { display: flex; gap: 12px; font-size: clamp(26px,6vw,38px); }
+  .harfavi-ilerleme span { opacity: .25; transition: transform .3s, opacity .3s; }
+  .harfavi-ilerleme span.dolu { opacity: 1; transform: scale(1.25); }
+  .harfavi-secenek {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 16px; width: 100%;
+  }
+  .harfavi-kart {
+    background: rgba(255,255,255,.12);
+    border: 3px solid rgba(255,255,255,.25);
+    border-radius: 26px; padding: 24px 12px;
+    font-size: clamp(50px, 12vw, 80px); cursor: pointer;
+    transition: transform .12s, background .2s, border-color .2s;
+  }
+  .harfavi-kart:active { transform: scale(.92); }
+  .harfavi-kart.dogru { background: rgba(74,222,128,.35); border-color: var(--yesil); animation: harfNefes .4s; }
+  .harfavi-kart.yanlis { animation: titre .4s; border-color: var(--pembe); }
+  @keyframes titre {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-9px); }
+    40%,80% { transform: translateX(9px); }
+  }
   
   /* YILDIZ KAZANMA ANIMASYONU */
   .yildiz-animasyon {
@@ -1393,6 +1445,26 @@
       <span>Bana Oku</span>
     </button>
     <div class="ornek-kelimeler" id="ornekKelimeler"></div>
+    <button class="oyna-btn" onclick="harfAviBasla()">
+      <span style="font-size:26px;">🎯</span>
+      <span>Hadi Oyna!</span>
+    </button>
+  </div>
+</div>
+
+<!-- HARF AVI OYUNU -->
+<div class="sayfa" id="harfAviEkran">
+  <div class="ust-bar">
+    <button class="geri-btn" onclick="ekranAc('harfEkran')">← Geri</button>
+    <div class="yildiz-sayac"><span class="ikon">⭐</span><span id="yildizSayisiHA">0</span></div>
+  </div>
+  <div class="harfavi-govde">
+    <div class="harfavi-soru">
+      <span class="harfavi-hedef" id="harfAviHedef">A</span>
+      <span class="harfavi-yazi" id="harfAviYazi">ile başlayanı bul!</span>
+    </div>
+    <div class="harfavi-ilerleme" id="harfAviIlerleme"></div>
+    <div class="harfavi-secenek" id="harfAviSecenek"></div>
   </div>
 </div>
 
@@ -1823,6 +1895,83 @@
     konus(harf.kucuk, 0.6);
   }
   
+  // ====== HARF AVI OYUNU ======
+  let harfAviDurum = { dogruSayisi: 0, hedef: '', kucuk: '', kilit: false };
+
+  function tumKelimeHavuzu() {
+    const havuz = [];
+    HARF_GRUPLARI.forEach(g => g.harfler.forEach(h => {
+      h.kelimeler.forEach(k => havuz.push({ e: k.e, v: k.v }));
+    }));
+    return havuz;
+  }
+
+  function harfAviBasla() {
+    if (!durum.sonHarf) return;
+    const harf = HARF_GRUPLARI[durum.sonHarf.gi].harfler[durum.sonHarf.hi];
+    harfAviDurum = { dogruSayisi: 0, hedef: harf.harf, kucuk: harf.kucuk, kilit: false };
+    document.getElementById('harfAviHedef').textContent = harf.harf;
+    ekranAc('harfAviEkran');
+    harfAviTurOlustur();
+  }
+
+  function harfAviTurOlustur() {
+    harfAviDurum.kilit = false;
+    const hedefV = harfAviDurum.kucuk;
+    const havuz = tumKelimeHavuzu();
+    const dogrular = havuz.filter(k => k.v === hedefV);
+    const yanlislar = havuz.filter(k => k.v !== hedefV);
+    // benzersiz emojiler
+    const benzersiz = arr => [...new Map(arr.map(o => [o.e, o])).values()];
+    const dogru = benzersiz(dogrular)[Math.floor(Math.random() * benzersiz(dogrular).length)];
+    const yanlisHavuz = benzersiz(yanlislar).filter(k => k.e !== dogru.e).sort(() => Math.random() - .5).slice(0, 3);
+    const secenekler = [dogru, ...yanlisHavuz].sort(() => Math.random() - .5);
+
+    // ilerleme noktaları
+    const il = document.getElementById('harfAviIlerleme');
+    il.innerHTML = '';
+    for (let i = 0; i < 3; i++) {
+      const s = document.createElement('span');
+      s.textContent = '⭐';
+      if (i < harfAviDurum.dogruSayisi) s.classList.add('dolu');
+      il.appendChild(s);
+    }
+
+    const kon = document.getElementById('harfAviSecenek');
+    kon.innerHTML = '';
+    secenekler.forEach(sec => {
+      const k = document.createElement('div');
+      k.className = 'harfavi-kart';
+      k.textContent = sec.e;
+      k.onclick = () => harfAviSec(k, sec.v === hedefV);
+      kon.appendChild(k);
+    });
+
+    setTimeout(() => konus(harfAviDurum.hedef + ' ile başlayanı bul', 0.85), 250);
+  }
+
+  function harfAviSec(kart, dogruMu) {
+    if (harfAviDurum.kilit) return;
+    if (dogruMu) {
+      harfAviDurum.kilit = true;
+      kart.classList.add('dogru');
+      ses(660, 0.12, 'sine', 0.3); setTimeout(() => ses(880, 0.15, 'sine', 0.3), 120);
+      harfAviDurum.dogruSayisi++;
+      const il = document.getElementById('harfAviIlerleme').children;
+      if (il[harfAviDurum.dogruSayisi - 1]) il[harfAviDurum.dogruSayisi - 1].classList.add('dolu');
+      if (harfAviDurum.dogruSayisi >= 3) {
+        setTimeout(() => { yildizKazan(); setTimeout(() => ekranAc('harfEkran'), 1700); }, 500);
+      } else {
+        setTimeout(harfAviTurOlustur, 750);
+      }
+    } else {
+      kart.classList.add('yanlis');
+      ses(180, 0.2, 'sawtooth', 0.18);
+      konus('Tekrar dene', 0.9);
+      setTimeout(() => kart.classList.remove('yanlis'), 450);
+    }
+  }
+
   function kelimeOku(kelime, ing = false) {
     if (!('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
